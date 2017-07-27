@@ -13,8 +13,8 @@ header {
     letter-spacing: 0.05em;
     padding: 80px 6%;
     text-align: center;
-    background-color: #263238;
-    color: #ffffff;
+    background-color: #fbfbfb;
+    /*color: #ffffff;*/
 }
 
 videoheader {
@@ -83,7 +83,7 @@ img, video {
 }
 
 video {
-    margin: 80px 0;
+    margin: 40px 0;
 }
 
 .gallery {
@@ -235,7 +235,11 @@ li h4, li img {
 
 
 .band{
-  background-color: #e6e6e6;
+  background-color: #fbfbfb;
+}
+.band-video{
+  background-color: #6a00b9;
+  color: #fff;
 }
 
 .band.alt{
@@ -333,17 +337,15 @@ tr.notes {
 tr.group {
   letter-spacing: 2px;
   font-style: italic;
-  border-left: 2px solid #42A5F5;
-}
-
-a.btn-primary {
-  background-color: #2196F3;
-  color: #fff;
-}
-a.btn-primary:hover {
-  background-color: #42A5F5;
+  border-left: 2px solid #6a00b9;
 }
 
 header img {
-  max-width: 180px;
+  display: block;
+  margin: auto;
+  padding: 20px 0 50px 0;
+}
+
+.col-md-4 {
+  padding: 0 40px;
 }

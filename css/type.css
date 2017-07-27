@@ -1,50 +1,45 @@
 /* TYPOGRAPHY */
 
-@import url(https://fonts.googleapis.com/css?family=Space+Mono);
+@import url(https://fonts.googleapis.com/css?family=Roboto:100,300);
 @import url(https://fonts.googleapis.com/css?family=Open+Sans);
 
 
 
 body {
 	color: #333;
-	font-family: 'Open Sans', sans-serif;
+	font-family: 'Roboto', sans-serif;
 	font-size: 16px;
 	line-height:24px;
 }
 
-p {
-	padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-a:link {
-    color: #00ACC1;
-    font-family: 'Space Mono', sans-serif;
+a:link, a:visited {
+    color: #8426cb;
+    /*font-family: 'Space Mono', sans-serif;*/
     text-decoration: none;
     font-style: italic;
 }
 
-a:visited {
-    color:#00ACC1;
-    /*text-decoration: underline;*/
+.band-video a:link, .band-video a:visited {
+	color: #e2bbff;
 }
 
-a:hover {
-    border-bottom: 1px solid #ccc;
-    /*color: #01579B;*/
+a:hover, .band-video a:hover {
+    color: #563171;
     background-color: #E3F2FD;
 }
 
 h1, h2, h3, h4, dt, th {
-	font-family: 'Space Mono', sans-serif;
+	font-family: 'Roboto', sans-serif;
 	line-height: 1.2em;
 	font-weight: 300;
   /*text-transform: uppercase;*/
 }
 
 h1  {
-  font-style: italic;
-	font-size: 72px;
+  /*font-style: italic;*/
+	font-size: 68px;
+	font-weight: 100;
+	color: #535252;
 }
 
 h2 {
@@ -52,14 +47,13 @@ h2 {
 }
 
 h3 {
-	font-size: 36px;
+	font-size: 22px;
+	letter-spacing: 0.87px;
+	padding-bottom: 10px;
 }
 
 h4 {
-  font-size: 22px;
-  text-transform: none;
-  padding-bottom: 10px;
-  /*font-weight: bold;*/
+  font-size: 18px;
 }
 
 h5 {
@@ -71,8 +65,7 @@ h5 {
 }
 
 p {
-    font-weight: 300;
-    line-height: 2em;
+    line-height: 1.6em;
     margin-bottom: 1em;
     /*color: #666;*/
 }
@@ -89,19 +82,23 @@ strong em {
 }
 
 .about {
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Roboto', sans-serif;
     letter-spacing: .08em;
     /*font-style: italic;*/
     /*font-size: 13px;*/
     /*font-weight: 200;*/
     text-align: center;
-    padding: 0px 15% 0px 15%;
-    margin: 30px 0;
-    color: #9E9E9E;
+    padding: 0px 10% 0px 10%;
+    margin: 20px 0 40px 0;
+    /*color: #6a00b9;*/
+}
+
+h3.about {
+	margin: 50px 0 0px 0;
 }
 
 .description {
-    font-family: 'Space Mono', sans-serif;
+    font-family: 'Roboto', sans-serif;
     font-size: 36px;
     text-transform: uppercase;
     line-height: 2em;
@@ -150,14 +147,13 @@ a downloadlink {
 }
 
 ol {
-    color:#757575;
     margin-left: 1.6em;
     margin-bottom: 1.6em;
     padding: 0;
 }
 
 ul {
-    color:#757575;
+    /*color:#757575;*/
     margin-left: 1.6em;
     margin-bottom: 1.6em;
     padding: 0;
@@ -177,4 +173,19 @@ li.group {
 	font-size: 14px;
 	text-transform: capitalize;
 	color: #555;
+}
+
+a.btn {
+	background-color: #9653CA;
+	border-color: #9653CA;
+	border-radius: 4px;
+	color: #fff;
+	text-transform: uppercase;
+	font-style: normal;
+	padding: 14px 30px;
+}
+
+a:hover.btn {
+	background-color: #8f33d6;
+	border-color: #8f33d6;
 }

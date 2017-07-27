@@ -1,3 +1,6 @@
+![alt text][logo]
+
+[logo]: https://github.com/google/sketch2ae/blob/gh-pages/img/Sketch2AE_logo.png "Sketch2AE logo"
 # [Sketch2AE][5ae3a8a1]
 [Sketch][66b609ab] layers may now be imported into [After Effects][56a59ddd] without redrawing everything in Illustrator. Avoid the startling realization that you have to repeat the whole import process because forgot to split one element out onto its own layer or that type has to be converted into live text as an additional process per layer.
 

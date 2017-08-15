@@ -349,3 +349,14 @@ header img {
 .col-md-4 {
   padding: 0 40px;
 }
+
+.panel-info {
+  border-color: #e7d9f1;
+}
+
+.panel-info>.panel-heading {
+  border-color: #e7d9f1;
+  background-color: #f1e9f7;
+  color: #61367e;
+  font-style: italic;
+}

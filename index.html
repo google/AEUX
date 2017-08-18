@@ -62,7 +62,7 @@
 <!-- Second section -->
 	<div class="band">
 		<div class="container">
-			<p class="description">Install</p>
+			<p class="description" id="install">Install</p>
 			<hr />
 			<div class="row section">
 				<div class="col-md-4">
@@ -95,16 +95,13 @@
 <!-- Third section -->
 	<div class="band alt">
 		<div class="container">
-			<p class="description">Workflow</p>
+			<p class="description" id="workflow">Workflow</p>
 			<hr />
 			<!-- <p>First section description.</p> -->
 			<div class="row section">
-				<!-- <div class="col-md-6">
-					<img src="gif/ISO_Rig_Example.gif">
-				</div> -->
 				<div class="col-md-4">
 					<img src="img/Sketch2AE_New.png">
-					<h3>1. Copy to new Sketch File</h3>
+					<h3 id="copy-new">1. Copy to new Sketch File</h3>
 					<p>
 					Select your artboard, create a new Sketch file, paste artboard into new file. <br><br><i>**This step is optional but recommended.**</i><br>
 					Why? Complexity within a Sketch file can vary from user to user. In order to find all the symbols in a file, the plugin has to run through all the symbols to
@@ -113,7 +110,7 @@
 				</div>
 				<div class="col-md-4">
 					<img src="img/Sketch2AE_Artboard.png">
-					<h3>2. Setup the artboard</h3>
+					<h3 id="setup">2. Setup the artboard</h3>
 					<p>
 					Inside of Sketch, assets are allowed to float loose within the file without an Artboard (like in a stickersheet).
 					This is totally cool for working in Sketch, but in order for Sketch2AE to know how big to draw everything within
@@ -126,7 +123,7 @@
 
 				<div class="col-md-4">
 					<img src="img/Sketch2AE_Select.png">
-					<h3>3. Select layers</h3>
+					<h3 id="select">3. Select layers</h3>
 					<p>
 					Drag a bounding box over all the art within your artboard to select all visible layers, or select specific layers for export.
 					Selecting this way will skip non-visible layers that may only exist in the artboard for reference.
@@ -138,10 +135,7 @@
 			<div class="row section">
 				<div class="col-md-4">
 					<img src="img/Sketch2AE_export.png">
-					<h3>4. Sketch2AE Export</h3>
-					<!-- <p>
-					With Sketch layers selected, choose one of the export options from the <i>Plugins/Sketch2AE</i> menu.
-					</p> -->
+					<h3 id="export">4. Sketch2AE Export</h3>
 					<ul>
 						<li>
 						<b>Copy Selected Layers</b><br>
@@ -158,7 +152,7 @@
 
 				<div class="col-md-4">
 					<img src="img/Sketch2AE_import.png">
-					<h3>5. Import into AE</h3>
+					<h3 id="import">5. Import into AE</h3>
 					<p>
 					With the <i>Sketch2AE</i> panel open, select one of the two import options to paste data from Sketch or open and export a
 					<i>.Sketchae</i> file. Images will be imported (if applicable), symbols will be built as reusable precomps (if applicable),
@@ -168,7 +162,7 @@
 
 				<div class="col-md-4">
 					<img src="img/Sketch2AE_newComp.png">
-					<h3>6. Import Options</h3>
+					<h3 id="import-options">6. Import Options</h3>
 					<p>
 					Data from sketch will be imported with a couple simple options.
 					</p>
@@ -189,27 +183,27 @@
 <!-- Fourth section -->
 	<div class="band">
 		<div class="container">
-			<p class="description">Fancy Features</p>
+			<p class="description" id="sketch-features">SKETCH FEATURES in AE</p>
 			<hr />
 			<div class="row section">
 				<div class="col-md-4">
-					<img src="gif/Sketch2AE_Grouping.gif" id="grouping">
-					<h3>Grouping</h3>
+					<img src="gif/Sketch2AE_Grouping.gif">
+					<h3 id="grouping">Grouping</h3>
 					<p>
 					<i>Groups</i> aren't exactly a thing inside of AE, but they really should be. To support the grouping of elements, <i>Sketch2AE</i> will create a bounding box layer as a parent to the grouped layers. This parent layer will be inactive and set as shy to keep the comp from cluttering. Manually activate these layers (click the eyeball), or click the <i>Group Visibility</i> button to toggle all of these grouping layers.
 					</p>
 				</div>
 				<div class="col-md-4">
-					<img src="img/Sketch2AE_Symbols.png" id="symbol">
-					<h3>Symbols</h3>
+					<img src="img/Sketch2AE_Symbols.png">
+					<h3 id="symbol">Symbols</h3>
 					<p>
 					One of the most powerful Sketch features is Symbols. An element can exist in multiple locations and artboards and point back to a single reference for quick updating. Hmmm... that sounds a lot like a precomp.
 					Sketch Symbols will be created as precomps at their native size, scaled as needed and reused in master comps.
 					</p>
 				</div>
 				<div class="col-md-4">
-					<img id='gradient' src="img/Sketch2AE_Gradients.png">
-					<h3>Gradients as images</h3>
+					<img src="img/Sketch2AE_Gradients.png">
+					<h3 id="gradient">Gradients as images</h3>
 					<p>
 					Great care has been taken to import as many editable (and animatable) properties as possible. One property that AE doesn't import well is gradients (the gradient edit panel is not scriptable). To get around this, Sketch2AE will export gradient fills, gradient strokes, image fills, and textures as image of the layer.
 					</p>
@@ -222,22 +216,28 @@
 <!-- Fifth section -->
 	<div class="band alt">
 		<div class="container">
-			<p class="description">Supported Features</p>
+			<p class="description" id="supported-features">Supported Features</p>
 			<hr />
 			<div class="panel panel-info">
-				<div class="panel-heading">Workarounds</div>
+				<div class="panel-heading" id="workarounds">Workarounds</div>
 			  <div class="panel-body">
-					<div class="col-md-8">
-						<h3 id="imageRendering">Image Rendering and Position Offset</h3>
+					<div class="col-md-6">
+						<h3 id="image-rendering">Image Rendering and Position Offset</h3>
 						<p>
 							Image effects like <i>Blur</i> and <i>Color Adjustment</i> will be rendered with the exported images to preserve their design in Sketch. Sometimes these effects can increase the bounds of a layer larger than the metrics say it is. This leads to a position offset of the layer, pushing it down and to the right. Some manual adjustment will be required in AE to correct this. <br><br>
 							Thick strokes on rendered images (with gradients and textures) will also result in this position offset – Something to be aware of.
 						</p>
 					</div>
-					<div class="col-md-4">
-						<h3 id="imageRendering">Text misalignment</h3>
+					<div class="col-md-3">
+						<h3 id="text-misalignment">Text Misalignment</h3>
 						<p>
 							It happens. Sorry about that. The math that sorts the differences between Sketch and AE can't catch everything (especially multi-line text strings). The good news is that the text is live and can be easily edited and realigned.
+						</p>
+					</div>
+					<div class="col-md-3">
+						<h3 id="shape-rotation">Shape Rotation</h3>
+						<p>
+							Since Sketch has no concept of an anchor point, shape rotation is based purely on the object center. This means that shape rotation is possible to support and retain accurate positioning. <b>Layers > Combine > Flatten</b> all paths to ensure correct importing.
 						</p>
 					</div>
 			  </div>

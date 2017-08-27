@@ -597,7 +597,9 @@ function aeArtboard(layer) {
 		thisComp.openInViewer();																										// open new comp
 	}
 
-	app.activeViewer.setActive();																									// set the viewer to active
+     if (typeof app.activeViewer  !== "undefined") {
+        app.activeViewer.setActive();																									// set the viewer to active
+    }
 	compMult = getCompMultiplier(layer.size[0]);																	// above code is skipped so it gets the comp multiplier foro
 }
 
@@ -910,96 +912,109 @@ function aePath(layer, opt_parent) {
 */
 function aeText(layer, opt_parent) {
 	try {
-	var r = thisComp.layers.addBoxText([layer.size[0], layer.size[1]], '');				// add empty text box layer
-	r.name = layer.name;																													// set layer name
 
-	r.selected = false;																														// deselect layer
-	if (opt_parent !== null) {																										// check for parenting
-		r.parent = opt_parent;																											// parent layer
-		r.moveAfter(opt_parent);																										// move below parent layer
-		r.enabled = (layer.isVisible && opt_parent.enabled );												// set layer visibility (eyeball)
-	} else {
-		labelColor = (Math.max(labelColor, 1) + 1) % 16;														// increment label color
-		r.enabled = layer.isVisible;																								// set layer visibility (eyeball)
-	}
-	r.label = labelColor;																													// set label color
+    var r;
 
-	var textProp = r("ADBE Text Properties")("ADBE Text Document");								// new text obj
+    if (typeof thisComp.layers.addBoxText !== "undefined") {
+         r = thisComp.layers.addBoxText([layer.size[0], layer.size[1]], '');
+    } else {
+         r = thisComp.layers.addText('');
+         //r.property("Position").setValue([layer.position[0], layer.position[1]]);
+    }
 
-	var textDoc = textProp.value;																									// store text values
-	textDoc.resetCharStyle();																											// reset character styles
-	textDoc.resetParagraphStyle();																								// reset paragraph styles
+    // var r = thisComp.layers.addBoxText([layer.size[0], layer.size[1]], '');				// add empty text box layer
+    r.name = layer.name;																													// set layer name
+    r.selected = false;    // deselect layer
 
-	textDoc.font = layer.fontName;																								// set font name
-	textDoc.fontSize = layer.fontSize;																						// set font size
 
-	//// fill color
-	var fill = layer.textColor;																										// store fill color from Sketch
-	textDoc.applyFill = (layer.hasFill === 1);																		// add fill if enabled in Sketch
-	textDoc.fillColor = [fill[0], fill[1], fill[2]];															// set fill color
-	//// text color opacity
-	if (fill[3] < 1) {
-		var textOpacity = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");
-				textOpacity.name = 'Text Opacity';
+		if (opt_parent !== null) {																										// check for parenting
+			r.parent = opt_parent;																											// parent layer
+			r.moveAfter(opt_parent);																										// move below parent layer
+			r.enabled = (layer.isVisible && opt_parent.enabled );												// set layer visibility (eyeball)
+		} else {
+			labelColor = (Math.max(labelColor, 1) + 1) % 16;														// increment label color
+			r.enabled = layer.isVisible;																								// set layer visibility (eyeball)
+		}
+		r.label = labelColor;																													// set label color
+
+		var textProp = r("ADBE Text Properties")("ADBE Text Document");								// new text obj
+
+		var textDoc = textProp.value;																									// store text values
+		textDoc.resetCharStyle();																											// reset character styles
+		textDoc.resetParagraphStyle();																								// reset paragraph styles
+
+		textDoc.font = layer.fontName;																								// set font name
+		textDoc.fontSize = layer.fontSize;																						// set font size
+
+		//// fill color
+		var fill = layer.textColor;																										// store fill color from Sketch
+		textDoc.applyFill = (layer.hasFill === 1);																		// add fill if enabled in Sketch
+		textDoc.fillColor = [fill[0], fill[1], fill[2]];															// set fill color
+
+		//// text color opacity
 		if (fill[3] < 1) {
-				var fillOpacity = textOpacity("ADBE Text Animator Properties").addProperty("ADBE Text Fill Opacity");
-						fillOpacity.setValue(fill[3] * 100);
+			var textOpacity = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");
+					textOpacity.name = 'Text Opacity';
+			if (fill[3] < 1) {
+					var fillOpacity = textOpacity("ADBE Text Animator Properties").addProperty("ADBE Text Fill Opacity");
+							fillOpacity.setValue(fill[3] * 100);
+			}
 		}
-	}
 
-	//// stroke color
-	if (layer.stroke !== null && layer.stroke.length > 0) {																									// if it has a stroke
+		//// stroke color
+		if (layer.stroke !== null && layer.stroke.length > 0) {																									// if it has a stroke
 
-		var stroke = layer.stroke[0];																								// get the first stroke in
-		textDoc.applyStroke = (stroke.enabled === 1);																// add stroke if enabled in Sketch
-		textDoc.strokeColor = [stroke.color[0], stroke.color[1], stroke.color[2]];	// set stroke color
-		textDoc.strokeWidth = (stroke.width > 0) ? stroke.width : 0;								// set stroke width
-		//// text stroke opacity
-		if (stroke.opacity < 100) {																																									// if stroke fill is less than 100% opacity
-			var textOpacity = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");													// add a text animator
-				textOpacity.name = 'Text Opacity';																																			// name it Text Opacity
-			var strokeOpacity = textOpacity("ADBE Text Animator Properties").addProperty("ADBE Text Stroke Opacity");	// add an opacity value
-					strokeOpacity.setValue(stroke.opacity);																																// set the opacity value
+			var stroke = layer.stroke[0];																								// get the first stroke in
+			textDoc.applyStroke = (stroke.enabled === 1);																// add stroke if enabled in Sketch
+			textDoc.strokeColor = [stroke.color[0], stroke.color[1], stroke.color[2]];	// set stroke color
+			textDoc.strokeWidth = (stroke.width > 0) ? stroke.width : 0;								// set stroke width
+			//// text stroke opacity
+			if (stroke.opacity < 100) {																																									// if stroke fill is less than 100% opacity
+				var textOpacity = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");													// add a text animator
+					textOpacity.name = 'Text Opacity';																																			// name it Text Opacity
+				var strokeOpacity = textOpacity("ADBE Text Animator Properties").addProperty("ADBE Text Stroke Opacity");	// add an opacity value
+						strokeOpacity.setValue(stroke.opacity);																																// set the opacity value
+			}
 		}
-	}
 
-	textFill();																																		// add multiple text fill colors
+		textFill();																																		// add multiple text fill colors
 
-	//// text metrics
-	textDoc.tracking = Math.floor(layer.tracking * compMult);
+		//// text metrics
+		textDoc.tracking = Math.floor(layer.tracking * compMult);
 
-	//// paragraph
-	textDoc.justification = paragraphJustification(layer.justification);					// set paragraph alignment
-	textDoc.boxTextSize = [layer.size[0] * 1.05, layer.size[1] * 1.1];						// resize the text box a little taller
+		//// paragraph
+		textDoc.justification = paragraphJustification(layer.justification);					// set paragraph alignment
+		textDoc.boxTextSize = [layer.size[0] * 1.05, layer.size[1] * 1.1];						// resize the text box a little taller
 
-	//// line height
-	var autoLineHeight = Math.round(layer.fontSize * 1.202);															// derive the estimated height from the font size
-	var manualLineHeight = layer.lineHeight - autoLineHeight;															// get the difference of the line height and the font size
-	var lineHeight = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");			// create a new text animator
-			lineHeight.name = 'Line Height';																									// name it line height
-			lineHeight("ADBE Text Animator Properties").addProperty("ADBE Text Line Spacing");// add a Line Spacing element
-			lineHeight(1).addProperty("ADBE Text Selector");																	// add a selector
-			lineHeight(2).property("ADBE Text Line Spacing").setValue([0,manualLineHeight]);	// set value
+		//// line height
+		var autoLineHeight = Math.round(layer.fontSize * 1.202);															// derive the estimated height from the font size
+		var manualLineHeight = layer.lineHeight - autoLineHeight;															// get the difference of the line height and the font size
+		var lineHeight = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");			// create a new text animator
+				lineHeight.name = 'Line Height';																									// name it line height
+				lineHeight("ADBE Text Animator Properties").addProperty("ADBE Text Line Spacing");// add a Line Spacing element
+				lineHeight(1).addProperty("ADBE Text Selector");																	// add a selector
+				lineHeight(2).property("ADBE Text Line Spacing").setValue([0,manualLineHeight]);	// set value
 
+		textProp.setValue(textDoc);           																				// set text properties
+		textProp.setValue(layer.stringVal);   																				// set text string
 
-	textProp.setValue(textDoc);           																				// set text properties
-	textProp.setValue(layer.stringVal);   																				// set text string
+		addClipping(r);																																// add clipping mask if exists
+		addDropShadow(r, layer);																											// add drop shadow if exists
+		addInnerShadow(r, layer);																											// add inner shadow if exists
+		setLayerBlendMode(r, layer);																									// set blend mode
 
-	addClipping(r);																																// add clipping mask if exists
-	addDropShadow(r, layer);																											// add drop shadow if exists
-	addInnerShadow(r, layer);																											// add inner shadow if exists
-	setLayerBlendMode(r, layer);																									// set blend mode
+		// transforms
+		r("ADBE Transform Group")("ADBE Anchor Point").setValue([ Math.floor(layer.size[0] * -0.5),
+											Math.round((r.sourceRectAtTime(0,false).height + layer.fontSize)*-0.49)]);  // reposition anchor to the top left
+		r("ADBE Transform Group")("ADBE Scale").setValue([100*compMult, 100*compMult]);								// set scale
+		r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0]*compMult,
+																													layer.position[1]*compMult]);						// set position
+		r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);														// set opacity
 
-	// transforms
-	r("ADBE Transform Group")("ADBE Anchor Point").setValue([ Math.floor(layer.size[0] * -0.5),
-										Math.round((r.sourceRectAtTime(0,false).height + layer.fontSize)*-0.49)]);  // reposition anchor to the top left
-	r("ADBE Transform Group")("ADBE Scale").setValue([100*compMult, 100*compMult]);								// set scale
-	r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0]*compMult,
-																												layer.position[1]*compMult]);						// set position
-	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);														// set opacity
 	} catch(e) {
 		alert(e.toString() + "\nError on line: " + e.line.toString());
 	}
+
 	function textFill() {																													// func to add multiple fills to a text layer
 		if (layer.fill !== null) {																									// if it actually has a fill
 
@@ -1121,7 +1136,7 @@ function visitURL(url) {
 }
 
 
-// ============ UI ===============	
+// ============ UI ===============
 var mainPalette = thisObj instanceof Panel ? thisObj : new Window('palette',scriptName,undefined, {resizeable:true});
 
 //stop if there's no window

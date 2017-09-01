@@ -1121,7 +1121,7 @@ function visitURL(url) {
 }
 
 
-// ============ UI ===============	
+// ============ UI ===============
 var mainPalette = thisObj instanceof Panel ? thisObj : new Window('palette',scriptName,undefined, {resizeable:true});
 
 //stop if there's no window
@@ -1200,6 +1200,7 @@ btn_pasteSketch.onClick = function() {
 
 
 		if (w.show() === 1) {
+			if (et_codeField.text == 'Paste Sketch code') { alert('Oops gotta paste the code!\nBe sure you CMD+V to paste the Sketch layer code from your clipboard into the text box.'); return; }
 			buildLayers(et_codeField.text);																										// run the master func
 		}
 };

@@ -24,7 +24,7 @@ if(typeof JSON!=="object"){JSON={}}(function(){function f(n){return n<10?"0"+n:n
 
 //================ VARIABLES ======================
 var scriptName = 'Sketch2AE';
-var scriptVersion = '0.52';
+var scriptVersion = '0.53';
 var defaultBoxText = 'Paste Sketch code';
 var clippingMask = null;
 var thisComp = null;
@@ -550,13 +550,13 @@ function addInnerShadow(r, layer) {
 
 // DEPRECIATED?
 function addClipping(layer) {
-	if (clippingMask > 0) {
-		var setMatte = layer("ADBE Effect Parade").addProperty("ADBE Set Matte3");
-			clippingMask++;
-			setMatte('ADBE Set Matte3-0001').setValue(clippingMask);
-	} else {
-		return;
-	}
+	// if (clippingMask > 0) {
+	// 	var setMatte = layer("ADBE Effect Parade").addProperty("ADBE Set Matte3");
+	// 		clippingMask++;
+	// 		setMatte('ADBE Set Matte3-0001').setValue(clippingMask);
+	// } else {
+	// 	return;
+	// }
 }
 
 /** helper func that adds tangent data to the path object
@@ -607,6 +607,7 @@ function aeArtboard(layer) {
 		@param {opt_parent} layer obj - optional, parent new layer to parent layer if present
 */
 function aeGroup(layer, opt_parent) {
+	if (layer.layers.length < 1) { return; }																			// skip if no child layers
 	var r = thisComp.layers.addShape();																						// create a new empty shape layer
 	r.guideLayer = true;																													// set it as a guide layer
 	r.name = '\u25BD ' + layer.name;																							// add a twirl down icon to the start of the layer name
@@ -625,7 +626,8 @@ function aeGroup(layer, opt_parent) {
 	r(2)(1)(2).addProperty("ADBE Vector Shape - Rect");														// create a rectangle
 	r(2)(1)(2)(1)("ADBE Vector Rect Size").setValue([	layer.size[0]*compMult,
 																										layer.size[1]*compMult]);		// size
-	r(2)(1)(2)(1)("ADBE Vector Rect Position").expression = 'thisProperty.propertyGroup(1)(2)/2';			// expression to scale from top left
+	// r(2)(1)(2)(1)("ADBE Vector Rect Position").expression = 'thisProperty.propertyGroup(1)(2)/2';			// expression to scale from top left
+	r(2)(1)(2)(1)("ADBE Vector Rect Position").setValue((layer.size/2) *compMult);
 
 	// fill
 	var fillColor = r(2)(1)(2).addProperty("ADBE Vector Graphic - Fill");					// give the rect a fill so it's selectable
@@ -641,6 +643,7 @@ function aeGroup(layer, opt_parent) {
 	// transforms
 	r("ADBE Transform Group")("ADBE Position").setValue([	layer.position[0]*compMult,
 																												layer.position[1]*compMult]);		// set position
+	// app.executeCommand(10312);																										// center anchor point
 
 	if (layer.hasClippingMask) {
 		clippingMask = 1;
@@ -659,7 +662,6 @@ function aeSymbol(layer, opt_parent) {
 	var symbolPrecomp = createSymbol(layer);																			// fancy func that checks if symbol exists
 	var r = thisComp.layers.add(symbolPrecomp, symbolPrecomp.duration);						// add the symbol to comp
 	r.name = '\u21BB ' + r.name;																									// add symbol icon to layer name
-	r.selected = false;																														// deselect layer
 	r.collapseTransformation = true;																							// enable continuous rasterize
 
 	if (opt_parent !== null) {																										// check for parenting
@@ -683,6 +685,9 @@ function aeSymbol(layer, opt_parent) {
 																												layer.position[1]*compMult]); 	// set position
 	r("ADBE Transform Group")("ADBE Scale").setValue(scaleVal);														// set scale
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);										// set opacity
+	r.selected = true;
+	app.executeCommand(10312);																										// center anchor point
+	r.selected = false;																														// deselect layer
 }
 
 /** create a rectangle shape layer
@@ -709,7 +714,7 @@ function aeRect(layer, opt_parent) {
 
 	r(2)(1)(2).addProperty("ADBE Vector Shape - Rect");														// create a rectangle shape
 	r(2)(1)(2)(1)("ADBE Vector Rect Size").setValue( layer.size );								// set the size
-	r(2)(1)(2)(1)("ADBE Vector Rect Position").expression = 'thisProperty.propertyGroup(1)(2)/2';		// expression to scale from top left
+	// r(2)(1)(2)(1)("ADBE Vector Rect Position").setValue( layer.size/2 )						// reposition shape to top left
 	r(2)(1)(2)(1)("ADBE Vector Rect Roundness").setValue(layer.roundness);				// set the corner roundness
 
 	addStroke(r, layer);																													// add stroke if exists
@@ -722,8 +727,8 @@ function aeRect(layer, opt_parent) {
 	// transforms
 	r(2)(1)("ADBE Vector Transform Group")("ADBE Vector Scale").setValue([100*compMult, 	// set scale
 																																				100*compMult]);
-	r("ADBE Transform Group")("ADBE Position").setValue([	layer.position[0]*compMult,
-																												layer.position[1]*compMult]);		// set position
+	r("ADBE Transform Group")("ADBE Position").setValue([	(layer.position[0]+layer.size[0]/2)*compMult,
+																												(layer.position[1]+layer.size[1]/2)*compMult]);			// set position
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);										// set opacity
 }
 
@@ -750,7 +755,7 @@ function aeEllipse(layer, opt_parent) {
 
 	r(2)(1)(2).addProperty("ADBE Vector Shape - Ellipse");												// create an ellipse shape
 	r(2)(1)(2)(1)("ADBE Vector Ellipse Size").setValue(layer.size);								// set the size
-	r(2)(1)(2)(1)("ADBE Vector Ellipse Position").expression = 'thisProperty.propertyGroup(1)(2)/2';	// expression to scale from top left
+	// r(2)(1)(2)(1)("ADBE Vector Ellipse Position").setValue( layer.size/2 )				// reposition shape to top left
 
 	addStroke(r, layer);																													// add stroke if exists
 	addFill(r, layer);																														// add fill if exists
@@ -762,8 +767,8 @@ function aeEllipse(layer, opt_parent) {
 	// transforms
 	r(2)(1)("ADBE Vector Transform Group")("ADBE Vector Scale").setValue([100*compMult,
 																																				100*compMult]); 	// set scale
-	r("ADBE Transform Group")("ADBE Position").setValue([	layer.position[0]*compMult,
-																												layer.position[1]*compMult]);			// set position
+	r("ADBE Transform Group")("ADBE Position").setValue([	(layer.position[0]+layer.size[0]/2)*compMult,
+																												(layer.position[1]+layer.size[1]/2)*compMult]);			// set position
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);											// set opacity
 }
 
@@ -775,7 +780,6 @@ function aeEllipse(layer, opt_parent) {
 function aeCompound(layer, opt_parent) {
 	var r = thisComp.layers.addShape();																						// add empty shape layer
 	r.name = layer.name;																													// set layer name
-	r.selected = false;																														// deselect layer
 	if (opt_parent !== null) {																										// check for parenting
 		r.parent = opt_parent;																											// parent layer
 		r.moveAfter(opt_parent);																										// move below parent layer
@@ -815,8 +819,12 @@ function aeCompound(layer, opt_parent) {
 			group("ADBE Vector Transform Group")("ADBE Vector Anchor").setValue([0,0]);														// zero out anchor point
 			group("ADBE Vector Transform Group")("ADBE Vector Position").setValue(layer.layers[i].position);			// set position of path
 			var vect = group(2).addProperty("ADBE Vector Shape - Group");																					// add a path shape
+				if (layer.layers[i].path.points.length < 1) { return; }																												// skip if no vertices
 				var path = vect.property("ADBE Vector Shape");																											// create a vector object
 				var vertices = layer.layers[i].path.points;																													// get vertex data
+				if (vertices.length < 1) {
+					return;
+				}
 				var inTangents = layer.layers[i].path.inTangents;																										// get tangent data
 				var outTangents = layer.layers[i].path.outTangents;																									// get tangent data
 				var shapeClosed = layer.layers[i].path.closed;																											// is path closed
@@ -852,6 +860,9 @@ function aeCompound(layer, opt_parent) {
 			var merge = r(2)(1)(2).addProperty("ADBE Vector Filter - Merge");					// add merge paths
 					merge("ADBE Vector Merge Type").setValue(bool+2);											// set merge type
 	}
+	r.selected = true;
+	app.executeCommand(10312);																										// center anchor point
+	r.selected = false;																														// deselect layer
 }
 
 
@@ -860,13 +871,13 @@ function aeCompound(layer, opt_parent) {
 		@param {opt_parent} layer obj - optional, parent new layer to parent layer if present
 */
 function aePath(layer, opt_parent) {
+	if (layer.path.points.length < 1) { return; }																	// skip if no vertices
 	var r = thisComp.layers.addShape();																						// add empty shape layer
 	r.name = layer.name;																													// set layer name
-	r.selected = false;																														// deselect layer
 	if (opt_parent !== null) {																										// check for parenting
 		r.parent = opt_parent;																											// parent layer
 		r.moveAfter(opt_parent);																										// move below parent layer
-		r.enabled = (layer.isVisible && opt_parent.enabled );																									// set layer visibility (eyeball)
+		r.enabled = (layer.isVisible && opt_parent.enabled );												// set layer visibility (eyeball)
 	} else {
 		labelColor = (Math.max(labelColor, 1) + 1) % 16;														// increment label color
 		r.enabled = layer.isVisible;																									// set layer visibility (eyeball)
@@ -877,6 +888,7 @@ function aePath(layer, opt_parent) {
 	group(2).addProperty("ADBE Vector Shape - Group");														// name it the same as the layer
 	var path = group(2)(1).property("ADBE Vector Shape");													// create a vector object
 	var vertices = layer.path.points;																							// get vertex data
+	if (vertices.length < 1) { return; }																					// return if no vertices
 	var inTangents = layer.path.inTangents;																				// get tangent data
 	var outTangents = layer.path.outTangents;																			// get tangent data
 	var shapeClosed = layer.path.closed;																					// is path closed
@@ -901,6 +913,9 @@ function aePath(layer, opt_parent) {
 	r("ADBE Transform Group")("ADBE Position").setValue([	layer.position[0]*compMult,
 																												layer.position[1]*compMult]);		// set position
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);										// set opacity
+	r.selected = true;
+	app.executeCommand(10312);																										// center anchor point
+	r.selected = false;																														// deselect layer
 }
 
 
@@ -997,6 +1012,10 @@ function aeText(layer, opt_parent) {
 	r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0]*compMult,
 																												layer.position[1]*compMult]);						// set position
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);														// set opacity
+
+	r.selected = true;
+	app.executeCommand(10312);																										// center anchor point
+	r.selected = false;																														// deselect layer
 	} catch(e) {
 		alert(e.toString() + "\nError on line: " + e.line.toString());
 	}
@@ -1073,6 +1092,10 @@ function aeImage(layer, opt_parent) {
 	r("ADBE Transform Group")("ADBE Anchor Point").setValue([0,0]);
 	r("ADBE Transform Group")("ADBE Scale").setValue([(100/layer.scale)*compMult,
 																										(100/layer.scale)*compMult]);								// set scale
+
+	r.selected = true;
+	app.executeCommand(10312);																										// center anchor point
+	r.selected = false;																														// deselect layer
 
 	function getItem(itemName, itemInstanceName, locationObject) {								// func to get image file from disc
 		if (locationObject.numItems > 0) {

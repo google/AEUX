@@ -1,4 +1,4 @@
-/** ===== About Sketch2AE ===== 
+/** ===== About Sketch2AE =====
 	Layer data exchange between Sketch and After Effects
 
 	Copyright 2017 Google Inc.
@@ -16,7 +16,7 @@
 	limitations under the License.
 	**/
 
-/** ===== Plugin Process ===== 
+/** ===== Plugin Process =====
 	-PLUGIN START-
 	@exportCopy / @exportSave
 		- get doc info
@@ -28,7 +28,7 @@
 		@filterTypes
 		- store the artboard info or alert that an artboard is required
 		- loop through all selected layers
-		- filter layer by object-type 
+		- filter layer by object-type
 			- get object-type specific data
 			– get fill data
 			- get stroke data
@@ -36,12 +36,12 @@
 			- get text data
 			– recurse through contained layers if a group or a compound shape
 		– add layer info to the data string
-		– return the data string to be exported 
+		– return the data string to be exported
 
-		- add the data string to the clipboard (@exportCopy) or to text file (@exportSave) 
+		- add the data string to the clipboard (@exportCopy) or to text file (@exportSave)
 
 		- import into After Effects
-	
+
 	**/
 
 /** ===== Variables ===== **/
@@ -68,7 +68,7 @@ var exportCopy = function(context) {
 	// check if artboard is selected
 	if (selection.firstObject().class() == 'MSArtboardGroup' || selection.firstObject().class() == 'MSSymbolMaster') {
 		selection = selection.firstObject().layers();       // add children
-	} 
+	}
 
 	selectedLayerInfo = filterTypes(selection);
 	copy_text(selectedLayerInfo);
@@ -95,7 +95,7 @@ var exportSave = function(context) {
 	// check if artboard is selected
 	if (selection.firstObject().class() == 'MSArtboardGroup' || selection.firstObject().class() == 'MSSymbolMaster') {
 		selection = selection.firstObject().layers();                                   // add children
-	} 
+	}
 
 	getFolderPath();                                                                  // open a file save dialog
 
@@ -157,8 +157,8 @@ function getFolderPath() {
 }
 
 
-/** Convert object data to string 
-	@param {object} obj - object data to be saved to text file 
+/** Convert object data to string
+	@param {object} obj - object data to be saved to text file
 */
 function objString(obj) {
   //// add each object value to the string
@@ -167,7 +167,7 @@ function objString(obj) {
     selString += (String('\"' + prop + '\"' + ': ' + obj[prop] + ',\n'));       // concat string with layer properties
   }
   selString += '}';                                                             // add the } at the end of the whole string
-  
+
   selString = selString.replace(',\n}', '}');                                   // remove commas between {,}
 
   return selString;
@@ -253,7 +253,7 @@ function storeShape(sel) {
 	try {cornerRoundness = sel.layers().firstObject().cornerRadiusFloat();} catch(e) {}
 
 	var shapeType =	(	(sel.layers().firstObject().class() == 'MSRectangleShape' && !sel.layers()[0].edited() ) ||
-						sel.layers().firstObject().class() == 'MSOvalShape' && !sel.layers()[0].edited()) ? 
+						sel.layers().firstObject().class() == 'MSOvalShape' && !sel.layers()[0].edited()) ?
 						sel.layers().firstObject().class() : 'MSShapePathLayer';
 
 	// var shapeType = (sel.layers()[0].edited()) ? 'MSShapePathLayer' : sel.layers().firstObject().class();
@@ -377,8 +377,8 @@ function storeText(sel) {
   function replaceAllSpecialChar(str) {														// replace characters that give strings trouble
   	var cleanString = str.replace(/\n/g, '\\n');											// replace new lines with \n
   		cleanString = cleanString.replace(new RegExp('"', 'g'), '\\"');						// replace double quote with \"
-  		cleanString = cleanString.replace(new RegExp("'", 'g'), "\\'");						// replace single quote with \'
-  	
+  		// cleanString = cleanString.replace(new RegExp("'", 'g'), "\\'");						// replace single quote with \'
+
   	return cleanString;
   }
 
@@ -400,7 +400,7 @@ function storeGroup(sel) {
                   layers: getLayersInGroup(sel)												// recurse child layers
   }
 
-  function getLayersInGroup(group) {														// recurse and filter through all child layers 
+  function getLayersInGroup(group) {														// recurse and filter through all child layers
     var layersInGroup = filterTypes(group.layers());
     return layersInGroup;
   }
@@ -437,7 +437,7 @@ function storeSymbol(sel) {
         for (var j = 0; j < artBoard.children().length; j++) {								// loop through all artboard in the pages
 
           try {
-            var currentID = String(artBoard.children()[j].symbolID());						// check if the symbolID matches 
+            var currentID = String(artBoard.children()[j].symbolID());						// check if the symbolID matches
             if (currentID == selID && artBoard.children()[j].class() == 'MSSymbolMaster') {
               masterSymbol = artBoard.children()[j];										// set the masterSymbol to the found layer
               break;																		// quit looping
@@ -481,7 +481,7 @@ function storeImg(sel) {
 
 	function exportLayer(layer, path) {														// save layer to png
 		var rect = layer.absoluteRect().rect();												// image rect bounds
-		var imageWidth = layer.image().image().size().width;								// get actual image width 
+		var imageWidth = layer.image().image().size().width;								// get actual image width
 		var screenWidth = rect.size.width;													// get on-screen image width
 		var scale = imageWidth/screenWidth;													// scale factor of the image on screen
 		// var slice = [MSExportRequest requestWithRect:rect scale:scale];      			// worked in v41, now broken
@@ -553,7 +553,7 @@ function storeImgFill(sel) {
 
 
 /** return an object of arrays filled with all the path points/in/out tangents/closed status
-	for shape not a part of a compund shape 
+	for shape not a part of a compund shape
 	@param {sel} active selected layer
 */
 function getPathGroup(sel) {
@@ -569,10 +569,10 @@ function getPathGroup(sel) {
 				round100(path.pointAtIndex(count).point().y * shapeSize.h) ];
 
 		if (path.pointAtIndex(count).curveMode() !== 1) {									// if the current point has curves and needs tangent handles
-			var o =[round100(path.pointAtIndex(count).curveFrom().x * shapeSize.w - p[0]), 
+			var o =[round100(path.pointAtIndex(count).curveFrom().x * shapeSize.w - p[0]),
 					round100(path.pointAtIndex(count).curveFrom().y * shapeSize.h - p[1])]; // tangent out of the point offset by the point coordinates onscreen
 
-			var i =[round100(path.pointAtIndex(count).curveTo().x * shapeSize.w - p[0]), 
+			var i =[round100(path.pointAtIndex(count).curveTo().x * shapeSize.w - p[0]),
 					round100(path.pointAtIndex(count).curveTo().y * shapeSize.h - p[1])];	// tangent into the point offset by the point coordinates onscreen
 
 		} else {																			// current point has no curves so tangets are at the same coordinate as the point
@@ -584,7 +584,7 @@ function getPathGroup(sel) {
 		inTangents.push('[' + i + ']');
 		outTangents.push('[' + o + ']');
 		count++;
-	}		
+	}
 	var pathObj = {																			// create object to store path data
 		points: '[' + points + ']',
 		inTangents: '[' + inTangents + ']',
@@ -596,7 +596,7 @@ function getPathGroup(sel) {
 
 
 /** return an object of arrays filled with all the path points/in/out tangents/closed status
-	for raw shape in a compund shape 
+	for raw shape in a compund shape
 	@param {sel} active selected layer
 */
 function getPath(sel, opt_group) {
@@ -615,7 +615,7 @@ function getPath(sel, opt_group) {
 			var o =[round100(path.pointAtIndex(count).curveFrom().x * shapeSize.w - p[0]),
 					round100(path.pointAtIndex(count).curveFrom().y * shapeSize.h - p[1])]; // tangent out of the point offset by the point coordinates onscreen
 
-			var i =[round100(path.pointAtIndex(count).curveTo().x * shapeSize.w - p[0]), 	
+			var i =[round100(path.pointAtIndex(count).curveTo().x * shapeSize.w - p[0]),
 					round100(path.pointAtIndex(count).curveTo().y * shapeSize.h - p[1])];	// tangent into the point offset by the point coordinates onscreen
 
 		} else {																			// current point has no curves so tangets are at the same coordinate as the point
@@ -783,7 +783,7 @@ function sketchColorToOpacity(c) {
 
 
 /** convert to 2 decimal place number
-	@param {num} integer 
+	@param {num} integer
 */
 function round100(num) {
 	return Math.round(num * 100) / 100;

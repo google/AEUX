@@ -202,7 +202,9 @@ function filterTypes(selection) {
 			}
 		}
 		if (sel.class() == 'MSLayerGroup') {									// this is a group
-			selectedLayerInfo.push(storeGroup(sel));
+			if (sel.layers().length > 0) {
+				selectedLayerInfo.push(storeGroup(sel));					// check that a group contains other elements
+			}
 		}
 		if (sel.class() == 'MSTextLayer') {										// this is a text layer
 			selectedLayerInfo.push(storeText(sel));
@@ -376,7 +378,8 @@ function storeText(sel) {
 
   function replaceAllSpecialChar(str) {														// replace characters that give strings trouble
   	var cleanString = str.replace(/\n/g, '\\n');											// replace new lines with \n
-  		cleanString = cleanString.replace(new RegExp('"', 'g'), '\\"');						// replace double quote with \"
+  			cleanString = cleanString.replace(/\r/, '');						// replace double quote with \"
+  			cleanString = cleanString.replace(new RegExp('"', 'g'), '\\"');						// replace double quote with \"
   		// cleanString = cleanString.replace(new RegExp("'", 'g'), "\\'");						// replace single quote with \'
 
   	return cleanString;
@@ -401,7 +404,10 @@ function storeGroup(sel) {
   }
 
   function getLayersInGroup(group) {														// recurse and filter through all child layers
-    var layersInGroup = filterTypes(group.layers());
+    var layersInGroup =  null;
+		if (group.layers().length > 0) {
+			layersInGroup = filterTypes(group.layers());
+		}
     return layersInGroup;
   }
 

@@ -5,7 +5,7 @@
 
   [5ae3a8a1]: http://google.github.io/sketch2ae "Sketch2AE"
 
-Quickly export selected layers or a whole artboard from Sketch with with type metrics, transform data, images, symbol hierarchy and grouping intact. It's kind of better than the native Illustrator => AE import. Hooray.
+Quickly export selected layers or a whole artboard from Sketch with type metrics, transform data, images, symbol hierarchy and grouping intact. It's kind of better than the native Illustrator => AE import. Hooray.
 
 > This is not an official Google product. Motion designers at Google just kinda like it a lot. Built by [Adam Plouff][8638464d].
 

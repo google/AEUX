@@ -136,7 +136,7 @@ function save_text(txt, filePath)){
 	var t = [NSString stringWithFormat:@"%@", txt],
 	f = [NSString stringWithFormat:@"%@", filePath];
 
-	[t writeToFile:f atomically:true encoding:NSUTF8StringEncoding error:nil]
+	[t writeToFile:f atomically:true encoding:NSUnicodeStringEncoding error:nil]
 }
 
 

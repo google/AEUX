@@ -24,7 +24,7 @@ if(typeof JSON!=="object"){JSON={}}(function(){function f(n){return n<10?"0"+n:n
 
 //================ VARIABLES ======================
 var scriptName = 'Sketch2AE';
-var scriptVersion = '0.53';
+var scriptVersion = '0.54';
 var defaultBoxText = 'Paste Sketch code';
 var clippingMask = null;
 var thisComp = null;

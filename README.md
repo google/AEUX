@@ -20,6 +20,10 @@ Installation and usage at: http://google.github.io/sketch2ae
 ---
 
 # Change log
+## [0.54] - 2018-03-29
+### Fixes
+- The plugin has been broken since the release of Sketch 49. 
+
 ## [0.53] - 2017-11-09
 ### Changes
 - Removed the top-left anchor point for new shapes

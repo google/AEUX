@@ -3,7 +3,7 @@
   "description": "Transfer Sketch Artboards to After Effects",
   "author": "Adam Plouff",
   "homepage": "http://google.github.io/sketch2ae",
-  "version": 0.53,
+  "version": 0.54,
   "identifier": "com.example.sketch.sketch2ae",
   "compatibleVersion": 3,
   "bundleVersion": 1,

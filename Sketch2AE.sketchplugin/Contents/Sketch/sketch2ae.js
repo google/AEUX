@@ -563,39 +563,36 @@ function storeImgFill(sel) {
 	@param {sel} active selected layer
 */
 function getPathGroup(sel) {
-	var count = 0;																			// initialize point count at 0
-	var path = NSArray.arrayWithObject(sel).objectEnumerator().nextObject()[0].path();		// get the path object ( nextObject()[0] vs nextObject() in getPath() )
+	var path = sel[0].points();	// get the path object
 	var points = [], inTangents = [], outTangents = [];										// define variables
 	var shapeSize = {																		// get the height and width to multiply point point coordinates
 	  w: sel.firstObject().frame().width(),
 	  h: sel.firstObject().frame().height()
 	};
-	while (path.pointAtIndex(count) !== null) {												// loop through points - returns null when count is greater than point count
-		var p =[round100(path.pointAtIndex(count).point().x * shapeSize.w),  				// paths are normalized to 0-1 and scaled by a height and width multiplier
-				round100(path.pointAtIndex(count).point().y * shapeSize.h) ];
+	for (var k = 0; k < path.length; k++) {
+		var p = [	round100(path[k].point().x * shapeSize.w), 								// paths are normalized to 0-1 and scaled by a height and width multiplier
+					round100(path[k].point().y * shapeSize.h) ];
 
-		if (path.pointAtIndex(count).curveMode() !== 1) {									// if the current point has curves and needs tangent handles
-			var o =[round100(path.pointAtIndex(count).curveFrom().x * shapeSize.w - p[0]),
-					round100(path.pointAtIndex(count).curveFrom().y * shapeSize.h - p[1])]; // tangent out of the point offset by the point coordinates onscreen
+		if (path[k].curveMode() !== 1) {													// if the current point has curves and needs tangent handles
+			var o =[round100(path[k].curveFrom().x * shapeSize.w - p[0]),
+					round100(path[k].curveFrom().y * shapeSize.h - p[1])]; 					// tangent out of the point offset by the point coordinates onscreen
 
-			var i =[round100(path.pointAtIndex(count).curveTo().x * shapeSize.w - p[0]),
-					round100(path.pointAtIndex(count).curveTo().y * shapeSize.h - p[1])];	// tangent into the point offset by the point coordinates onscreen
+			var i =[round100(path[k].curveTo().x * shapeSize.w - p[0]),
+					round100(path[k].curveTo().y * shapeSize.h - p[1])];					// tangent into the point offset by the point coordinates onscreen
 
 		} else {																			// current point has no curves so tangets are at the same coordinate as the point
 			var o = [0,0];																	// set tangets to [0,0]
 			var i = [0,0];
 		}
-
-		points.push('[' + p + ']');
-		inTangents.push('[' + i + ']');
-		outTangents.push('[' + o + ']');
-		count++;
+			points.push('[' + p + ']');															// add current point with screen dimensions to the points array
+			inTangents.push('[' + i + ']');														// add current inTangent with screen dimensions to the points array
+			outTangents.push('[' + o + ']');													// add current outTangent with screen dimensions to the points array
 	}
 	var pathObj = {																			// create object to store path data
 		points: '[' + points + ']',
 		inTangents: '[' + inTangents + ']',
 		outTangents: '[' + outTangents + ']',
-		closed: path.isClosed()
+		closed: sel[0].isClosed()
 	}
 	return objString(pathObj);																// return a string of the keyframe object
 }
@@ -606,39 +603,36 @@ function getPathGroup(sel) {
 	@param {sel} active selected layer
 */
 function getPath(sel, opt_group) {
-	var count = 0;																			// initialize point count at 0
-	var path = NSArray.arrayWithObject(sel).objectEnumerator().nextObject().path();			// get the path object
+	var path = sel.points();																// get the path object
 	var points = [], inTangents = [], outTangents = [];										// define variables
 	var shapeSize = {																		// get the height and width to multiply point point coordinates
 	  w: sel.frame().width(),
 	  h: sel.frame().height()
 	};
-	while (path.pointAtIndex(count) !== null) {												// loop through points - returns null when count is greater than point count
-		var p = [	round100(path.pointAtIndex(count).point().x * shapeSize.w), 			// paths are normalized to 0-1 and scaled by a height and width multiplier
-					round100(path.pointAtIndex(count).point().y * shapeSize.h) ];
+	for (var k = 0; k < path.length; k++) {
+		var p = [	round100(path[k].point().x * shapeSize.w), 								// paths are normalized to 0-1 and scaled by a height and width multiplier
+					round100(path[k].point().y * shapeSize.h) ];
 
-		if (path.pointAtIndex(count).curveMode() !== 1) {									// if the current point has curves and needs tangent handles
-			var o =[round100(path.pointAtIndex(count).curveFrom().x * shapeSize.w - p[0]),
-					round100(path.pointAtIndex(count).curveFrom().y * shapeSize.h - p[1])]; // tangent out of the point offset by the point coordinates onscreen
+		if (path[k].curveMode() !== 1) {													// if the current point has curves and needs tangent handles
+			var o =[round100(path[k].curveFrom().x * shapeSize.w - p[0]),
+					round100(path[k].curveFrom().y * shapeSize.h - p[1])]; 					// tangent out of the point offset by the point coordinates onscreen
 
-			var i =[round100(path.pointAtIndex(count).curveTo().x * shapeSize.w - p[0]),
-					round100(path.pointAtIndex(count).curveTo().y * shapeSize.h - p[1])];	// tangent into the point offset by the point coordinates onscreen
+			var i =[round100(path[k].curveTo().x * shapeSize.w - p[0]),
+					round100(path[k].curveTo().y * shapeSize.h - p[1])];					// tangent into the point offset by the point coordinates onscreen
 
 		} else {																			// current point has no curves so tangets are at the same coordinate as the point
 			var o = [0,0];																	// set tangets to [0,0]
 			var i = [0,0];
 		}
-
-		points.push('[' + p + ']');															// add current point with screen dimensions to the points array
-		inTangents.push('[' + i + ']');														// add current inTangent with screen dimensions to the points array
-		outTangents.push('[' + o + ']');													// add current outTangent with screen dimensions to the points array
-		count++;																			// increment the point count
+			points.push('[' + p + ']');															// add current point with screen dimensions to the points array
+			inTangents.push('[' + i + ']');														// add current inTangent with screen dimensions to the points array
+			outTangents.push('[' + o + ']');													// add current outTangent with screen dimensions to the points array
 	}
 	var pathObj = {																			// create object to store path data
 		points: '[' + points + ']',
 		inTangents: '[' + inTangents + ']',
 		outTangents: '[' + outTangents + ']',
-		closed: path.isClosed()
+		closed: sel.isClosed()
 	}
 	return objString(pathObj);																// return a string of the keyframe object
 }

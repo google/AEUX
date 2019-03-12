@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>AEUX</title>
+    <link>/</link>
+    <description>Recent content on AEUX</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 26 Oct 2018 16:02:46 -0400</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>AEUX change log</title>
+      <link>/changelog.html</link>
+      <pubDate>Fri, 26 Oct 2018 16:02:46 -0400</pubDate>
+      
+      <guid>/changelog.html</guid>
+      <description>AEUX change log [0.6.7] - 2019-02-25 Added  Ae backward compatibility to CC2014. Note: the Figma converter requires CC2018+ to download images through Ae.  [0.6.6] - 2019-02-15 Added  Ae panel image downloading for Figma. The online Figma converter generates images (if needed) and these image URLs are downloaded in the JSON file. Once imported into Ae, the panel downloads these images directly to a directory you specify. This process allows direct access to your images without granting the converter app or Google any access to your data.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>/sketch2ae/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/sketch2ae/</guid>
+      <description>-- Sketch2AE - Plugin for Sketch and After Effects --    --   Sketch2AE from Google SUMux Motion Design
+motiondesign@google.com Sketch2AE is fully broken in Sketch 52! There have been many glitches along the way with each new Sketch update but a major update is in the works, and is now in beta for Sketch 52 users.
+ download beta (Sketch 52+) download (Sketch 50/51)  First section description.</description>
+    </item>
+    
+  </channel>
+</rss>

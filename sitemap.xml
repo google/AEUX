@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>/changelog.html</loc>
+    <lastmod>2018-10-26T16:02:46-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/sketch2ae/</loc>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2018-10-26T16:02:46-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

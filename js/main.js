@@ -1,47 +1,44 @@
-/* =================================================================================================
- * main.js
- *
- * Author: Dillon Grove
- * Date: Jan 2015
- *
- * All prototype-specific functions and state
- * ============================================================================================== */
-
-// Create MotionPlayerTest
-var mpt = new MotionPlayerTest();
-
-// Once the page is loaded, initialize MotionPlayerTest
-$(function(){
-    mpt.initialize();
+$(window).load(function() {
+    $("#preloader-wrapper").fadeOut("slow");
 });
 
-// Define the MotionPlayerTest function
-function MotionPlayerTest(){
-    // set variables
-    // aka this.foo = bar
-}
+$(document).ready(function(){
 
 
-/*---------------------------------------------------------------------------/
-|   PROTOTYPE FUNCTIONS                                                     /
----------------------------------------------------------------------------/
-|   Set up functionality on the MotionPlayerTest object                   /
-------------------------------------------------------------------------*/
+     
+    //animated header class
+    $(window).scroll(function() {    
+    var scroll = $(window).scrollTop();
+     //console.log(scroll);
+    if (scroll > 200) {
+        //console.log('a');
+        $(".navigation").addClass("animated");
+    } else {
+        //console.log('a');
+        $(".navigation").removeClass("animated");
+    }});
 
-/**
- * Initializes variables and calls setup functions which require the page to be loaded.
- */
-MotionPlayerTest.prototype.initialize = function(){
-    var self = this;
 
-    var player = new MotionPlayer(undefined, {
-        autoloop: true
-    });
-    self.player = player;
 
-    self.addEventListeners();
-};
+    $(".gallery-slider").owlCarousel(
+        {
+        pagination : true,
+        autoPlay : 5000,
+        itemsDesktop  :  [1500,4],
+        itemsDesktopSmall :  [979,3]
+        }
+    );
 
-MotionPlayerTest.prototype.addEventListeners = function(){
-    var self = this;
-};
+    // Gallery Popup
+    $('.image-popup').magnificPopup({type:'image'});
+
+
+
+});
+
+
+
+
+
+
+

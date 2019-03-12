@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html class="no-js">
+
+<head>
+    <title>AEUX change log</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AEUX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="" content="">
+
+
+        
+    
+    <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400i|Source+Sans+Pro:300,400,600,700" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300" rel="stylesheet">
+
+    
+
+    
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="../css/themefisher-fonts.css">
+    <link rel="stylesheet" type="text/css" href="../css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="../css/magnific-popup.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css" integrity="sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz"
+        crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+    <link rel="stylesheet" type="text/css" href="../css/responsive.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+</head>
+
+<body id="body">
+<div class="container">
+    <nav class="navbar navigation" id="top-nav">
+        <a class="navbar-brand logo" href="../index.html">
+            <h1>AEUX</h1>
+        </a>
+
+        <button class="navbar-toggler hidden-lg-up float-lg-right" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+            <i class="tf-ion-android-menu"></i>
+        </button>
+        <div class="collapse navbar-toggleable-md" id="navbarResponsive">
+            
+        </div>
+    </nav>
+</div>
+
+
+    <section class="section">
+        <div class="container">
+            
+            
+            <div class="changelog">
+                
+
+<h1 id="aeux-change-log">AEUX change log</h1>
+
+<h2 id="0-6-7-2019-02-25">[0.6.7] - 2019-02-25</h2>
+
+<h3 id="added">Added</h3>
+
+<ul>
+<li>Ae backward compatibility to CC2014. Note: the Figma converter requires CC2018+ to download images through Ae.</li>
+</ul>
+
+<h2 id="0-6-6-2019-02-15">[0.6.6] - 2019-02-15</h2>
+
+<h3 id="added-1">Added</h3>
+
+<ul>
+<li>Ae panel image downloading for Figma. The online <a href="https://aeux-55e58.firebaseapp.com" target="_blank">Figma converter</a> generates images (if needed) and these image URLs are downloaded in the JSON file. Once imported into Ae, the panel downloads these images directly to a directory you specify. This process allows direct access to your images without granting the converter app or Google any access to your data.</li>
+<li>While still lacking support for vertical text alignment and open paths (like horizontal rules, simple stroked lines and other open shapes without fills), the Figma converter is available for testing.</li>
+</ul>
+
+<h2 id="0-6-5-2019-01-15">[0.6.5] - 2019-01-15</h2>
+
+<h3 id="added-2">Added</h3>
+
+<ul>
+<li>Group dropshadows - only visible if you Precomp Groups</li>
+<li>Sketch menu items which allow shortcuts to be added if that&rsquo;s how you like to work</li>
+<li>Support for relative image paths</li>
+<li>Adding support for upcoming Figma integration</li>
+<li>In-panel help menu</li>
+<li>Support for Nested Boolean shapes in Sketch</li>
+</ul>
+
+<h3 id="changed">Changed</h3>
+
+<ul>
+<li>Revised Sketch and AE panel UI (design by <a href="https://www.instagram.com/alt.danil/" target="_blank">Danil Altynov</a>)</li>
+<li>New Symbol instance will named with its layer name instead of symbol name</li>
+<li>Blurs are stored as an array. Sketch supports only one but Figma can handle multiple.<br /></li>
+<li>Images added to comp are renamed with the layer name instead of the ugly id string</li>
+<li>Right-click &gt; Help goes to temporary help doc</li>
+</ul>
+
+<h3 id="removed">Removed</h3>
+
+<ul>
+<li>The AE Window&gt;Extension menu for Figma</li>
+</ul>
+
+<h3 id="fixed">Fixed</h3>
+
+<ul>
+<li>Error when creating a comp less that 4px high or wide</li>
+<li>Bug with overrides that stalled the process</li>
+</ul>
+
+<h2 id="0-6-4-2018-11-19">[0.6.4] - 2018-11-19</h2>
+
+<h3 id="fixed-1">Fixed</h3>
+
+<ul>
+<li>Rounding error on new comps not on a pixel</li>
+</ul>
+
+<h2 id="0-6-4-2018-11-19-1">[0.6.4] - 2018-11-19</h2>
+
+<h3 id="fixed-2">Fixed</h3>
+
+<ul>
+<li>Introduced bug where the Sketch panel didn&rsquo;t open</li>
+</ul>
+
+<h2 id="0-6-3-2018-11-15">[0.6.3] - 2018-11-15</h2>
+
+<h3 id="fixed-3">Fixed</h3>
+
+<ul>
+<li>Error on text with multiple line breaks</li>
+</ul>
+
+<h2 id="0-6-2-2018-10-08">[0.6.2] - 2018-10-08</h2>
+
+<h3 id="added-3">Added</h3>
+
+<ul>
+<li>Support for Sketch 52</li>
+</ul>
+
+<h3 id="changed-1">Changed</h3>
+
+<ul>
+<li>Removed support for Sketch &lt; 52 - it’s way too hard to support older versions since Sketch changes their plugin API with every update</li>
+</ul>
+
+<h2 id="0-6-1-2018-10-01">[0.6.1] - 2018-10-01</h2>
+
+<h3 id="added-4">Added</h3>
+
+<ul>
+<li>Un-precompose button. Now groups in AE may be converted to precomps, and also converted back to regular layers in the main comp with a single click.</li>
+<li>Support for images in Cloud libraries</li>
+</ul>
+
+<h3 id="changed-2">Changed</h3>
+
+<ul>
+<li>Detach Symbols button originally recursively detached symbols which lead to unintended effects on nested symbols that were used in multiple symbols</li>
+<li>Lots of code cleanup and commenting</li>
+<li>Simplified shape layer creation functions that all start the same</li>
+<li>Moved blending mode conversion into the Sketch side of the system to make AE’s layer building simpler. This will help with support for future design apps.</li>
+<li>Simplified folder creation in Ae from 3 separate funcs down to one.</li>
+</ul>
+
+<h3 id="fixed-4">Fixed</h3>
+
+<ul>
+<li>Error when 3rd party tool docked on the canvas and trying to build to a selected comp</li>
+<li>Error if unable to write gradient preset file to disk. Instead, it now opens the AE preferences that must be enabled.</li>
+<li>Bug that failed to save the user’s state in the Ae panel</li>
+</ul>
+
+<h2 id="0-6-0-2018-09-04">[0.6.0] - 2018-09-04</h2>
+
+<h3 id="added-5">Added</h3>
+
+<ul>
+<li>In-panel messaging to explain errors and inaccurate layer representation (Sketch and AE)</li>
+<li>Ability to rename the exported .json file for multiple outputs without overwriting</li>
+<li>Support for AE Text tracking greater than +/- 1000 with text animators</li>
+<li>Support for blurs on shapes (not images because those are exported)</li>
+</ul>
+
+<h3 id="changed-3">Changed</h3>
+
+<ul>
+<li>Refined Sketch var scope</li>
+<li>Clearer copy for exported files</li>
+<li>Improved stability for AE CC2018 CEP changes</li>
+<li>Fixed a json unicode encoding error that replaced all punctuation with â</li>
+<li>Better text leading</li>
+<li>Set underlying mask layer to not visible to prevent extra pixels</li>
+<li>Collapse transform for auto-precomped groups</li>
+<li>Removed panel vertical scrollbar to feel more native</li>
+</ul>
+
+<h2 id="0-5-8-2018-06-18">[0.5.8] - 2018-06-18</h2>
+
+<h3 id="added-6">Added</h3>
+
+<ul>
+<li>Auto-precomp of groups</li>
+<li>Text transform to upper/lower case</li>
+<li>Layer prep functions to better reproduce artboards</li>
+<li>Text masking</li>
+<li>Text flipping</li>
+<li>Text rotation</li>
+</ul>
+
+<h3 id="changed-4">Changed</h3>
+
+<ul>
+<li>Set background color of symbols</li>
+<li>Depreciated addClipping() func</li>
+<li>Corner radius improvements</li>
+<li>Refined text alignment</li>
+</ul>
+
+<h2 id="0-5-7-2018-06-04">[0.5.7] - 2018-06-04</h2>
+
+<h3 id="added-7">Added</h3>
+
+<ul>
+<li>In-panel messaging system</li>
+<li>New layer masking system</li>
+<li>Push to AE system instead of copy/paste</li>
+<li>AE panel preference auto saving system for sessions persistance</li>
+</ul>
+
+<h3 id="changed-5">Changed</h3>
+
+<ul>
+<li>Precomp size integer rounding</li>
+<li>Better text alignment</li>
+<li>OS X system commands used to simplify plugin initialization (folders and files)</li>
+</ul>
+
+<h2 id="0-5-6-2018-04-30">[0.5.6] - 2018-04-30</h2>
+
+<h3 id="added-8">Added</h3>
+
+<ul>
+<li>Sketch panel UI</li>
+<li>AE layer build speed increase by hiding build comp</li>
+<li>Sketch panel layer count</li>
+<li>Ae progress bar while building</li>
+<li>Inner shadow layer style</li>
+<li>Support for Sketch cloud library symbols</li>
+<li>Button to convert images to symbols to prevent Sketch export cutoff</li>
+<li>Button to detach selected symbols</li>
+<li>Flip and rotation for shapes, symbols, groups</li>
+<li>Shape layer gradients</li>
+<li>Symbol overrides for text and nested symbols</li>
+</ul>
+
+<h3 id="changed-6">Changed</h3>
+
+<ul>
+<li>Full Sketch2AE rewrite based on the Sketch javascript API</li>
+<li>Image exporting based on layer IDs to reduce redundancies</li>
+</ul>
+
+            </div>
+        </div>
+    </section>
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="col-md-3">
+              <div class="footer-logo">AEUX</div>
+            </div>
+            <div class="col-md-3">
+              <ul>
+                <li class="">
+                  <a href="#workflow">Workflow</a>
+                </li>
+                <li class="">
+                  <a href="#install">Install</a>
+                </li>
+                <li class="">
+                  <a href="changelog.html">Change Log</a>
+                </li>
+                <li class="">
+                  <a href="download/AEUX_v0.6.7.zip">Download</a>
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-3">
+              <a href="mailto:motiondesign@google.com" class=""><i class="far fa-envelope"></i> Contact</a>
+            </div>
+            <div class="col-md-3">
+              Built by <a href="https://battleaxe.co/" class="" target="_blank">Adam Plouff</a> and your friends at <a href="https://wearesumux.appspot.com/" class="" target="_blank"><i class="fab fa-google"></i> motion design.</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    
+    <script src="js/vendor/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.3.7/js/tether.min.js" integrity="sha384-XTs3FgkjiBgo8qjEjBk0tGmf3wPrWtA6coPfQDfFEY8AnYJwjalXCiosYRBIBZX8" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+    <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+    <script src="js/owl.carousel.min.js"></script>
+    <script src="js/jquery.magnific-popup.min.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>

@@ -1,11 +1,10 @@
-[<img src="https://github.com/google/sketch2ae/blob/gh-pages/gif/ae_gif.gif">](http://google.github.io/sketch2ae)
+[<img src="https://aeux.io/images/AEUX_Panels.png">](https://aeux.io/)
 
-# [Sketch2AE][5ae3a8a1]
-[Sketch][66b609ab] layers may now be imported into [After Effects][56a59ddd] without redrawing everything in Illustrator. Avoid the startling realization that you have to repeat the whole import process because forgot to split one element out onto its own layer or that type has to be converted into live text as an additional process per layer.
+# [AEUX](https://aeux.io/)
+With a name and complete rewrite of Sketch2AE, AEUX is faster and stronger than ever.
+[Sketch][66b609ab] layers (and soon [Figma](https://figma.com)) may easily be transferred to [After Effects][56a59ddd] as shape layers, but with support for modern Sketch features like symbol overrides, reduced reliance on images (gradients yay), greater accuracy on text layers, nested precomps on groups, and it's about 90% faster.
 
-  [5ae3a8a1]: http://google.github.io/sketch2ae "Sketch2AE"
-
-Quickly export selected layers or a whole artboard from Sketch with with type metrics, transform data, images, symbol hierarchy and grouping intact. It's kind of better than the native Illustrator => AE import. Hooray.
+Still in beta while working on the Figma converter.
 
 > This is not an official Google product. Motion designers at Google just kinda like it a lot. Built by [Adam Plouff][8638464d].
 
@@ -14,31 +13,17 @@ Quickly export selected layers or a whole artboard from Sketch with with type me
   [56a59ddd]: http://www.adobe.com/products/aftereffects.html "After Effects"
   [bodymovin]: https://github.com/bodymovin/bodymovin "BodyMovin"
   [lottie]: https://airbnb.design/lottie/ "Lottie"
+  [changelog]: https://aeux.io/changelog "Change Log"
 
-Installation and usage at: http://google.github.io/sketch2ae
-
----
-
-# Change log
-## [0.54] - 2018-03-29
-### Fixes
-- The plugin has been broken since the release of Sketch 49. 
-
-## [0.53] - 2017-11-09
-### Changes
-- Removed the top-left anchor point for new shapes
-- Removed the top-left expression for Rectangles and Ellipse to add support for [BodyMovin][bodymovin] and [Lottie][lottie] export
-- Disabled transfer of Sketch masks with Ae's Set Matte effect. At this time the masking system is to complex to get right and leads to a lot of unnecessary effects that make things look awful.
-
-### Fixes
-- Text string error from apostrophes
-- Empty vector object error
-- Empty group error
-
-## [0.52] - 2017-05-24
-- Initial release
-
+Installation and usage at: https://aeux.io
 
 ---
+
+## [Change log][changelog]
+
+## Sketch2AE
+No further development will happen on Sketch2Ae but for those on Sketch <52, the download is still available [here](https://aeux.io/sketch2ae/).
+
+
 ## License
 Apache 2.0

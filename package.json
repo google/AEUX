@@ -1,6 +1,6 @@
 {
   "name": "AEUX",
-  "version": "1.0.0",
+  "version": "0.6.7",
   "description": "Transfer layer to After Effects",
   "main": "gulpfile.js",
   "scripts": {

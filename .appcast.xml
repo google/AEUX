@@ -2,7 +2,7 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
   <channel>
     <item>
-      <enclosure url="https://github.com/google/sketch2ae/releases/download/v0.6.7/gulpfile.js.zip" sparkle:version="0.6.7"/>
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/0.6.7/AEUX.sketchplugin.zip" sparkle:version="0.6.7"/>
     </item>
   </channel>
 </rss>

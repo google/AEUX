@@ -1,4 +1,4 @@
-[<img src="https://aeux.io/images/AEUX_Panels.png">](https://aeux.io/)
+[<img src="https://aeux.io/images/AEUX_Panels.png" width="50%">](https://aeux.io/)
 
 # [AEUX](https://aeux.io/)
 With a name and complete rewrite of Sketch2AE, AEUX is faster and stronger than ever.

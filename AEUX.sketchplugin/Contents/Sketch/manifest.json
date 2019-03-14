@@ -5,7 +5,7 @@
   "homepage": "https://aeux.io",
   "version": "0.6.7",
   "identifier": "com.wearesumux.AEUX",
-  "appcast": "https://raw.githubusercontent.com/google/sketch2ae/master/.appcast.xml",
+  "appcast": "https://raw.githubusercontent.com/google/sketch2ae/master/appcast.xml",
   "compatibleVersion": "3",
   "bundleVersion": 1,
   "icon": "icon.png",

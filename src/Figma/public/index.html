@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AEUX Figma</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+        crossorigin="anonymous">
+
+    <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400i|Source+Sans+Pro:300,400,600,700" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:300" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="https://adamplouff.github.io/aeux-doc/css/style.css">
+    <link rel="stylesheet" href="figma.css">
+
+    <!-- <script src="https://unpkg.com/figma-development-kit@^1/dist/fdk.umd.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="js/fdk.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.4/jszip.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.js" type="text/javascript"></script>
+    <script type="text/javascript" src="https://fastcdn.org/FileSaver.js/1.1.20151003/FileSaver.js"></script>
+
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <nav class="navbar navigation" id="top-nav">
+                <a class="navbar-brand logo" href="#">
+                <h1>AEUX</h1>
+                <h6>Figma exporter (beta)</h6>
+                </a>
+
+                <div class="navbar-toggleable-md" id="navbarResponsive">
+                <ul class="nav navbar-nav menu float-lg-right" id="top-nav">
+                    <li class="active" v-show="hasToken">
+                    <a href="" @click="clearToken">Deauthorize app <i class="fas fa-sign-out-alt"></i></a>
+                    </li>
+                </ul>
+                </div>
+            </nav>
+        </div>
+
+
+        <div class="section">
+            <div class="container">
+                <!-- <div class="row">
+                    <div class="section-heading mx-auto">
+                        <h1>AEUX for Figma</h1>
+                        <h3>Export frames in AEUX JSON format for After Effects</h3>
+                    </div>
+                </div> -->
+
+                <div v-if="!hasToken" class="text-center">
+                    <button class="btn btn-main" @click="getToken">Authenticate AEUX</button>
+                    <!-- <button class="btn btn-main" @click="manualToken">manual token</button> -->
+                </div>
+
+
+                <div v-if="hasToken">
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-8">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" v-model="fileUrl">
+                                <div class="input-group-append">
+                                    <span class="btn btn-outline-secondary" id="basic-addon2" @click="getFigmaDoc"><i class="far fa-arrow-alt-circle-right"></i></span>
+                                </div>
+                            </div>
+                            <div v-show="isPingingFigma">Connecting to Figma...</div>
+                        </div>
+
+                        <div class="col-md-2"></div>
+                    </div>
+
+
+                    <br><br>
+                    <div class="row">
+                        <h3>Exporter options</h3><br><br>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" v-model="prefs.downloadThumbnails" @change="getFigmaDoc">
+                                <label class="form-check-label" for="exampleCheck1" @change="">Download thumbnails</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" v-model="prefs.downloadThumbnails">
+                                <label class="form-check-label" for="exampleCheck1">Download thumbnails</label>
+                            </div> -->
+                        </div>
+
+                        <div class="col-md-4">
+                            <!-- <button class="btn btn-outline-secondary">Logout</button> -->
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="container-fluid text-center">
+                    <div class="row content">
+                        <div v-for="(frame, index) in figmaTree" class="figma-frame">
+                            <div class="row justify-content-start">
+                                <div class="col-sm-4 text-left">
+                                        <h3>{{ frame.name }}</h3>
+                                        {{ frame.size.x | round }} x {{ frame.size.y | round }}
+
+                                        <div class='figma-buttons'>
+                                            <button class="btn btn-outline-primary btn-sm" @click="downloadJson(frame)">Download</button>
+                                            <div v-show="frame.isGeneratingImages">Generating images...</div>
+                                            <!-- <button class="btn btn-outline-primary btn-sm" @click="aeuxConvert(frame)">Convert</button> -->
+                                        </div>
+                                </div>
+                                <div class="col-sm-8 text-left" v-if="prefs.downloadThumbnails">
+                                    <img class="img-fluid figma-img" v-bind:src="thumbnails[index]" :style="{height: '240px'}">
+                                </div>
+                                <div class="col-sm-8 text-left" v-if="!prefs.downloadThumbnails">
+                                    <div class="img-fluid figma-img" :style="{width: ((frame.size.x/frame.size.y)*240) + 'px', height: '240px', 'background-color': rgbToHex(frame.backgroundColor)}"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debugging -->
+                <!-- <div class="container-fluid text-center section">
+                        <div class="section-heading mx-auto">
+                            <h1>Converter</h1>
+                            <button class="btn btn-outline-primary btn-sm" @click="aeuxConvert(figmaTree)">Convert</button>
+                        </div>
+                    <div class="row content">
+                        <div class="col-sm-6 text-left">
+                            <div class='json'>
+                                <h3>Figma</h3>
+                                <textarea rows="40" cols="40">{{figmaTree}}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 text-left">
+                            <div class='json'>
+                                <h3>Conversion</h3>
+                                <textarea rows="40" cols="40">{{aeuxData}}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+
+
+            </div>
+        </div>
+
+
+
+        <div class="section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="section-heading">
+                            <h1>Security Notes</h1>
+                            <!-- <h4>Download Figma layers as JSON then drop it into the AEUX panel</h4> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <h4>Privacy</h4>
+                        AEUX does not track user data, and does not view or store your designs in any way.
+                        It's a blind robot that converts designs into the AEUX JSON format.
+                        Your top secret design is safe.
+                    </div>
+
+                    <div class="col-md-3">
+                        <h4>Images</h4>
+                        If needed, images are generated on the Figma servers and URLs are downloaded in the JSON file.
+                        When importing JSON into Ae, the panel will downloads these images directly to a directory you specify.
+                        This process allows direct access to your images without granting the converter app or Google any access to your data.
+                    </div>
+
+                    <div class="col-md-3">
+                        <h4>Authorization</h4>
+                        For security, AEUX uses OAuth2 to gain access to your Figma account.
+                        Figma manages the authentication of 3rd party plugins.
+                    </div>
+
+                    <div class="col-md-3">
+                        <h4>Deauthorizing</h4>
+                        Access tokens are generated per machine.
+                        Logging out removes the access token on this machine.
+                        To revoke access to your Figma account for AEUX, login to Figma,
+                        navigate to Account Settings, AEUX will be under Connected Apps.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="section-heading">
+                            <h1>Workflow</h1>
+                            <h4>Download Figma layers as JSON then drop it into the AEUX panel</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-1">
+                        <img class="icon" src="https://adamplouff.github.io/aeux-doc/images/AeLogo.png" alt="">
+                    </div>
+                    <div class="col-md-11">
+                        <h2>After Effects</h2>
+                    </div>
+
+                    <div class="col-md-4">
+                        <img src="https://adamplouff.github.io/aeux-doc/images/Ae_Build.png" alt="">
+                    </div>
+                    <div class="col-md-6">
+                        <p>Open the AEUX panel from the top menu <em>Window>Extensions</em>. </p>
+
+                        <div class="content">
+                            <h4 class="">Drag and drop</h4>
+                            <p> This Figma exporter will export layer data as a standalone .json file.
+                                Importing this file into Ae is done by clicking Import 📎, or by dropping the file on the AEUX panel.</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <section class="section">
+            <div class="container">
+                <div class="row">
+                <div class="col-md-12">
+                    <div class="section-heading">
+                    <h1>Ae Options</h1>
+                    <h4>Customize the way layers are built</h4>
+                    </div>
+                </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-3">
+
+                            <div class="content">
+                                <h4 class="">New Comp</h4>
+                                <p>Design apps are able to work at a lower resolution for different pixel densities but Ae needs a fixed size. The size of the new comp is defined by the Comp size multiplier. When creating a new comp, a comp size multiplier dropdown will be visible.</p>
+                            </div>
+                            <div class="content">
+                                <h4 class="">Current Comp</h4>
+                                <p>When adding new layers to an existing comp, the current comp’s width is measured and used to define the comp size multiplier of the incoming artboard. The comp size multiplier will scale the new layers so the width of the artboard and the width of the comp match.</p>
+                            </div>
+                    </div>
+                    <div class="col-md-4 heavy-pad">
+                        <img src="https://adamplouff.github.io/aeux-doc/images/AE_Options.png" alt="Layer build options">
+                    </div>
+                    <div class="col-md-3">
+
+                        <div class="content">
+                            <h4 class="">Detect parametric shapes</h4>
+                            <p>You may prefer rectangles and ellipses or you may love paths. Work the way you want with limited conversions.</p>
+                        </div>
+                        <div class="content">
+                            <h4 class="">Precomp groups</h4>
+                            <p>By default, groups are created as invisible parent layers to the visible layers in the main comp. This option will automatically precomp these grouped layers. Precomps may also be ungrouped with the <a href="#ae-groups">Grouping buttons</a>.</p>
+                        </div>
+                        <div class="content">
+                            <h4 class="">Auto build artboards</h4>
+                            <p>(SKETCH only) Enabling this option will hide the Build button and create layers as soon as they are available using the other currently selected options.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="section" id="ae-groups">
+            <div class="container">
+                <div class="row">
+                <div class="col-md-12">
+                    <div class="section-heading">
+                    <h1>Ae Groups</h1>
+                    <h4>Organizing layers into groups just like all the other design apps</h4>
+                    </div>
+                </div>
+                </div>
+
+                <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-3">
+                    <img src="https://adamplouff.github.io/aeux-doc/images/Groups.png" alt="Ae Layer Grouping">
+                </div>
+
+                    <div class="col-md-5">
+                        <div class="content">
+                            <h4 class="">Group and ungroup</h4>
+                            <p>Precomping avoids a long list of layers in a single comp but creates multiple inaccessible comps. It is now possible to precomp and un-precomp groups with a click.</p>
+                        </div>
+
+                        <div class="content">
+                            <h4 class="">Show and hide</h4>
+                            <p>Group layers are rectangle guide layers that do not render but can help transform multiple elements. Interacting with these is possible by switching layer visibility eyeball. Toggle all guild layer visibility with a click.</p>
+                        </div>
+
+                        <div class="content">
+                            <h4 class="">Delete all guide layers</h4>
+                            <p>If groups aren’t your thing and you end up with a bunch of unnecessary layers, clicking will remove all guide layers from the comp.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="section" id="install">
+            <div class="container">
+                <div class="row">
+                <div class="col-md-12">
+                    <div class="section-heading">
+                    <h1>Install</h1>
+                    <h4>The Figma exporter runs online but you need the Ae extension to import</h4>
+                    </div>
+                </div>
+                </div>
+
+                <div class="row mt-40">
+                <div class="col-md-2"></div>
+                <div class="col-md-1">
+                    <img class="icon" src="https://adamplouff.github.io/aeux-doc/images/AeLogo.png" alt="">
+                </div>
+
+                <div class="col-md-7">
+                    <div class="content">
+                    <h4 class="subheading">After Effects</h4>
+                    <p>Requirements: After Effects CC2014+ (2018+ for Figma image downloading)</p>
+                    <ul>
+                        <li>Download <a href="https://aescripts.com/learn/zxp-installer/">ZXP Installer</a> from <a href="https://aescripts.com/">aescripts + aeplugins</a></li>
+                        <li>Drag AEUX.zxp into ZXP Installer</li>
+                        <li>Close and reopen After Effects</li>
+                        <li>Open the Window menu, find the Extension group and will see AEUX</li>
+                    </ul>
+                    </div>
+                    <div class="content mt-40">
+                    <h4 class="">Troubleshooting</h4>
+                    <p>If you follow all the instructions of the standard installation and AEUX still isn't showing up in the AE
+                    Window>Extensions menu you're gonna need to do a manual install. You didn't do anything wrong, it just happens
+                    sometimes wth extensions.</p>
+                    <ul>
+                        <li>Change the extension of the AEUX.zxp file to .zip. It might give you a dialog warning about changing the file type but
+                        ignore it.</li>
+                        <li>Unzip this file to get a folder called AEUX</li>
+                        <li>Navigate to the Adobe extensions folder:</li>
+                        <ul>
+                        <li>[Mac]: /Users/**username**/Library/Application Support/Adobe/CEP/extensions/</li>
+                        <li>[Win]: C:/Users/**username**/AppData/Roaming/Adobe/CEP/extensions/</li>
+                        </ul>
+                        <li>Copy this AEUX folder to the /extensions/ folder</li>
+                        <li>Restart Ai/Ae and look for AEUX in the Window>Extensions folder</li>
+                    </ul>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </section>
+
+
+        <div class="section">
+            <div class="container">
+                <!-- <pre> -->
+                <h2>App status</h2>
+                <p></p>
+                <ul class="list-group col-md-6">
+                    <li class="list-group-item list-group-item-success">OAuth2 Figma authentication</li>
+                    <li class="list-group-item list-group-item-success">Input file ID</li>
+                    <li class="list-group-item list-group-item-success">Ping API and retreive JSON of file</li>
+                    <li class="list-group-item list-group-item-success">Generate thumbnails of file frames (artboards)</li>
+                    <li class="list-group-item list-group-item-success">Select frames to be exported</li>
+                    <li class="list-group-item list-group-item-warning">AEUX converter for each layer type
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-success">Rectangle</li>
+                            <li class="list-group-item list-group-item-success">Ellipse</li>
+                            <li class="list-group-item list-group-item-success">Closed Path</li>
+                            <li class="list-group-item list-group-item-danger">Open Path - Will export a complex version of the outlined shape. Waiting on new API hooks to support.</li>
+                            <li class="list-group-item list-group-item-success">Group</li>
+                            <li class="list-group-item list-group-item-success">Boolean shapes</li>
+                            <li class="list-group-item list-group-item-success">Nested Booleans</li>
+                            <li class="list-group-item list-group-item-danger">Boolean shapes that have been flattenened inside of boolean shapes that have been flattened again 🙄</li>
+                            <li class="list-group-item list-group-item-success">Component</li>
+                            <li class="list-group-item list-group-item-danger">Text - Works but will be misaligned vertically. Waiting on new API hooks.</li>
+                            <li class="list-group-item list-group-item-success">Images - Links are generated on the server and downloaded inside of Ae (be sure you have AEUX v0.6.6+)</li>
+                        </ul>
+                    </li>
+                    <li class="list-group-item list-group-item-success">Download JSON to disk</li>
+                    <li class="list-group-item list-group-item-success">Download images to disk</li>
+                    <li class="list-group-item list-group-item-warning">Affordance for art on different pages</li>
+                </ul>
+                <!-- </pre> -->
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                <div class="footer-logo">AEUX</div>
+                </div>
+                <div class="col-md-3">
+                <ul>
+                    <li class="">
+                    <a href="#workflow">Workflow</a>
+                    </li>
+                    <li class="">
+                    <a href="#install">Install</a>
+                    </li>
+                    <li class="">
+                    <a href="changelog/index.html">Change Log</a>
+                    </li>
+                    <li class="">
+                    <a href="https://adamplouff.github.io/aeux-doc/download/AEUX_v0.6.7.zip">Download</a>
+                    </li>
+                </ul>
+                </div>
+                <div class="col-md-3">
+                <a href="mailto:motiondesign@google.com" class=""><i class="far fa-envelope"></i> Contact</a>
+                </div>
+                <div class="col-md-3">
+                Built by <a href="https://battleaxe.co/" class="" target="_blank">Adam Plouff</a> and your friends at <a href="https://wearesumux.appspot.com/" class="" target="_blank"><i class="fab fa-google"></i> motion design.</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <script src="js/aeux.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

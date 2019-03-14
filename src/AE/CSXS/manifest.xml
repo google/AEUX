@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest
+	Version="5.0"
+	ExtensionBundleId="AEUX"
+	ExtensionBundleVersion="0.6.7"
+	ExtensionBundleName="AEUX"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<ExtensionList>
+		<Extension Id="com.AEUX.panel" Version="1.0" />
+	</ExtensionList>
+	<ExecutionEnvironment>
+		<HostList>
+            <!-- Uncomment Host tags according to the apps you want your panel to support -->
+            <!-- Photoshop -->
+            <!-- <Host Name="PHXS" Version="15.0" /> -->
+            <!-- Illustrator -->
+             <!-- <Host Name="ILST" Version="18.0" /> -->
+            <!-- InDesign -->
+            <!-- <Host Name="IDSN" Version="[10.0,10.9]" /> -->
+            <!-- Premiere -->
+            <!-- <Host Name="PPRO" Version="[8.0,8.9]" /> -->
+            <!-- AfterEffects -->
+            <Host Name="AEFT" Version="13.0" />
+            <!-- PRELUDE -->
+            <!-- <Host Name="PRLD" Version="[3.0,3.9]" />   -->
+            <!-- FLASH Pro -->
+            <!-- <Host Name="FLPR" Version="[14.0,14.9]" /> -->
+
+		</HostList>
+		<LocaleList>
+			<Locale Code="All" />
+		</LocaleList>
+		<RequiredRuntimeList>
+			<RequiredRuntime Name="CSXS" Version="5" />
+		</RequiredRuntimeList>
+	</ExecutionEnvironment>
+	<DispatchInfoList>
+		<Extension Id="com.AEUX.panel">
+			<DispatchInfo >
+				<Resources>
+				<MainPath>./html/index.html</MainPath>
+				<CEFCommandLine>
+					<Parameter>--enable-nodejs</Parameter>
+					<Parameter>--mixed-context</Parameter>
+   				</CEFCommandLine>
+				</Resources>
+				<Lifecycle>
+					<AutoVisible>true</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type>Panel</Type>
+					<Menu>AEUX</Menu>
+					<Geometry>
+						<Size>
+							<Height>300</Height>
+							<Width>300</Width>
+						</Size>
+						<MinSize>
+							<Width>40</Width>
+			        		<Height>40</Height>
+				    	</MinSize>
+					</Geometry>
+				</UI>
+			</DispatchInfo>
+		</Extension>
+
+	</DispatchInfoList>
+</ExtensionManifest>

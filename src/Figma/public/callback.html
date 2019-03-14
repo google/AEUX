@@ -1,0 +1,38 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>authorizing access to Figma API…</title>
+  <script src="js/fdk.umd.js"></script>
+</head>
+
+<body>
+  <script>
+    const parsedUrl = new URL(window.location.href);
+    const code = parsedUrl.searchParams.get('code');
+    const state = parsedUrl.searchParams.get('state');
+    const figmaAuthorizationCodeData = JSON.stringify({code, state});
+    
+    window.localStorage.setItem('figma-authorization-code-data', figmaAuthorizationCodeData);
+    
+    const figmaApi = new fdk.FigmaApi({
+        clientId: "cWdGmOYOBBVSIuPoFUdjjf",
+        clientSecret: "64NFGYGuJ2r0WzHOfUEPzSlUEomVU0",
+        redirectUri: "https://aeux-55e58.firebaseapp.com/callback.html"
+      });
+
+    const tokenPromise = figmaApi.getAccessTokenData(code)
+        .then(accessTokenData => figmaApi.storeAccessTokenData(accessTokenData))
+        .then(token => returnHome(token))
+        .catch(error => console.error(error));
+    // window.close();
+
+    function returnHome(token) {
+      console.log(token)
+      window.location.href = "/";
+    }
+    
+  </script>
+</body>
+</html>

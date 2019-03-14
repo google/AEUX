@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionList>
+    <Extension Id="com.AEUX.panel">
+        <HostList>
+          <!-- AfterEffects -->
+          <Host Name="AEFT" Port="8093" />
+        </HostList>
+    </Extension>
+    <Extension Id="com.AEUX-Figma.panel">
+        <HostList>
+          <!-- AfterEffects -->
+          <Host Name="AEFT" Port="8094" />
+        </HostList>
+    </Extension>
+</ExtensionList>
+
+
+<!-- App Codes -->
+<!-- Photoshop      "PHXS" -->
+<!-- Illustrator    "ILST" -->
+<!-- InDesign       "IDSN" -->
+<!-- Premiere       "PPRO" -->
+<!-- AfterEffects   "AEFT" -->
+<!-- PRELUDE        "PRLD" -->
+<!-- FLASH Pro      "FLPR" -->

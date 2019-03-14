@@ -1,0 +1,18 @@
+.figma-frame {
+    display: inline;
+    width: 100%;
+    float: left;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: #eee solid 1px;
+}
+
+.figma-buttons {
+    margin-top: 24px;
+}
+
+.figma-img {
+    border: #eee solid 1px;
+    height: 300px;
+    width: auto;
+}

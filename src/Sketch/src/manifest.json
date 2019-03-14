@@ -1,0 +1,64 @@
+{
+  "name": "AEUX",
+  "description": "Transfer layers to After Effects",
+  "author": "Adam Plouff",
+  "homepage": "https://aeux.io",
+  "version": "0.6.7",
+  "identifier": "com.wearesumux.AEUX",
+  "appcast": "https://raw.githubusercontent.com/google/sketch2ae/master/appcast.xml",
+  "compatibleVersion": "3",
+  "bundleVersion": 1,
+  "icon": "icon.png",
+  "commands": [
+    {
+      "script": "plugin.js",
+      "handler": "openWindow",
+      "name": "Open panel",
+      "identifier" : "com.wearesumux.AEUX.panel",
+      "shortcut": "ctrl shift z"
+    },
+    {
+      "script": "plugin.js",
+      "handler": "pushJSON",
+      "name": "Selection to Ae",
+      "identifier" : "com.wearesumux.AEUX.push"
+    },
+    {
+      "script": "plugin.js",
+      "handler": "saveJSON",
+      "name": "Export AEUX.json",
+      "identifier" : "com.wearesumux.AEUX.save"
+    },
+    {
+      "script": "plugin.js",
+      "handler": "detachSymbols",
+      "name": "Detach Symbols",
+      "identifier" : "com.wearesumux.AEUX.detach"
+    },
+    {
+      "script": "plugin.js",
+      "handler": "flattenCompounds",
+      "name": "Flatten Shapes",
+      "identifier" : "com.wearesumux.AEUX.flatten"
+    },
+    {
+      "script": "plugin.js",
+      "handler": "imageToSymbol",
+      "name": "Images to Symbols",
+      "identifier" : "com.wearesumux.AEUX.image"
+    }
+  ],
+  "menu": {
+    "isRoot": false,
+    "items": [
+        "com.wearesumux.AEUX.panel",
+        "-",
+        "com.wearesumux.AEUX.push",
+        "com.wearesumux.AEUX.save",
+        "-",
+        "com.wearesumux.AEUX.detach",
+        "com.wearesumux.AEUX.flatten",
+        "com.wearesumux.AEUX.image"
+    ]
+  }
+}

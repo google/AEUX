@@ -1,0 +1,9 @@
+# Dependency directories
+node_modules/
+Install/
+
+# Certificate
+cert.p12
+
+
+.DS_Store

@@ -1,0 +1,34 @@
+{
+  "name": "aeux",
+  "version": "0.6.6",
+  "engines": {
+    "sketch": ">=3.0"
+  },
+  "skpm": {
+    "name": "AEUX",
+    "manifest": "src/manifest.json",
+    "main": "../../../Public Repo/sketch2ae/AEUX.sketchplugin",
+    "assets": [
+      "assets/**/*"
+    ]
+  },
+  "scripts": {
+    "build": "skpm-build",
+    "watch": "skpm-build --watch",
+    "start": "skpm-build --watch --run",
+    "postinstall": "npm run build && skpm-link"
+  },
+  "devDependencies": {
+    "@skpm/builder": "^0.4.0"
+  },
+  "author": "Adam Plouff <adamplouff@gmail.com>",
+  "dependencies": {
+    "clipboardy": "^1.2.3",
+    "mocha-js-delegate": "^0.1.1",
+    "vue": "^2.5.16",
+    "vue-material": "^1.0.0-beta-10.2"
+  },
+  "resources": [
+    "resources/**/*.js"
+  ]
+}

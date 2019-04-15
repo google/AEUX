@@ -1,6 +1,6 @@
 {
   "name": "aeux",
-  "version": "0.6.6",
+  "version": "0.6.8",
   "engines": {
     "sketch": ">=3.0"
   },
@@ -11,6 +11,9 @@
     "assets": [
       "assets/**/*"
     ]
+  },
+  "repository": {
+    "url": "https://github.com/google/sketch2ae"
   },
   "scripts": {
     "build": "skpm-build",

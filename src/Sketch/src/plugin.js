@@ -457,22 +457,30 @@ function filterTypes(selection) {
 
 //// get artboard data
 function storeArtboard() {
-	var artboard = document.sketchObject.findCurrentArtboardGroup() || null;
-
+	var artboard = selection.layers[0].getParentArtboard() || selection.layers[0] || null;
     /// no artboard so store generic
 	if (artboard === null) {
         return {}
     }
 
+	var bgColor = [1,1,1,1];
+
+	try {
+		if (artboard.background.enabled) {
+			bgColor = hexToArray(artboard.background.color);
+		}
+	} catch (e) {
+
+	}
+
     var artboardObj = {
         type: 'Artboard',
         aeuxVersion: versionNumber,
         hostApp: 'Sketch',
-        name: (artboard.name() + '&').slice(0, -1),
-        bgColor: sketchColorToArray(artboard.backgroundColor()),
-        size: [artboard.frame().width(), artboard.frame().height()]
+        name: artboard.name,
+        bgColor: bgColor,
+        size: [artboard.frame.width, artboard.frame.height]
     };
-
     /// tells filterTypes() this doesn't need to run again
     hasArtboard = true;
 
@@ -542,6 +550,9 @@ function getSymbol(layer) {
     //     var imageLayer = getImage(layer);
     //     return imageLayer;
     // }
+
+	if (layer.master == null) { return {}; }		// skip if layer missing
+
 	var layerData =  {
         type: 'Symbol',
 		name: layer.master.name,
@@ -790,7 +801,6 @@ function getCompoundShapes(layers) {
         if (layerType == 'CompoundShape') {
             layerList[i].layers = getCompoundShapes(layer.layers);
         }
-        console.log(layers[i]);
     }
 
     return layerList;
@@ -1340,6 +1350,15 @@ function sketchColorToArray(c) {
 	return JSON.parse(colorString);
 }
 
+
+//// convert hex color to array
+function hexToArray(hexString) {
+	var hexColor = hexString.replace('#', '');
+	var r = parseInt(hexColor.slice(0, 2), 16) / 255,
+		g = parseInt(hexColor.slice(2, 4), 16) / 255,
+		b = parseInt(hexColor.slice(4, 6), 16) / 255;
+	return [r, g, b, 1];
+}
 
 //// DEPRECIATED
 // function sketchColorToOpacity(c) {

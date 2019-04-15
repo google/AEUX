@@ -1,13 +1,13 @@
 {
   "name": "AEUX",
-  "version": "0.6.7",
+  "version": "0.6.8",
   "description": "Transfer layer to After Effects",
   "main": "gulpfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Battle Axe",
+  "author": "Adam Plouff",
   "license": "ISC",
   "devDependencies": {
     "@babel/plugin-transform-arrow-functions": "^7.2.0",

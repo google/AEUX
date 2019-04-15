@@ -22,10 +22,11 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         aeuxData.push(storeArtboard(figmaData));
         frameData = figmaData;      // store the whole frame data
     }
-    layers = figmaData.children; console.log(figmaData);
-    
+    layers = figmaData.children;
+    // console.log(figmaData);
+
     layers.forEach(layer => {
-        
+
         if (layer.type == "GROUP" || layer.type == "FRAME") {
             aeuxData.push(getGroup(layer, parentFrame));
         }
@@ -141,19 +142,33 @@ function getText(layer, parentFrame) {
         fill: null,
         stroke: getStrokes(layer),
 		blendMode: getLayerBlending(layer.blendMode),
-        fontName: layer.style.fontPostScriptName,
+        // fontName: layer.style.fontPostScriptName,
+        fontName: layer.style.fontPostScriptName || layer.style.fontFamily,
         fontSize: layer.style.fontSize,
         trackingAdjusted: layer.style.letterSpacing / layer.style.fontSize * 1000,
         tracking: layer.style.letterSpacing,
         justification: getJustification(layer),
-        lineHeight: (layer.style.lineHeightPercent != 100) ? layer.style.lineHeightPx : null,
+        lineHeight: layer.style.lineHeightPx,
         flip: flip,
         rotation: getRotation(layer),
         isMask: layer.isMask,
     };
 
     getEffects(layer, layerData);
+    // console.log(layer.style);
+    getThumbnail('0cRk8qFB9MiCkEtniYatxqc6', layer.id).then(imgSvg => {
+        console.log(imgSvg);
 
+        var ajax = new XMLHttpRequest();
+        ajax.open("GET", 'file.svg', true);
+        // ajax.open("GET", imgSvg, true);
+
+        ajax.onload = function(e) {
+            var xmlDOM = new DOMParser().parseFromString(ajax.responseText, 'text/xml');
+            console.log(xmlToJson(xmlDOM));
+        }
+        ajax.send();
+    });
 
     return layerData;
 
@@ -296,13 +311,29 @@ function getComponent(layer, parentFrame) {
 function getBoolean(layer, parentFrame, isMultipath) {
     // var flip = getFlipMultiplier(layer);
     var frame = getFrame(layer, parentFrame);
-    console.log(layer.name, getBoolType(layer))
+    // console.log(layer.name, getBoolType(layer))
     var boolType = getBoolType(layer);
     var path = getPath(layer, frame);
 
     if (path == 'multiPath') {
         isMultipath = true;
     }
+    getThumbnail('0cRk8qFB9MiCkEtniYatxqc6', layer.id).then(imgSvg => {
+        console.log(imgSvg);
+
+        var ajax = new XMLHttpRequest();
+        // ajax.open("GET", 'file.svg', true);
+        ajax.open("GET", imgSvg, true);
+
+        ajax.onload = function(e) {
+            var xmlDOM = new DOMParser().parseFromString(ajax.responseText, 'text/xml');
+            console.log(xmlToJson(xmlDOM));
+        }
+        ajax.send();
+    });
+
+
+
 	var layerData =  {
         type: 'CompoundShape',
 		name: layer.name,
@@ -330,7 +361,7 @@ function getBoolean(layer, parentFrame, isMultipath) {
         } catch (error) {
             layerData.layers = getCompoundPaths(layer.strokeGeometry[0].path, layer);
         }
-        
+
     // } else if (layer.fillGeometry.length > 1) {
     //     console.log('dhdjwofh')
     //     layerData.layers = getCompoundShapes(layer.children, boolType);
@@ -384,7 +415,7 @@ function getCompoundShapes(layers, boolType, isMultipath) {
             // layers: filterTypes(layer, frame),
         });
 
-        
+
 
         if (layer.type == 'BOOLEAN_OPERATION') {
             if (isMultipath) {
@@ -670,33 +701,9 @@ function getImageFill(layer) {
         isMask: layer.isMask,
     };
 
-    // aeuxData[0].imageUrls.push(layer.id);
     vm.imageIdList.push(layer.id);
 
-    // if ( !getFolderPath() ) { return null };        // canceled
-    //
-    // var imageFile = exportLayer(layer, folderPath);
-    // layerData.path = imageFile.path;
-    // layerData.scale = imageFile.scale;
     return layerData;
-    //
-    //
-    // /// export image
-    // function exportLayer(layer, path) {
-    //     sketch.export(layer, {
-    //         output: path,
-    //         'use-id-for-name': true,
-    //         overwriting: true,
-    //         'save-for-web': true,
-    //         'group-contents-only': true,
-    //         scales: 4,
-    //     })
-    //
-    //     return {
-    //         path: path,
-    //         scale: 'scale'
-    //         }
-    // }
 }
 //// get layer data: STROKE
 function getStrokes(layer) {
@@ -1043,7 +1050,7 @@ function getPath(layer, bounding, type) {
             terms = string.substring(2).trim().split(" ");
 
             // check closing
-            if (op == 'Z') { 
+            if (op == 'Z') {
                 shouldClosePath = true;
                 // zCount++;
             }
@@ -1090,9 +1097,9 @@ function getPath(layer, bounding, type) {
             pathObj.outTangents.unshift(pathObj.outTangents.pop())
         }
         if (shouldClosePath) {
-            pathObj.closed = true; 
+            pathObj.closed = true;
         }
-        
+
         // console.log(zCount);
         if (zCount > 1) { return 'multiPath'; }
         return pathObj;

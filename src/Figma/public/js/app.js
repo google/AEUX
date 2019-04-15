@@ -1,4 +1,3 @@
-
 const figmaApi = new fdk.FigmaApi({
   clientId: "cWdGmOYOBBVSIuPoFUdjjf",
   clientSecret: "64NFGYGuJ2r0WzHOfUEPzSlUEomVU0",
@@ -8,12 +7,11 @@ const figmaApi = new fdk.FigmaApi({
 var vm = new Vue({
   el: "#app",
   data: {
-    message: "Hello Vue!",
     hasToken: false,
     figmaApiKey: "", // personal access token
     // figmaApiKey: "2368-4b47e390-2b13-4c81-911f-e6d4ade505ac", // personal access token
-    // fileUrl: "https://www.figma.com/file/dqnhhOFD6nSQnER5camJgFuD/Image-Tester?node-id=1%3A3&viewport=523%2C474%2C1",
-    fileUrl: "https://www.figma.com/file/WMXYs71NA4zPYT1T9GUPZneu/FimgasExport?node-id=0%3A1&viewport=-399%2C101%2C0.5",
+    // fileUrl: "https://www.figma.com/file/WMXYs71NA4zPYT1T9GUPZneu/FimgasExport?node-id=0%3A1&viewport=-399%2C101%2C0.5",
+    fileUrl: "https://www.figma.com/file/0cRk8qFB9MiCkEtniYatxqc6/Text-tester?node-id=0%3A2&viewport=157%2C112%2C1",
     imageIdList: [],
     imageUrlList: [],
     aeuxData: {},
@@ -37,15 +35,15 @@ var vm = new Vue({
       window.localStorage.setItem(
         "figma-access-token-data",
         JSON.stringify({
-          token: "RXMeM-oJLDkdGepBLX9KjlB8olBC5Wasa4DzS9hD",
-          expireOnEpoch: 1549465544466
+          token: "0CWd46oGNclmebNEsa9Usj9R5mWVuHzqWOBWreSf",
+          expireOnEpoch: 1561647895236
         })
       );
       window.localStorage.setItem(
         "figma-authorization-code-data",
         JSON.stringify({
-          code: "ZL69ukM0lS26GdzQP1nKyOpOm",
-          state: "0.5923836836628273"
+          code: "r3ADUSPayVU71KXZfluZhdQ80",
+          state: "0.47658592781062126"
         })
       );
 
@@ -71,23 +69,23 @@ var vm = new Vue({
           }
         });
       },
-      getToken: function() {
-          console.log("getting token");
-          figmaApi.startAuth();
-          //   figmaApi.getOAuth2Token().then(token => {
-          //     console.log(token);
-          //     this.figmaApiKey = token;
-          //     this.hasToken = true;
-          //   });
-      },
+    getToken: function() {
+        console.log("getting token");
+        figmaApi.startAuth();
+        //   figmaApi.getOAuth2Token().then(token => {
+        //     console.log(token);
+        //     this.figmaApiKey = token;
+        //     this.hasToken = true;
+        //   });
+    },
     getFigmaDoc: function() {
         vm.isPingingFigma = true;
-        console.log('ping');
+        // console.log('ping');
 
         var file_key = vm.fileUrl.split("/file/")[1].split("/")[0];
         //   getJson(file_key);
         getJson(file_key).then(figmaJson => {
-            console.log(figmaJson);
+            // console.log(figmaJson);
             figmaJson.forEach(frame => {
                 frame.isGeneratingImages = false;
             });
@@ -108,7 +106,7 @@ var vm = new Vue({
 
         function storeImage(i, figmaJson) {
             getThumbnail(file_key, figmaJson[i].id).then(imageUrl => {
-            vm.thumbnails.splice(i, 1, imageUrl);
+                vm.thumbnails.splice(i, 1, imageUrl);
             });
         }
     },
@@ -185,7 +183,7 @@ async function getThumbnail(figmaId, id) {
     console.log("getting image", id);
     // vm.imageUrl = null;
     let result = await fetch(
-    "https://api.figma.com/v1/images/" + figmaId + "?ids=" + id + "&scale=1",
+    "https://api.figma.com/v1/images/" + figmaId + "?ids=" + id + "&scale=1" + "&format=svg",
         {
             method: "GET",
             headers: {
@@ -195,6 +193,7 @@ async function getThumbnail(figmaId, id) {
         }
     );
     let data = await result.json();
+    console.log(data);
     return data.images[id];
 }
 async function downloadImages(ids, frame) {
@@ -226,3 +225,40 @@ async function downloadImages(ids, frame) {
     frame.isGeneratingImages = false;
     return vm.imageUrlList;
 }
+function xmlToJson(xml) {
+
+	// Create the return object
+	var obj = {};
+
+	if (xml.nodeType == 1) { // element
+		// do attributes
+		if (xml.attributes.length > 0) {
+		obj["@attributes"] = {};
+			for (var j = 0; j < xml.attributes.length; j++) {
+				var attribute = xml.attributes.item(j);
+				obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+			}
+		}
+	} else if (xml.nodeType == 3) { // text
+		obj = xml.nodeValue;
+	}
+
+	// do children
+	if (xml.hasChildNodes()) {
+		for(var i = 0; i < xml.childNodes.length; i++) {
+			var item = xml.childNodes.item(i);
+			var nodeName = item.nodeName;
+			if (typeof(obj[nodeName]) == "undefined") {
+				obj[nodeName] = xmlToJson(item);
+			} else {
+				if (typeof(obj[nodeName].push) == "undefined") {
+					var old = obj[nodeName];
+					obj[nodeName] = [];
+					obj[nodeName].push(old);
+				}
+				obj[nodeName].push(xmlToJson(item));
+			}
+		}
+	}
+	return obj;
+};

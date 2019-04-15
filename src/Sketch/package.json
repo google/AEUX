@@ -7,7 +7,7 @@
   "skpm": {
     "name": "AEUX",
     "manifest": "src/manifest.json",
-    "main": "../../../Public Repo/sketch2ae/AEUX.sketchplugin",
+    "main": "../../../sketch2ae/Install/AEUX.sketchplugin",
     "assets": [
       "assets/**/*"
     ]

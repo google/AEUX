@@ -1190,6 +1190,7 @@ function setMask(currentLayer, layerData) {
 
 	// if the current comp has a mask layer
 	if (maskLayer[layerID]) {
+		try {
 		maskLayer[layerID].enabled = false;
 		var newMask = maskLayer[layerID].duplicate();
 			newMask.moveBefore(currentLayer);
@@ -1202,6 +1203,7 @@ function setMask(currentLayer, layerData) {
 			newMask.locked = true;
 
 		currentLayer.trackMatteType = TrackMatteType.ALPHA;
+		} catch (e) {}
 	}
 
 	// define the mask layer

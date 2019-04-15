@@ -98,10 +98,10 @@ gulp.task('copy-to-repo', [], function () {
     console.log(error, result)
 });
 
-gulp.task('clean-intermediates', ['copy-to-repo'], function () {
+gulp.task('clean-intermediates', ['build'], function () {
   return del(
         destinationFolder + panelName
   );
 });
 
-gulp.task('default', ['clean-intermediates']);
+gulp.task('default', ['build']);

@@ -24,7 +24,9 @@
     <script src="js/libs/fdk.umd.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.4/jszip.min.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.js" type="text/javascript"></script>
-    <script type="text/javascript" src="https://fastcdn.org/FileSaver.js/1.1.20151003/FileSaver.js"></script>
+    <!-- <script type="text/javascript" src="https://fastcdn.org/FileSaver.js/1.1.20151003/FileSaver.js"></script> -->
+    <script src="js/libs/FileSaver.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/file-saverjs@1.3.6/FileSaver.js"></script> -->
 
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -32,11 +34,13 @@
 </head>
 
 <body>
-    <div id="app">
+    <div id="app"><div v-cloak>
         <div class="container">
             <nav class="navbar navigation" id="top-nav">
-                <a class="navbar-brand logo" href="#">
-                <h1>AEUX</h1>
+                <a class="navbar-brand logo" href="http://aeux.io">
+                <!-- <h1>AEUX</h1> -->
+
+                <img src="images/AEUX.svg" alt="AEUX logo">
                 <h6>Figma exporter (beta)</h6>
                 </a>
 
@@ -71,9 +75,12 @@
                         <div class="col-md-2"></div>
                         <div class="col-md-8">
                             <div class="input-group mb-3">
-                                <input type="text" class="form-control" v-model="fileUrl">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Figma file URL</span>
+                                </div>
+                                <input type="text" class="form-control" v-model="fileUrl" id="fileUrl" @keyup.enter="getFigmaDoc">
                                 <div class="input-group-append">
-                                    <span class="btn btn-outline-secondary" id="basic-addon2" @click="getFigmaDoc"><i class="far fa-arrow-alt-circle-right"></i></span>
+                                    <span class="input-group-text" id="basic-addon2" @click="getFigmaDoc"><i class="far fa-arrow-alt-circle-right"></i></span>
                                 </div>
                             </div>
                             <div v-show="isPingingFigma">Connecting to Figma...</div>
@@ -82,60 +89,71 @@
                         <div class="col-md-2"></div>
                     </div>
 
-
-                    <br><br>
-                    <div class="row">
-                        <h3>Exporter options</h3><br><br>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" v-model="prefs.downloadThumbnails" @change="getFigmaDoc">
-                                <label class="form-check-label" for="exampleCheck1" @change="">Download thumbnails</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <!-- <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" v-model="prefs.downloadThumbnails">
-                                <label class="form-check-label" for="exampleCheck1">Download thumbnails</label>
-                            </div> -->
-                        </div>
-
-                        <div class="col-md-4">
-                            <!-- <button class="btn btn-outline-secondary">Logout</button> -->
-                        </div>
-                    </div>
                 </div>
 
 
-                <div class="container-fluid text-center">
-                    <div class="row content">
-                        <div v-for="(frame, index) in figmaTree" class="figma-frame">
-                            <div class="row justify-content-start">
-                                <div class="col-sm-4 text-left">
-                                        <h3>{{ frame.name }}</h3>
-                                        {{ frame.size.x | round }} x {{ frame.size.y | round }}
 
-                                        <div class='figma-buttons'>
-                                            <button class="btn btn-outline-primary btn-sm" @click="downloadJson(frame)">Download</button>
-                                            <div v-show="frame.isGeneratingImages">Generating images...</div>
-                                            <button class="btn btn-outline-primary btn-sm" @click="aeuxConvert(frame)">Convert</button>
-                                        </div>
+                <div class="container-fluid text-center" v-if="figmaTree.length > 0">
+                    <div class="row content">
+
+                        <div class="fold-group">
+                            <div class="group-heading" @click="exportOptionsUnfold = !exportOptionsUnfold">
+                                Options
+                                <div class="fold-icon" v-bind:class="{flip : !exportOptionsUnfold}">
+                                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+                                </div>
+                            </div>
+
+                            <div class="fold-content" v-show="exportOptionsUnfold">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" class="form-check-input" id="download-thumbnails" v-model="prefs.downloadThumbnails" @change="toggleDownloadThumbnails">
+                                    <label class="form-check-label" for="download-thumbnails">Download thumbnails</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fold-group">
+                            <div class="group-heading" @click="pageSelectorUnfold = !pageSelectorUnfold">
+                                Page: {{ figmaTree[figmaPage].name }}
+                                <div class="fold-icon" v-bind:class="{flip : !pageSelectorUnfold}">
+                                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+                                </div>
+                            </div>
+
+                            <div class="fold-content" v-show="pageSelectorUnfold">
+                                <ul class="page-selector-list">
+                                    <li v-for="(page, index) in figmaTree" @click="figmaPage = index"><em v-show="index == figmaPage" class="selected-page">✓ </em>{{page.name}}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        <div v-for="(frame, index) in figmaTree[figmaPage].children" class="figma-frame">
+                            <div class="row justify-content-start" v-if="frame.backgroundColor">
+                                <div class="col-sm-4 text-left">
+                                    <h3>{{ frame.name }}</h3>
+                                    {{ frame.size.x | round }} x {{ frame.size.y | round }}
+
+                                    <div class='figma-buttons'>
+                                        <button class="btn btn-outline-primary btn-sm" @click="downloadJson(frame)">Download</button>
+                                        <div v-show="frame.isGeneratingImages">Generating images...</div>
+                                        <!-- <button class="btn btn-outline-primary btn-sm" @click="aeuxConvert(frame)">Convert</button> -->
+                                    </div>
                                 </div>
                                 <div class="col-sm-8 text-left" v-if="prefs.downloadThumbnails">
-                                    <img class="img-fluid figma-img" v-bind:src="thumbnails[index]" :style="{height: '240px'}">
+                                    <img class="img-fluid figma-img" v-bind:src="thumbnails[frame.id]" :style="{height: '240px'}">
                                 </div>
                                 <div class="col-sm-8 text-left" v-if="!prefs.downloadThumbnails">
                                     <div class="img-fluid figma-img" :style="{width: ((frame.size.x/frame.size.y)*240) + 'px', height: '240px', 'background-color': rgbToHex(frame.backgroundColor)}"></div>
                                 </div>
                             </div>
-
                         </div>
+
+
                     </div>
                 </div>
 
                 <!-- Debugging -->
-                <div class="container-fluid text-center section">
+                <!-- <div class="container-fluid text-center section">
                         <div class="section-heading mx-auto">
                             <h1>Converter</h1>
                             <button class="btn btn-outline-primary btn-sm" @click="aeuxConvert(figmaTree)">Convert</button>
@@ -155,7 +173,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
 
 
@@ -208,7 +226,7 @@
         </div>
 
 
-        <div class="section">
+        <div class="section" id="workflow">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
@@ -220,32 +238,79 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-1">
-                        <img class="icon" src="https://adamplouff.github.io/aeux-doc/images/AeLogo.png" alt="">
-                    </div>
-                    <div class="col-md-11">
-                        <h2>After Effects</h2>
-                    </div>
-
                     <div class="col-md-4">
-                        <img src="https://adamplouff.github.io/aeux-doc/images/Ae_Build.png" alt="">
-                    </div>
-                    <div class="col-md-6">
-                        <p>Open the AEUX panel from the top menu <em>Window>Extensions</em>. </p>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <img class="icon" src="https://aeux.io/images/FigmaLogo.svg" alt="">
+                            </div>
+                            <div class="col-md-9">
+                                <h2>Figma</h2>
+                            </div>
+                        </div>
+                        <!-- <div class="row">
+                            <div class="col-md-12">
+                                <img src="https://aeux.io/images/Ae_Build.png" alt="">
+                            </div>
+                        </div> -->
 
-                        <div class="content">
-                            <h4 class="">Drag and drop</h4>
-                            <p> This Figma exporter will export layer data as a standalone .json file.
-                                Importing this file into Ae is done by clicking Import 📎, or by dropping the file on the AEUX panel.</p>
+                    </div>
+                    <div class="col-md-8 workflow">
+                        <h4>1. Copy Figma file URL</h4>
+                        <ul>
+                            <li>Open a Figma file in the browser and copy the whole URL</li>
+                            <li>or in Figma, click <b>SHARE</b> in the top right, then click <b>Copy Link</b></li>
+                        </ul>
+                        <h4>2. Paste into the URL field at the top of this page</h4>
+                        <ul>
+                            <li>A list of frames within the file will load</li>
+                            <li>Select from the available pages directly above the frames list</li>
+                            <li>An option to download thumbnails is available but disabling will speed things up</li>
+                        </ul>
+                        <h4>3. Locate the desired frame and download a JSON file</h4>
+
+                        <p><br>
+                            Note: At this time, it is not possible to add a plugin panel to the Figma interface.
+                            Unlike the Sketch AEUX plugin, it is not yet possible to select individual layers from a frame.
+                            Instead, all layers within an artboard will be downloaded.
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <img class="icon" src="https://aeux.io/images/AeLogo.png" alt="">
+                            </div>
+                            <div class="col-md-9">
+                                <h2>After Effects</h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <img src="https://aeux.io/images/Ae_Build.png" alt="">
+                            </div>
                         </div>
 
+                    </div>
+                    <div class="col-md-8 workflow">
+                        <h4>1. <a href="#install">Install</a> and open AEUX inside of After Effects</h4>
+                        <ul>
+                            <li>Located in the top menu Window>Extensions</li>
+                        </ul>
+                        <h4>2. Set your desired comp <a href="#options">options</a></h4>
+                        <h4>3. Import the downloaded AEUX.json file</h4>
+                        <ul>
+                            <li>Drop the file onto the AEUX panel</li>
+                            <li>or click the <i class="fas fa-paperclip"></i> to navigate to file</li>
+                        </ul>
+                        <h4>4. Watch those layers build 😬</h4>
                     </div>
                 </div>
 
             </div>
         </div>
 
-        <section class="section">
+        <section class="section" id="options">
             <div class="container">
                 <div class="row">
                 <div class="col-md-12">
@@ -397,8 +462,8 @@
                         <ul class="list-group">
                             <li class="list-group-item list-group-item-success">Rectangle</li>
                             <li class="list-group-item list-group-item-success">Ellipse</li>
-                            <li class="list-group-item list-group-item-success">Closed Path</li>
-                            <li class="list-group-item list-group-item-danger">Open Path - Will export a complex version of the outlined shape. Waiting on new API hooks to support.</li>
+                            <li class="list-group-item list-group-item-success">Filled Path</li>
+                            <li class="list-group-item list-group-item-warning">Stroked paths with no fill - Working but requires a bit of a workaround that tends to misalign shapes if transformed before being grouped.</li>
                             <li class="list-group-item list-group-item-success">Group</li>
                             <li class="list-group-item list-group-item-success">Boolean shapes</li>
                             <li class="list-group-item list-group-item-success">Nested Booleans</li>
@@ -410,19 +475,23 @@
                     </li>
                     <li class="list-group-item list-group-item-success">Download JSON to disk</li>
                     <li class="list-group-item list-group-item-success">Download images to disk</li>
-                    <li class="list-group-item list-group-item-warning">Affordance for art on different pages</li>
+                    <li class="list-group-item list-group-item-success">Affordance for art on different pages</li>
                 </ul>
                 <!-- </pre> -->
             </div>
         </div>
 
-    </div>
+    </div></div>
 
     <footer>
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
-                <div class="footer-logo">AEUX</div>
+                <div class="footer logo">
+                    <a class="navbar-brand logo" href="http://aeux.io">
+                        <img src="images/AEUX.svg" alt="AEUX logo">
+                    </a>
+                </div>
                 </div>
                 <div class="col-md-3">
                 <ul>

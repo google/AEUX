@@ -1,8 +1,12 @@
+var prefs = getPrefs();
+
 const figmaApi = new fdk.FigmaApi({
   clientId: "cWdGmOYOBBVSIuPoFUdjjf",
   clientSecret: "64NFGYGuJ2r0WzHOfUEPzSlUEomVU0",
   redirectUri: "https://aeux-55e58.firebaseapp.com/callback.html"
 });
+
+var loadingGif = 'https://thomas.vanhoutte.be/miniblog/wp-content/uploads/light_blue_material_design_loading.gif';
 
 var vm = new Vue({
   el: "#app",
@@ -10,18 +14,20 @@ var vm = new Vue({
     hasToken: false,
     figmaApiKey: "", // personal access token
     // figmaApiKey: "2368-4b47e390-2b13-4c81-911f-e6d4ade505ac", // personal access token
-    // fileUrl: "https://www.figma.com/file/WMXYs71NA4zPYT1T9GUPZneu/FimgasExport?node-id=0%3A1&viewport=-399%2C101%2C0.5",
-    fileUrl: "https://www.figma.com/file/0cRk8qFB9MiCkEtniYatxqc6/Text-tester?node-id=0%3A2&viewport=157%2C112%2C1",
+    fileUrl: "https://www.figma.com/file/WMXYs71NA4zPYT1T9GUPZneu/FimgasExport?node-id=0%3A1&viewport=-399%2C101%2C0.5",
+    // fileUrl: "https://www.figma.com/file/vX6CIMeB7dPLVt7lqebc83/AEUX_Test-(Copy)?node-id=0%3A1",
     imageIdList: [],
+    svgIdList: [],
     imageUrlList: [],
     aeuxData: {},
-    thumbnails: [],
+    thumbnails: {},
     generatingImagesList: [],
     isPingingFigma: false,
     figmaTree: {},
-    prefs: {
-        downloadThumbnails: false,
-    }
+    figmaPage: 0,
+    exportOptionsUnfold: false,
+    pageSelectorUnfold: false,
+    prefs: prefs,
   },
   methods: {
     // used for the frame background color when not showing a thumbnail
@@ -78,44 +84,60 @@ var vm = new Vue({
         //     this.hasToken = true;
         //   });
     },
+    toggleDownloadThumbnails: function () {
+        if (vm.prefs.downloadThumbnails) { vm.getFigmaDoc() };
+        vm.savePrefs();
+    },
+    savePrefs: function () {
+        window.localStorage.setItem( "prefs", JSON.stringify(vm.prefs) );
+    },
     getFigmaDoc: function() {
         vm.isPingingFigma = true;
         // console.log('ping');
 
         var file_key = vm.fileUrl.split("/file/")[1].split("/")[0];
-        //   getJson(file_key);
-        getJson(file_key).then(figmaJson => {
-            // console.log(figmaJson);
-            figmaJson.forEach(frame => {
-                frame.isGeneratingImages = false;
+        getJson(file_key).then(figmaPagesJson => {
+            console.log(figmaPagesJson);
+
+            vm.thumbnails.length = 0;
+            vm.thumbnails = {};
+            figmaPagesJson.forEach(page => {
+                page.children.forEach(frame => {
+                    frame.isGeneratingImages = false;
+                    Vue.set( vm.thumbnails, frame.id, loadingGif )
+                });
             });
-            vm.figmaTree = figmaJson;
-            vm.thumbnails.length = figmaJson.length;
-            vm.thumbnails.fill(
-            "https://thomas.vanhoutte.be/miniblog/wp-content/uploads/light_blue_material_design_loading.gif"
-            );
+            vm.figmaTree = figmaPagesJson;
+
             if (vm.prefs.downloadThumbnails) {
-                // get images
-                for (var i = 0; i < figmaJson.length; i++) {
-                    storeImage(i, figmaJson);
+                for (var id in vm.thumbnails) {
+                    // console.log(id);
+                    if (vm.thumbnails.hasOwnProperty(id)) {
+                        storeImage(id);
+                    }
                 }
             }
             vm.isPingingFigma = false;
         });
 
 
-        function storeImage(i, figmaJson) {
-            getThumbnail(file_key, figmaJson[i].id).then(imageUrl => {
-                vm.thumbnails.splice(i, 1, imageUrl);
+        function storeImage(id) {
+            getThumbnail(file_key, id).then(imageUrl => {
+                // console.log(imageUrl);
+                Vue.set( vm.thumbnails, id, imageUrl )
+                // console.log(vm.thumbnails);
             });
         }
     },
     aeuxConvert: function(data) {
         // console.log(aeux.convert(data));
 
+        vm.figmaTree = data;
         vm.aeuxData = aeux.convert(data);
     },
     downloadJson: function(frame) {
+        vm.imageIdList = [];
+        vm.svgIdList = [];
         var aeuxData = aeux.convert(frame);
         console.log(aeuxData)
 
@@ -132,12 +154,25 @@ var vm = new Vue({
 
                   saveAs(blob, "AEUX.json");
             });
+            // hack to download and parse svg data
+        } else if (vm.svgIdList.length > 0) {
+            console.log('start svg download')
+            // console.log(vm.svgIdList);
+            // console.log(aeuxData.find(layer => layer.id == "25:7"));
+            downloadSvgs(aeuxData, vm.svgIdList, frame).then(urls => {
+                var blob = new Blob([JSON.stringify(aeuxData, false, 2)], {
+                    type: "text/plain;charset=ansi"
+                  });
+
+                saveAs(blob, "AEUX.json");
+            });
         } else {
             var blob = new Blob([JSON.stringify(aeuxData, false, 2)], {
                 type: "text/plain;charset=ansi"
               });
 
               saveAs(blob, "AEUX.json");
+              console.log('save');
         }
     },
   },
@@ -175,7 +210,8 @@ async function getJson(figmaId) {
   }
 
 //   vm.projectName = data;
-  return data.document.children[0].children;
+  return data.document.children;    // return pages
+  // return data.document.children[0].children;
 }
 
 async function getThumbnail(figmaId, id) {
@@ -193,16 +229,17 @@ async function getThumbnail(figmaId, id) {
         }
     );
     let data = await result.json();
-    console.log(data);
     return data.images[id];
 }
-async function downloadImages(ids, frame) {
+async function downloadImages(ids, frame, downloadSvg) {
 //   vm.loading = "loading...";
     frame.isGeneratingImages = true;
     var file_key = vm.fileUrl.split("/file/")[1].split("/")[0];
+    var fetchURL = "https://api.figma.com/v1/images/" + file_key + "?ids=" + ids.join(',') + "&scale=4";
+    if (downloadSvg) { fetchURL += "&format=svg"};      // add option to create svgs
+
     console.log("loading images", ids);
-    let result = await fetch(
-    "https://api.figma.com/v1/images/" + file_key + "?ids=" + ids.join(',') + "&scale=4",
+    let result = await fetch( fetchURL,
         {
             method: "GET",
             headers: {
@@ -224,6 +261,162 @@ async function downloadImages(ids, frame) {
     // console.log(vm.imageUrlList);
     frame.isGeneratingImages = false;
     return vm.imageUrlList;
+}
+async function downloadSvgs(aeuxData, ids, frame) {
+    frame.isGeneratingImages = true;
+    var file_key = vm.fileUrl.split("/file/")[1].split("/")[0];
+    var fetchURL = "https://api.figma.com/v1/images/" + file_key + "?ids=" + ids.join(',') + "&scale=1" + "&format=svg";
+
+    console.log("loading images", ids);
+    let result = await fetch( fetchURL,
+        {
+            method: "GET",
+            headers: {
+                'Authorization': 'Bearer ' + vm.figmaApiKey      // with OAuth
+            }
+        }
+    );
+    let data = await result.json();
+
+    // override shape data when manually pulling from SVG
+    for (var i = 0; i < ids.length; i++) {
+        var id = ids[i];
+        svgUrl = data.images[ id ];
+        console.log(svgUrl);
+        let pathObj = await fetchSVG(svgUrl);
+        console.log(pathObj);
+
+        var layerObj = findLayerObj(aeuxData, id);
+        // var layerObj = aeuxData.find(layer => layer.id == id);
+
+        if (layerObj) {     // found it
+            if (pathObj.type == 'Path') {
+                console.log('post parsesvg', pathObj.path.d);
+                // check if multipath
+                var paths = pathObj.path.d.match(/(M|(?<=Z)).*?((?=M)|$)/g);
+                if (paths.length > 1) {
+                    layerObj.layers = [];
+                    layerObj.type = 'CompoundShape';
+                    for (var j = 0; j < paths.length-1; j++) {
+                        layerObj.layers.push({
+                            type: 'Path',
+                            frame: {width: 0, height: 0, x: 0, y: 0},
+                            path: parseSvg(paths[j]),
+                            booleanOperation: 1,        /// xxx
+                            rotation: 0,
+                            flip: [100,100],
+                        });
+                    }
+                    console.log(layerObj.layers);
+                } else {
+                    layerObj.path = parseSvg(pathObj.path.d, true);
+                }
+            } else if (pathObj.type == 'Ellipse') {
+                var r = pathObj.path.r;
+                var tangent = r/1.810938066;
+                layerObj.path = {
+                    points: [
+                        [r, 0],
+                        [r*2, r],
+                        [r, r*2],
+                        [0, r],
+                    ],
+                    inTangents: [
+                        [-tangent,0],
+                        [0,-tangent],
+                        [tangent,0],
+                        [0,tangent],
+                    ],
+                    outTangents: [
+                        [tangent,0],
+                        [0,tangent],
+                        [-tangent,0],
+                        [0,-tangent],
+                    ],
+                    closed: true,
+                }
+                console.log('ellipse', pathObj);
+            } else if (pathObj.type == 'Line') {
+                layerObj.path = {
+                    points: [
+                        [parseFloat(pathObj.line.x1 || 0), pathObj.line.y1-layerObj.absoluteBoundingBox.height/2],
+                        [parseFloat(pathObj.line.x2 || 0), pathObj.line.y2-layerObj.absoluteBoundingBox.height/2],
+                    ],
+                    inTangents: [],
+                    outTangents: [],
+                    closed: false,
+                }
+            }
+
+
+            layerObj.rotation = 0;
+            layerObj.flip = [100,100];
+            // layerObj.frame = {width: 0, height: 0, x: 0, y: 0};
+
+            if (pathObj['stroke-linecap'] == 'round') { layerObj.stroke[0].cap = 1 };
+            if (pathObj['stroke-linejoin'] == 'round') { layerObj.stroke[0].join = 1 };
+
+            if (pathObj['stroke-linecap'] == 'square') { layerObj.stroke[0].cap = 2 };
+            if (pathObj['stroke-linejoin'] == 'bevel') { layerObj.stroke[0].join = 2 };
+
+            // console.log(layerObj);
+        } else {
+            console.log('couldnt find it');
+        }
+    }
+    frame.isGeneratingImages = false;
+
+    function findLayerObj(layerList, id) {
+        // console.log('looking for', id, 'inside of', layerList);
+        for (var i = 0; i < layerList.length; i++) {
+            layer = layerList[i];
+            // console.log(layer.name, layer.type);
+            // console.log(layer, layer.id);
+            if (layer.id == id) {
+                return layer;
+            }
+            if (layer.type == 'Group' || layer.type == 'Component') {
+                // console.log('looking in group', layer.name);
+                // console.log(layer.name, layer.layers);
+                // console.log(findLayerObj(layer.layers, id));
+                var nestedLayer = findLayerObj(layer.layers, id);
+                if (nestedLayer) { return nestedLayer }
+            }
+        }
+    }
+}
+const fetchSVG = async function(url, el) {
+    let response = await fetch(url);
+	let data = await response.text();
+    var xmlDOM = new DOMParser().parseFromString(data, 'text/xml');
+
+    var svg = xmlToJson(xmlDOM).svg;
+    // console.log(url);
+    // console.log(svg);
+    if (svg !== undefined) {
+        if (svg.path) {
+            pathObj = {
+                type: 'Path',
+                path: svg.path['@attributes'],
+            }
+        } else if (svg.circle) {
+            pathObj = {
+                type: 'Ellipse',
+                path: svg.circle['@attributes'],
+            }
+        } else if (svg.line) {
+            pathObj = {
+                type: 'Line',
+                line: svg.line['@attributes'],
+            }
+        }
+    } else {
+        return {type: null};
+    }
+    // pathObj = xmlToJson(xmlDOM).svg.path['@attributes'];
+    // console.log(pathObj);
+    return pathObj;
+
 }
 function xmlToJson(xml) {
 
@@ -260,5 +453,17 @@ function xmlToJson(xml) {
 			}
 		}
 	}
+    // console.log(obj);
 	return obj;
 };
+function getPrefs() {
+    var prefs = JSON.parse(window.localStorage.getItem('prefs'));
+
+    if (!prefs) {
+        prefs = {
+            downloadThumbnails: false,
+        }
+    }
+
+    return prefs;
+}

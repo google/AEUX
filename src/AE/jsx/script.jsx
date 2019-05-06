@@ -606,8 +606,10 @@ function aePath(layer, opt_parent) {
 		outTangents: layer.path.outTangents,
 		closed: layer.path.closed
 	};
+	// var layerOffset = [0,0];
+	var layerOffset = [layer.frame.width/2, layer.frame.height/2];
 	// build path
-	createStaticShape(pathObj, [layer.frame.width/2, layer.frame.height/2]);
+	createStaticShape(pathObj, layerOffset);
 
 
 	/// round corners if roundness greater than 0

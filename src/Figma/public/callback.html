@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>authorizing access to Figma API…</title>
-  <script src="js/fdk.umd.js"></script>
+  <script src="js/libs/fdk.umd.js"></script>
 </head>
 
 <body>
@@ -13,9 +13,9 @@
     const code = parsedUrl.searchParams.get('code');
     const state = parsedUrl.searchParams.get('state');
     const figmaAuthorizationCodeData = JSON.stringify({code, state});
-    
+
     window.localStorage.setItem('figma-authorization-code-data', figmaAuthorizationCodeData);
-    
+
     const figmaApi = new fdk.FigmaApi({
         clientId: "cWdGmOYOBBVSIuPoFUdjjf",
         clientSecret: "64NFGYGuJ2r0WzHOfUEPzSlUEomVU0",
@@ -32,7 +32,7 @@
       console.log(token)
       window.location.href = "/";
     }
-    
+
   </script>
 </body>
 </html>

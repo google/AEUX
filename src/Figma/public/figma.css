@@ -1,8 +1,87 @@
+h4 a {
+    color: #929ea5;
+}
+.logo>img {
+    height: 60px;
+    padding-top: 10px;
+}
+.footer>img {
+    padding-top: 0;
+}
+.page-selector-list {
+    float: left;
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 16px;
+}
+.page-selector-list>li {
+    text-align: left;
+    padding-left: 20px;
+}
+.selected-page {
+    margin-left: -20px;
+    margin-right: 6px;
+}
+.fold-group {
+    border-top: solid 1px rgba(128, 128, 128, 0.2);
+    float: left;
+    width: 100%;
+    min-height: 56px;
+}
+.fold-group:first-of-type {
+    margin-top: 48px;
+}
+.group-heading {
+    position: relative;
+    /* font-family: 'Roboto Mono', monospace; */
+    text-transform: uppercase;
+    font-size: 16px;
+    vertical-align: middle;
+    padding: 4px 0 6px 0;
+    display: block;
+    height: 12px;
+    float: left;
+    margin-top: 12px;
+    /* overflow: hidden; */
+    letter-spacing: 0.1em;
+    user-select: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+.fold-content {
+    /* padding-bottom: 4px; */
+    padding-top: 24px;
+    float: left;
+    width: 100%;
+    padding-left: 16px;
+}
+.fold-content>div {
+    float: left;
+}
+.fold-icon {
+    float: right;
+    margin-top: -2px;
+    fill: #d2d2d2;
+    height: 18px;
+    transform-origin: 50% 50%;
+    transition: all 0.15s cubic-bezier(0.0, 0.0, 0.2, 1);
+    margin: 4px;
+    margin-bottom: 16px;
+    float: left;
+}
+.fold-icon svg {
+    vertical-align: baseline;
+}
+.fold-icon.flip {
+    transform: rotate(-90deg);
+}
+
 .figma-frame {
     display: inline;
     width: 100%;
     float: left;
-    margin-top: 24px;
+    margin-bottom: 24px;
     padding-top: 24px;
     border-top: #eee solid 1px;
 }
@@ -15,4 +94,10 @@
     border: #eee solid 1px;
     height: 300px;
     width: auto;
+}
+.workflow>h4 {
+    margin: 10px 0;
+}
+[v-cloak] {
+  display: none;
 }

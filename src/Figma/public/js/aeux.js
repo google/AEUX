@@ -26,20 +26,30 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
     // console.log(figmaData);
 
     layers.forEach(layer => {
-
+        if (layer.visible === false) { return; }         // skip layer if hidden
+        console.log(layer.name, layer.type);
         if (layer.type == "GROUP" || layer.type == "FRAME") {
+
             aeuxData.push(getGroup(layer, parentFrame));
         }
         if (layer.fillGeometry && layer.fillGeometry.length > 1) { layer.type = "BOOLEAN_OPERATION" }         // overwrite the layer type
 
         if (layer.type == "BOOLEAN_OPERATION") {
-            aeuxData.push(getBoolean(layer, parentFrame, boolType));
+            layer = getBoolean(layer, parentFrame, boolType);
+            if (layer) {        // skip if no layers in the compound
+                aeuxData.push(layer);
+            } else { return; }
         }
-        if (layer.type == "RECTANGLE" || layer.type == "ELLIPSE" || layer.type == "VECTOR" || layer.type == "REGULAR_POLYGON") {
+        if (layer.type == "RECTANGLE" ||
+            layer.type == "ELLIPSE" ||
+            layer.type == "VECTOR" ||
+            layer.type == "LINE" ||
+            layer.type == "REGULAR_POLYGON") {
             aeuxData.push(getShape(layer, parentFrame, boolType));
             layerCount++;
         }
-        if (layer.type == "INSTANCE") {
+        if (layer.type == "INSTANCE" || layer.type == "COMPONENT") {    // instances and master symbols
+            console.log(layer.name);
             aeuxData.push(getComponent(layer, parentFrame));
             layerCount++;
         }
@@ -61,18 +71,20 @@ function getShape(layer, parentFrame, boolType) {
     if (path == 'multiPath') {
         return getBoolean(layer, parentFrame, true);
     }
+    // console.log(layer.relativeTransform[0][0]);
 
 	var layerData =  {
         type: layerType,
 		name: layer.name,
 		id: layer.id,
 		frame: frame,
+		absoluteBoundingBox: layer.absoluteBoundingBox,
         fill: getFills(layer),
         stroke: getStrokes(layer),
         isVisible: (layer.visible !== false),
 		path: path,
 		roundness: (layer.type == 'RECTANGLE') ? Math.round(layer.cornerRadius) || 0 : 0,
-		opacity: layer.opacity || 100,
+		opacity: layer.opacity*100 || 100,
 		rotation: getRotation(layer),
 		flip: getFlipMultiplier(layer),
         blendMode: getLayerBlending(layer.blendMode),
@@ -97,6 +109,7 @@ function getShape(layer, parentFrame, boolType) {
         //     layerData.layers = getCompoundShapes(layer.layers);
         // }
 
+    // console.log(layerData);
     return layerData;																// output a string of the collected data
 }
 //// get layer data: TEXT
@@ -137,7 +150,7 @@ function getText(layer, parentFrame) {
 		id: layer.id,
 		frame: frame,
         isVisible: (layer.visible !== false),
-		opacity: layer.opacity || 100,
+		opacity: layer.opacity*100 || 100,
         textColor: getFills(layer)[0].color || getFills(layer)[0].gradient.points[0].color,
         fill: null,
         stroke: getStrokes(layer),
@@ -156,19 +169,19 @@ function getText(layer, parentFrame) {
 
     getEffects(layer, layerData);
     // console.log(layer.style);
-    getThumbnail('0cRk8qFB9MiCkEtniYatxqc6', layer.id).then(imgSvg => {
-        console.log(imgSvg);
-
-        var ajax = new XMLHttpRequest();
-        ajax.open("GET", 'file.svg', true);
-        // ajax.open("GET", imgSvg, true);
-
-        ajax.onload = function(e) {
-            var xmlDOM = new DOMParser().parseFromString(ajax.responseText, 'text/xml');
-            console.log(xmlToJson(xmlDOM));
-        }
-        ajax.send();
-    });
+    // getThumbnail('0cRk8qFB9MiCkEtniYatxqc6', layer.id).then(imgSvg => {
+    //     console.log(imgSvg);
+    //
+    //     var ajax = new XMLHttpRequest();
+    //     ajax.open("GET", 'file.svg', true);
+    //     // ajax.open("GET", imgSvg, true);
+    //
+    //     ajax.onload = function(e) {
+    //         var xmlDOM = new DOMParser().parseFromString(ajax.responseText, 'text/xml');
+    //         console.log(xmlToJson(xmlDOM));
+    //     }
+    //     ajax.send();
+    // });
 
     return layerData;
 
@@ -205,7 +218,7 @@ function getGroup(layer, parentFrame) {
 		id: layer.id,
 		frame: frame,
         isVisible: (layer.visible !== false),
-		opacity: Math.round(layer.opacity * 100) || 100,
+		opacity: Math.round(layer.opacity*100 * 100) || 100,
 		// rotation: getRotation(layer) * (flip[1]/100),
 		rotation: getRotation(layer),
 		blendMode: getLayerBlending(layer.blendMode),
@@ -230,7 +243,7 @@ function getComponent(layer, parentFrame) {
 		frame: frame,
 		// style: layer.style,
         isVisible: (layer.visible !== false),
-		opacity: layer.opacity || 100,
+		opacity: layer.opacity*100 || 100,
 		blendMode: getLayerBlending(layer.blendMode),
         // symbolFrame: layer.master.frame,
         symbolFrame: getMasterFrame( layer.componentId ),       // this needs to be the frame of the master
@@ -309,6 +322,7 @@ function getComponent(layer, parentFrame) {
 }
 //// get layer data: BOOLEAN_OPERATION
 function getBoolean(layer, parentFrame, isMultipath) {
+    console.log('getBoolean');
     // var flip = getFlipMultiplier(layer);
     var frame = getFrame(layer, parentFrame);
     // console.log(layer.name, getBoolType(layer))
@@ -316,22 +330,9 @@ function getBoolean(layer, parentFrame, isMultipath) {
     var path = getPath(layer, frame);
 
     if (path == 'multiPath') {
+        console.log('bool multipath');
         isMultipath = true;
     }
-    getThumbnail('0cRk8qFB9MiCkEtniYatxqc6', layer.id).then(imgSvg => {
-        console.log(imgSvg);
-
-        var ajax = new XMLHttpRequest();
-        // ajax.open("GET", 'file.svg', true);
-        ajax.open("GET", imgSvg, true);
-
-        ajax.onload = function(e) {
-            var xmlDOM = new DOMParser().parseFromString(ajax.responseText, 'text/xml');
-            console.log(xmlToJson(xmlDOM));
-        }
-        ajax.send();
-    });
-
 
 
 	var layerData =  {
@@ -342,7 +343,7 @@ function getBoolean(layer, parentFrame, isMultipath) {
         fill: getFills(layer),
         stroke: getStrokes(layer),
         isVisible: (layer.visible !== false),
-		opacity: Math.round(layer.opacity * 100) || 100,
+		opacity: Math.round(layer.opacity*100 * 100) || 100,
 		rotation: getRotation(layer),
 		blendMode: getLayerBlending(layer.blendMode),
         flip: [100,100],
@@ -356,11 +357,12 @@ function getBoolean(layer, parentFrame, isMultipath) {
     if (isMultipath) {
         console.log('multipath smarts', layer.name)
         // xxx
-        try {
+        // try {
             layerData.layers = getCompoundPaths(layer.fillGeometry[0].path, layer);
-        } catch (error) {
-            layerData.layers = getCompoundPaths(layer.strokeGeometry[0].path, layer);
-        }
+        // } catch (error) {
+        //     console.log('gotta default to stroke geo');
+        //     layerData.layers = getCompoundPaths(layer.strokeGeometry[0].path, layer);
+        // }
 
     // } else if (layer.fillGeometry.length > 1) {
     //     console.log('dhdjwofh')
@@ -377,6 +379,7 @@ function getBoolean(layer, parentFrame, isMultipath) {
     }
 
     console.log('bool', layerData);
+    if (layerData.layers.length < 1) { return null }
     return layerData;
 }
 //// get layer data: COMPOUND SHAPE
@@ -434,12 +437,15 @@ function getCompoundShapes(layers, boolType, isMultipath) {
 }
 function getCompoundPaths(paths, layer) {
     var layerList = [];
-    console.log(layerList)
-    var pathList = paths.split(/\WM/);
-    console.log(pathList)
+    // console.log(layerList)
+    // var pathList = paths.match(/M-?\d*(\.\d+)?/);
+    var pathList = paths.match(/(M|(?<=Z)).*?((?=M)|$)/g);
+    // var pathList = paths.split(/(ZM)/);
+    // console.log(pathList)
+    // console.log('layer.absoluteBoundingBox', layer.absoluteBoundingBox);
 
     /// loop through all nested shapes
-    for (var i = 0; i < pathList.length; i++) {
+    for (var i = 0; i < pathList.length-1; i++) {
     //     var layer = layers[i];
     //     // var flip = getFlipMultiplier(layer);
         layerList.push({
@@ -459,43 +465,12 @@ function getCompoundPaths(paths, layer) {
             rotation: 0,
             booleanOperation: getBoolType(layer),
         });
-
+// console.log(layer.name, layerList);
     //     console.log(layers[i]);
     }
-console.log(layerList)
+// console.log(layerList)
     return layerList;
 }
-// function getCompoundPaths(paths, layer) {
-//     var layerList = [];
-
-//     /// loop through all nested shapes
-//     for (var i = 0; i < paths.length; i++) {
-//         console.log(paths.length)
-//     //     var layer = layers[i];
-//     //     // var flip = getFlipMultiplier(layer);
-//         layerList.push({
-//             type: 'Path',
-//             name: layer.name,
-//     		id: null,
-//     		frame: {
-//                 width: 100,
-//                 height: 100,
-//                 x: 0,
-//                 y: 0,
-//             },
-//     //         isVisible: (layer.visible !== false),
-//             path: getPath(paths[i], layer.absoluteBoundingBox),
-//     //         roundness: Math.round(layer.cornerRadius) || 0,
-//             flip: [100,100],
-//             rotation: 0,
-//             booleanOperation: -1,
-//         });
-
-//     //     console.log(layers[i]);
-//     }
-
-//     return layerList;
-// }
 function getEffects(layer, layerData) {
     layerData.shadow = [];
     layerData.innerShadow = [];
@@ -567,12 +542,13 @@ function getFrame(layer, parentFrame) {
     var offset = [0,0];
     var offset = (parentFrame) ? [parentFrame.x, parentFrame.y] : [0,0];
 
-    var width = layer.size.x;
-    var height = layer.size.y;
+    var width = layer.size.x || 0;
+    var height = layer.size.y || 0;
     var x = matrix[0][2];
     var y = matrix[1][2];
 
     if (isRotated || isFlipped) {
+        // console.log(layer.name, 'calc');
         x = layer.absoluteBoundingBox.x - frameData.absoluteBoundingBox.x + layer.absoluteBoundingBox.width/2 - layer.size.x/2 - offset[0];
         y = layer.absoluteBoundingBox.y - frameData.absoluteBoundingBox.y + layer.absoluteBoundingBox.height/2 - layer.size.y/2 - offset[1];
     }
@@ -696,7 +672,7 @@ function getImageFill(layer) {
         id: layer.id.replace(':', '-'),
 		frame: getFrame(layer),
         isVisible: (layer.visible !== false),
-		opacity: layer.opacity || 100,
+		opacity: layer.opacity*100 || 100,
 		blendMode: getLayerBlending(layer.blendMode),
         isMask: layer.isMask,
     };
@@ -947,14 +923,24 @@ function getPath(layer, bounding, type) {
     if (layer.path || type == 'multiPath') {       // find an individual path
         pathStr = layer.path || layer;
         pathObj = parseSvg(pathStr);
+        // console.log(pathObj);
     } else {
         // get the fill path or the stroke path if no fill
         try {
-            pathStr = (layer.fillGeometry[0]) ? layer.fillGeometry[0].path : layer.strokeGeometry[0].path;
+            if (!layer.fillGeometry[0]) {
+                // if (layer.children[0].fillGeometry[0]) { return 'multiPath' }
+                console.log('get svg');
+                vm.svgIdList.push(layer.id);
+                return null
+            }
+            pathStr = layer.fillGeometry[0].path;
+            // console.log('pathStr', pathStr);
+            // pathStr = (layer.fillGeometry[0]) ? layer.fillGeometry[0].path : layer.strokeGeometry[0].path;
             pathObj = parseSvg(pathStr);
         } catch (e) {
-            layer.type = 'RECTANGLE';
-            console.log('catch Rectangle')
+            return 'multiPath';
+            // layer.type = 'RECTANGLE';
+            // console.log('catch Rectangle')
         }
     }
 
@@ -974,137 +960,214 @@ function getPath(layer, bounding, type) {
     }
     // console.log(pathObj)
     return pathObj;
+}
+
+function parseSvg(str, transformed) {
+    // console.log(str)
+    var pathObj = {
+        points: [],
+        inTangents: [],
+        outTangents: [],
+        closed: false,
+    }
+    var shouldClosePath = false;
+
+    // used as a negative offset when pulling coords from SVG
+    var minX = 9999999999999;
+    var minY = 9999999999999;
+
+    // add line breaks between SVG commands
+    var path = str.replace(/\s*([mlvhqczMLVHQCZ])\s*/g,"\n$1 ")
+                .replace(/,/g," ")
+                .replace(/-/g," -")
+                .replace(/ +/g," ");
+    var strings = path.split("\n");
+
+    // shift all the points so the second point is first then reverse
+    strings.splice(strings.length-1, 0, strings.splice(0, 1)[0]);
+    strings.splice(strings.length-1, 0, strings.splice(0, 1)[0]);
+    strings.splice(strings.length-1, 0, strings.splice(0, 1)[0]);
+    strings.reverse();
+    // console.log(strings);
 
 
-    function parseSvg(str) {
-        // console.log(str)
-        var pathObj = {
-            points: [],
-            inTangents: [],
-            outTangents: [],
-            closed: false,
+    // check for closed
+    var tempPointList = [];
+    var zCount = 0;
+    for (var i = 0; i < strings.length; i++) {
+        string = strings[i].trim();     // remove white space
+        // if (string < 1) { continue; }   // skip if empty
+
+        op = string.substring(0,1);
+        terms = string.substring(2).trim().split(" ");
+
+        // start or straight line
+        if (op == 'L' ||  op == 'M') {
+            x = parseFloat(terms[0]);
+            y = parseFloat(terms[1]);
+            tempPointList.push([x, y]);
+            // if (x == tempPointList[tempPointList.length-1][0] && y == tempPointList[tempPointList.length-1][1]) {
+            //     shouldClosePath = true;
+            //     break;
+            // }
         }
-        var shouldClosePath = false;
-
-        // add line breaks between SVG commands
-        var path = str.replace(/\s*([mlvhqczMLVHQCZ])\s*/g,"\n$1 ")
-                    .replace(/,/g," ")
-                    .replace(/-/g," -")
-                    .replace(/ +/g," ");
-        var strings = path.split("\n");
-
-        // shift all the points so the second point is first then reverse
-        strings.splice(strings.length-1, 0, strings.splice(0, 1)[0]);
-        strings.splice(strings.length-1, 0, strings.splice(0, 1)[0]);
-        strings.splice(strings.length-1, 0, strings.splice(0, 1)[0]);
-        strings.reverse();
-        // console.log(strings);
-
-
-        // check for closed
-        var tempPointList = [];
-        var zCount = 0;
-        for (var i = 0; i < strings.length; i++) {
-            string = strings[i].trim();     // remove white space
-            if (string < 1) { continue; }   // skip if empty
-
-            op = string.substring(0,1);
-            terms = string.substring(2).trim().split(" ");
-
-            // check closing
-            // if (op == 'Z') { shouldClosePath = true; break;}
-
-
-            // start or straight line
-            if (op == 'L' ||  op == 'M') {
-                x = parseFloat(terms[0]);
-                y = parseFloat(terms[1]);
-                tempPointList.push([x, y]);
-                if (x == tempPointList[tempPointList.length-1][0] && y == tempPointList[tempPointList.length-1][1]) {
-                    shouldClosePath = true;
-                    break;
-                }
-            }
-            // curve
-            if (op == 'C') {
-                x = parseFloat(terms[4]);
-                y = parseFloat(terms[5]);
-                tempPointList.push([x, y]);
-                // if (x == tempPointList[tempPointList.length-1][0] && y == tempPointList[tempPointList.length-1][1]) {
-                //     pathObj.closed = true;
-                //     break;
-                // }
-                // pathObj.outTangents.push( [terms[2]-terms[4], terms[3]-terms[5]] );
-                // pathObj.inTangents.push( [ terms[0], terms[1] ] );
-            }
+        // curve
+        if (op == 'C') {
+            x = parseFloat(terms[4]);
+            y = parseFloat(terms[5]);
+            tempPointList.push([x, y]);
         }
-        // console.log(strings.length);
+    }
+    // store all points/tangents
+    for (var i = 0; i < strings.length; i++) {
+        string = strings[i].trim();     // remove white space
+        if (string < 1) { continue; }   // skip if empty
 
-        // store all points/tangents
-        for (var i = 0; i < strings.length; i++) {
 
-            string = strings[i].trim();     // remove white space
-            if (string < 1) { continue; }   // skip if empty
+        op = string.substring(0,1);
+        terms = string.substring(2).trim().split(" ");
 
-            op = string.substring(0,1);
-            terms = string.substring(2).trim().split(" ");
-
-            // check closing
-            if (op == 'Z') {
-                shouldClosePath = true;
-                // zCount++;
-            }
-
-            // start or straight line
-            if (!pathObj.closed && op == 'M') {
-                zCount++;
-                pathObj.points.push(terms);
-                pathObj.inTangents.push( [0,0] );
-                pathObj.outTangents.push( [0,0] );
-            }
-            // start or straight line
-            if (op == 'L') {
-                pathObj.points.push(terms);
-                pathObj.inTangents.push( [0,0] );
-                pathObj.outTangents.push( [0,0] );
-            }
-            // curve
-            if (op == 'C') {
-                pathObj.points.push( [parseFloat(terms[4]), parseFloat(terms[5]) ] );
-                pathObj.outTangents.push( [terms[2]-terms[4], terms[3]-terms[5]] );
-                pathObj.inTangents.push( [ terms[0], terms[1] ] );
-            }
-            // console.log(op, terms);
+        // check closing
+        if (op == 'Z') {
+            // console.log('close');
+            shouldClosePath = true;
+            // zCount++;
         }
 
-        // shift inTangents list
-        pathObj.inTangents.splice(0, 0, pathObj.inTangents.splice(pathObj.inTangents.length-1, 1)[0]);
+        // start or straight line
+        if (!pathObj.closed && op == 'M') {
+            zCount++;
 
-        for (var j = 0; j < pathObj.points.length; j++) {
-            var point = pathObj.points[j];
-            var inTangent = pathObj.inTangents[j];
+            // calc min x,y for offset
+            minX = Math.min(minX, terms[0])
+            minY = Math.min(minY, terms[1])
 
-            // if inTangents is not zero
-            if (inTangent[0] != 0 || inTangent[1] != 0) {
-                pathObj.inTangents[j] = [ inTangent[0]-point[0], inTangent[1]-point[1] ];
-            }
+            // add coords to pathObj
+            pathObj.points.push(terms);
+            pathObj.inTangents.push( [0,0] );
+            pathObj.outTangents.push( [0,0] );
+        }
+        // start or straight line
+        if (op == 'L') {
+            // calc min x,y for offset
+            minX = Math.min(minX, terms[0])
+            minY = Math.min(minY, terms[1])
+
+            // add coords to pathObj
+            pathObj.points.push(terms);
+            pathObj.inTangents.push( [0,0] );
+            pathObj.outTangents.push( [0,0] );
+        }
+        // // curve
+        if (op == 'C') {
+            // calc min x,y for offset
+            minX = Math.min(minX, terms[4])
+            minY = Math.min(minY, terms[5])
+
+            // add coords to pathObj
+            pathObj.points.push( [parseFloat(terms[4]), parseFloat(terms[5]) ] );
+            pathObj.inTangents.push( [ terms[0], terms[1] ] );
+
+            outTangent = [terms[2]-terms[4], terms[3]-terms[5]];
+            pathObj.outTangents.push( outTangent );
+
+            // console.log('inTan', [ terms[0], terms[1] ]);
+
+            // alert(outTangent)
+            // alert(JSON.stringify(pathObj.outTangents, false, 2));
         }
 
-        // rotate the points and tangents back to their original points when not closing the path
-        if (!shouldClosePath) {
+        // horizontal/vertical line
+        if (op == 'H') {
+            var len = parseFloat(terms);
+            try {
+                lastTerms = strings[i+1].substring(2).trim().split(" ");
+                pathObj.points.push([len, lastTerms[1] ]);
+            } catch (e) {
+                lastTerms = strings[0].substring(2).trim().split(" ");
+                pathObj.points.push([len, lastTerms[1] ]);
+            }
+            pathObj.inTangents.push( [0,0] );
+            pathObj.outTangents.push( [0,0] );
+        }
+        if (op == 'V') {
+            var len = parseFloat(terms);
+            try {
+                lastTerms = strings[i+1].substring(2).trim().split(" ");
+                pathObj.points.push([lastTerms[0], len]);
+            } catch (e) {
+                lastTerms = strings[0].substring(2).trim().split(" ");
+                pathObj.points.push([lastTerms[0], len]);
+            }
+            pathObj.inTangents.push( [0,0] );
+            pathObj.outTangents.push( [0,0] );
+        }
+        // console.log(op, terms);
+    }
+    // shift inTangents list
+    pathObj.inTangents.splice(0, 0, pathObj.inTangents.splice(pathObj.inTangents.length-1, 1)[0]);
+
+    for (var j = 0; j < pathObj.points.length; j++) {
+        // offset points by min x,y  - skip if multiPath and regular
+        // console.log(type);
+        if (transformed) {
+            // console.log('skip offset');
+            pathObj.points[j][0] -= minX;
+            pathObj.points[j][1] -= minY;
+        }
+
+
+        var point = pathObj.points[j];
+        var inTangent = pathObj.inTangents[j];
+
+        // if inTangents is not zero
+        if (inTangent[0] != 0 || inTangent[1] != 0) {
+            pathObj.inTangents[j] = [ inTangent[0]-point[0], inTangent[1]-point[1] ];
+            // console.log('minus', [point[0], point[1]]);
+        }
+
+
+    }
+
+    // rotate the points and tangents back to their original points when not closing the path
+    if (!shouldClosePath) {
+        for (var i = 0; i < pathObj.points.length-2; i++) {
             pathObj.points.unshift(pathObj.points.pop())
             pathObj.inTangents.unshift(pathObj.inTangents.pop())
             pathObj.outTangents.unshift(pathObj.outTangents.pop())
         }
-        if (shouldClosePath) {
-            pathObj.closed = true;
+    }
+    // remove duplicate points when closing the path
+    if (shouldClosePath) {
+        pathObj.closed = true;
+
+        // if the first coord matches the last
+        if (pathObj.points[0][0] == pathObj.points[pathObj.points.length-1][0] &&
+            pathObj.points[0][1] == pathObj.points[pathObj.points.length-1][1]) {
+            // console.log('remove');
+            pathObj.points.splice(k, 1)
+            pathObj.inTangents.splice(k, 1)
+            pathObj.outTangents.splice(k-1, 1)
+
         }
 
-        // console.log(zCount);
-        if (zCount > 1) { return 'multiPath'; }
-        return pathObj;
+        // loop through coords and if the current coord matches the previous coord
+        for (var k = 0; k < pathObj.points.length; k++) {
+            if (k > 0 && pathObj.points[k][0] == pathObj.points[k-1][0] && pathObj.points[k][1] == pathObj.points[k-1][1]) {
+                // console.log('remove', k);
+                pathObj.points.splice(k, 1)
+                pathObj.inTangents.splice(k, 1)
+                pathObj.outTangents.splice(k-1, 1)
+
+            }
+        }
     }
+
+    // console.log('zCount', zCount);
+    if (zCount > 1) { return 'multiPath'; }
+    return pathObj;
 }
+
 function getFlipMultiplier(layer) {
     var matrix = layer.relativeTransform;
     var x = (matrix[0][0] < 0) ? -100 : 100;     // horizontal flip

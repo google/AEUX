@@ -10,7 +10,7 @@
       <description>
           Stability, improved Ae un-precomp
       </description>
-      <enclosure url="https://github.com/google/sketch2ae/releases/download/0.6.9/AEUX.sketchplugin.zip" sparkle:version="0.6.8" />
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/v0.6.9/AEUX.sketchplugin.zip" sparkle:version="0.6.9" />
     </item>
     <item>
       <title>Version 0.6.8</title>

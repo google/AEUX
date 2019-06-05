@@ -20,7 +20,7 @@
 var devName = 'sumUX';
 var toolName = 'AEUX';
 var docUrl = 'https://aeux.io/';
-var versionNumber = 0.67;
+var versionNumber = 0.69;
 var sketch = require('sketch/dom');
 var UI = require('sketch/ui');
 var Settings = require('sketch/settings');
@@ -214,7 +214,7 @@ export function pushJSON(skipHostNotification) {
 
     /// running from the menu so show the host app notification
     if (skipHostNotification !== true) {
-        var msg = (layerCount > 1) ? ' layers pushed to Ae' : ' layer pushed to Ae';
+        var msg = (layerCount == 1) ? ' layer pushed to Ae' : ' layers pushed to Ae';
         UI.message(layerCount + msg)
     }
 }
@@ -246,7 +246,7 @@ export function saveJSON(skipHostNotification) {
 
         /// running from the menu so show the host app notification
         if (skipHostNotification !== true) {
-            var msg = (layerCount > 1) ? ' layers saved to .json' : ' layer saved to .json';
+            var msg = (layerCount == 1) ? ' layer saved to .json' : ' layers saved to .json';
             UI.message(layerCount + msg)
         }
 
@@ -276,7 +276,7 @@ export function detachSymbols(skipHostNotification) {
 
     /// running from the menu so show the host app notification
     if (skipHostNotification !== true) {
-        var msg = (layerCount > 1) ? ' symbols detached' : ' symbol detached';
+        var msg = (layerCount == 1) ? ' symbol detached' : ' symbols detached';
         UI.message(layerCount + msg)
     }
 
@@ -291,7 +291,9 @@ export function detachSymbols(skipHostNotification) {
             if ( layer.type == 'SymbolInstance' ) {
                 // detachChildren(layer.master.layers);
                 var detatchedGroup = layer.detach();
-                detatchedGroup.sketchObject.ungroup();
+				if (detatchedGroup.layers.length < 2) {
+					detatchedGroup.sketchObject.ungroup();
+				}
                 layerCount++;
             }
         }
@@ -318,7 +320,7 @@ export function flattenCompounds(skipHostNotification) {
 
     /// running from the menu so show the host app notification
     if (skipHostNotification !== true) {
-        var msg = (layerCount > 1) ? ' shapes flattened' : ' shape flattened';
+        var msg = (layerCount == 1) ? ' shape flattened' : ' shapes flattened';
         UI.message(layerCount + msg)
     }
 
@@ -360,7 +362,7 @@ export function imageToSymbol(skipHostNotification) {
 
     /// running from the menu so show the host app notification
     if (skipHostNotification !== true) {
-        var msg = (layerCount > 1) ? ' images are now symbols' : ' image is now a symbol';
+        var msg = (layerCount == 1) ? ' image are now symbols' : ' images is now a symbol';
         UI.message(layerCount + msg)
     }
 
@@ -405,6 +407,7 @@ function getSharePath() {
 
 //// get all selected layer data
 function filterTypes(selection) {
+	if (selection.length < 1) { return [{layerCount: 0}] }
     /// reset vars
     var selectedLayerInfo = [];
     var layers = selection.layers;
@@ -617,7 +620,14 @@ function getSymbol(layer) {
                     }
                     //// it is TEXT ////
                     if (currentLayer.id == override.path) {      // do ids match?
-                        currentLayer[ override.property ] = override.value;  // replace the text/image value
+						var text = override.value;
+						try {
+							var transformVal = document.getLayerWithID(override.path).sketchObject.styleAttributes()["MSAttributedStringTextTransformAttribute"];
+					        if (transformVal == 1) { text = text.toUpperCase(); }
+					        if (transformVal == 2) { text = text.toLowerCase(); }
+						} catch (e) {}
+
+                        currentLayer[ override.property ] = text;  // replace the text/image value
                     }
                 }
             }
@@ -1165,6 +1175,7 @@ function save_text(text, filePath) {
 
 //// open dialog and return path
 function getFolderPath() {
+	if (exportCanceled) { return false; }		// cancel the process
 	if (folderPath == null) {
 		var saveWindow = NSOpenPanel.openPanel();
 		saveWindow.setCanCreateDirectories(true);
@@ -1191,6 +1202,7 @@ function getFolderPath() {
 
 //// save dialog and return path
 function getSavePath() {
+	if (exportCanceled) { return false }		// cancel the process
 	if (folderPath == null) {
 		var saveWindow = NSSavePanel.savePanel();
 		saveWindow.setCanCreateDirectories(true);

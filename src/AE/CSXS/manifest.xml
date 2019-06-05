@@ -2,7 +2,7 @@
 <ExtensionManifest
 	Version="5.0"
 	ExtensionBundleId="AEUX"
-	ExtensionBundleVersion="0.6.7"
+	ExtensionBundleVersion="0.6.9"
 	ExtensionBundleName="AEUX"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
@@ -10,22 +10,7 @@
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
-            <!-- Uncomment Host tags according to the apps you want your panel to support -->
-            <!-- Photoshop -->
-            <!-- <Host Name="PHXS" Version="15.0" /> -->
-            <!-- Illustrator -->
-             <!-- <Host Name="ILST" Version="18.0" /> -->
-            <!-- InDesign -->
-            <!-- <Host Name="IDSN" Version="[10.0,10.9]" /> -->
-            <!-- Premiere -->
-            <!-- <Host Name="PPRO" Version="[8.0,8.9]" /> -->
-            <!-- AfterEffects -->
             <Host Name="AEFT" Version="13.0" />
-            <!-- PRELUDE -->
-            <!-- <Host Name="PRLD" Version="[3.0,3.9]" />   -->
-            <!-- FLASH Pro -->
-            <!-- <Host Name="FLPR" Version="[14.0,14.9]" /> -->
-
 		</HostList>
 		<LocaleList>
 			<Locale Code="All" />
@@ -60,6 +45,12 @@
 			        		<Height>40</Height>
 				    	</MinSize>
 					</Geometry>
+					<Icons>
+						<Icon Type="Normal">./img/Icon.png</Icon>
+						<Icon Type="RollOver">./img/Icon.png</Icon>
+						<Icon Type="DarkNormal">./img/Icon.png</Icon>
+						<Icon Type="DarkRollOver">./img/Icon.png</Icon>
+					</Icons>
 				</UI>
 			</DispatchInfo>
 		</Extension>

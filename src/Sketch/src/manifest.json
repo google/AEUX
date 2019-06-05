@@ -3,7 +3,7 @@
   "description": "Transfer layers to After Effects",
   "author": "Adam Plouff",
   "homepage": "https://aeux.io",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "identifier": "com.wearesumux.AEUX",
   "appcast": "https://raw.githubusercontent.com/google/sketch2ae/master/appcast.xml",
   "compatibleVersion": "3",

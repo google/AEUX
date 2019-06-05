@@ -15,7 +15,7 @@
 <body>
 
 
-<div id="app" v-bind:style="{'background-color': bgColor}" v-bind:class="{'drop-highlight': dropHighlight}" >
+<div id="app" v-bind:style="{'background-color': bgColor}" v-bind:class="{'drop-highlight': dropHighlight}" v-cloak>
     <transition name="lift">
         <div class="footer" v-show="footerMessage">
             <pre>{{footerMessage}}</pre>
@@ -130,10 +130,10 @@
                         <svg viewBox="0 0 24 24"><path d="M5 15H3v4c0 1.1.9 2 2 2h4v-2H5v-4zM5 5h4V3H5c-1.1 0-2 .9-2 2v4h2V5zm14-2h-4v2h4v4h2V5c0-1.1-.9-2-2-2zm0 16h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
                     </div>
                     <div class="title">
-                        Convert to precomp
+                        Precomp
                     </div>
                     <div class="text">
-                        Selected group parents and child layers will be converted to precomps
+                        Selected group parents and children will be precomped and sized to the top-most parent. Non-group layers with will be converted to precomps sized to the current comp.
                     </div>
 
 
@@ -141,7 +141,7 @@
                         <svg viewBox="0 0 24 24" width="24"><clipPath id="a"><path d="m0 0h24v24h-24z"/></clipPath><path clip-path="url(#a)" d="m15 3 2.3 2.3-2.89 2.87 1.42 1.42 2.87-2.89 2.3 2.3v-6zm-12 6 2.3-2.3 2.87 2.89 1.42-1.42-2.89-2.87 2.3-2.3h-6zm6 12-2.3-2.3 2.89-2.87-1.42-1.42-2.87 2.89-2.3-2.3v6zm12-6-2.3 2.3-2.87-2.89-1.42 1.42 2.89 2.87-2.3 2.3h6z"/><path clip-path="url(#a)" d="m0 0h24v24h-24z" fill="none"/></svg>
                     </div>
                     <div class="title">
-                        Un-precomp group
+                        Un-precomp
                     </div>
                     <div class="text">
                         Selected precomps will be converted to layers in the current comp
@@ -152,10 +152,10 @@
                         <svg viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
                     </div>
                     <div class="title">
-                        Toggle visibility
+                        Toggle guide layer visibility
                     </div>
                     <div class="text">
-                        Show/hide group layers comp-wide to make interaction possible
+                        Show/hide group layers comp-wide to make interaction easier
                     </div>
 
 
@@ -310,19 +310,19 @@
                             <svg viewBox="0 0 24 24">
                                 <path d="M5 15H3v4c0 1.1.9 2 2 2h4v-2H5v-4zM5 5h4V3H5c-1.1 0-2 .9-2 2v4h2V5zm14-2h-4v2h4v4h2V5c0-1.1-.9-2-2-2zm0 16h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
                             </svg>
-                            </span>Convert to precomp
+                        </span>Precomp
                         </div>
 
                         <div class="func-button full-width" @click="aeCall('precompToLayers')"><span class="icon">
                             <svg viewBox="0 0 24 24" width="24"><clipPath id="a"><path d="m0 0h24v24h-24z"/></clipPath><path clip-path="url(#a)" d="m15 3 2.3 2.3-2.89 2.87 1.42 1.42 2.87-2.89 2.3 2.3v-6zm-12 6 2.3-2.3 2.87 2.89 1.42-1.42-2.89-2.87 2.3-2.3h-6zm6 12-2.3-2.3 2.89-2.87-1.42-1.42-2.87 2.89-2.3-2.3v6zm12-6-2.3 2.3-2.87-2.89-1.42 1.42 2.89 2.87-2.3 2.3h6z"/><path clip-path="url(#a)" d="m0 0h24v24h-24z" fill="none"/></svg>
-                        </span>Un-Precomp group
+                        </span>Un-Precomp
                         </div>
 
                         <div class="func-button full-width" @click="aeCall('toggleGroupVisibility')"><span class="icon">
                             <svg viewBox="0 0 24 24">
                                 <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
                             </svg>
-                            </span>Toggle Visibility
+                        </span>Toggle guide layer visibility
                         </div>
 
                         <div class="func-button full-width" @click="aeCall('deleteGroupLayers')"><span class="icon">

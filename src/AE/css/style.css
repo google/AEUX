@@ -30,6 +30,9 @@ body, pre {
     box-sizing: border-box;
     border: solid 2px rgba(3, 119, 187, 0);
 }
+[v-cloak] {
+  display: none;
+}
 .content {
     padding: 0 8px;
     height: 100%;

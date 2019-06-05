@@ -135,7 +135,7 @@ function getText(layer, parentFrame) {
     //     kind = 'Area';
     var tempFrame = getFrame(layer, parentFrame);
     frame = {
-        width: layer.size.x,
+        width: layer.size.x * 1.02,
         height: layer.size.y,
         x: tempFrame.x + layer.size.x / 2,
         y: tempFrame.y + layer.size.y / 2 + (layer.style.fontSize - layer.style.lineHeightPx/(layer.style.lineHeightPercent/50)),
@@ -227,6 +227,7 @@ function getGroup(layer, parentFrame) {
         shouldBreakMaskChain: true,
         layers: filterTypes(layer, frame),
     };
+    getEffects(layer, layerData);
     console.log(layerData)
   return layerData;
 }
@@ -343,7 +344,7 @@ function getBoolean(layer, parentFrame, isMultipath) {
         fill: getFills(layer),
         stroke: getStrokes(layer),
         isVisible: (layer.visible !== false),
-		opacity: Math.round(layer.opacity*100 * 100) || 100,
+		opacity: Math.round(layer.opacity*100) || 100,
 		rotation: getRotation(layer),
 		blendMode: getLayerBlending(layer.blendMode),
         flip: [100,100],

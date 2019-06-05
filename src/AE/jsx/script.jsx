@@ -296,7 +296,7 @@ function aeText(layer, opt_parent) {
 	/// set transforms
 	// position transform depends the type of text layer (point or box)
 	if (layer.kind == 'Point') {
-		if (layer.rotation != 0 || layer.flip != [100,100]) {
+		if (layer.rotation != 0 || (layer.flip[0] != 100 && layer.flip[1] != 100) ) {
 			var rect = r.sourceRectAtTime(0, false);
 			var center = [rect.left + rect.width/2, rect.top + rect.height/2];
 			r('ADBE Transform Group')('ADBE Anchor Point').setValue( center );
@@ -583,7 +583,7 @@ function aeEllipse(layer, opt_parent) {
 //// path
 function aePath(layer, opt_parent) {
 	// skip if no vertices
-	if (layer.path.points.length < 1) { return; }
+	if (!layer.path || layer.path.points.length < 1) { return; }
 
 	var r = initShapeLayer(layer, opt_parent);
 
@@ -675,6 +675,9 @@ function aeCompound(layer, opt_parent) {
 		// loop through and build all shapes in a compound
 		var layerCount = layer.layers.length || 1;
 		for (var i = 0; i < layerCount; i++) {
+
+			if (layer.layers[i] == undefined) { return } 		// no nested layers
+
 			var shape = layer.layers[i];
             // find the individual shape's offset with the compound
 			var posOffset = [(layer.frame.width-shape.frame.width)/-2, (layer.frame.height-shape.frame.height)/-2];
@@ -1496,34 +1499,63 @@ function groupToPrecomp() {
 	/// get the selected layers
 	var masterGroups = thisComp.selectedLayers;
 
+	var nonParentedLayers = [];
 	/// loop through all selected layer
 	for (var i = 0; i < masterGroups.length; i++) {
-		convertToPrecomp(masterGroups[i]);
+		convertParentToPrecomp(masterGroups[i]);
 	}
+	// precomp loose layers
+	precompLayers(nonParentedLayers);
 
 	app.endUndoGroup();
 
-	function convertToPrecomp(masterGroup) {
+	function precompLayers(layers) {
+		try {
+			var precomp = thisComp.layers.precompose(layers, thisComp.layer(layers[0]).name, true);
+			precomp.parentFolder = groupFolder;
+		} catch (e) {}
+	}
+	function convertParentToPrecomp(masterGroup) {
 		try {
 			/// get info about the group parent
-			var bounds = masterGroup.sourceRectAtTime(thisComp.time, false);
 			var masterPos    = masterGroup('ADBE Transform Group')('ADBE Position').value;
 			var masterRot    = masterGroup('ADBE Transform Group')('ADBE Rotate Z').value;
 			var masterscale  = masterGroup('ADBE Transform Group')('ADBE Scale').value / 100;
-			var masterSize   = [Math.round(bounds.width * masterscale[0]), Math.round(bounds.height * masterscale[1])];
 			var masterLabel  = masterGroup.label;
 			var masterName   = masterGroup.name;
 			var masterParent = masterGroup.parent;
 			var masterIn = masterGroup.inPoint;
 			var masterOut = masterGroup.outPoint;
 			var masterTrackMatte = masterGroup.trackMatteType;
+			// get the comp position
+			masterGroup.parent = null;
+			var masterCompPos  = masterGroup('ADBE Transform Group')('ADBE Position').value;
+			masterGroup.parent = masterParent;
 
 			/// get the children of the group parent
 			var groupLayers = [masterGroup.index];
 			getChildren(masterGroup, groupLayers);
 
-			/// quit if selected layer has no children MSG
-			if (groupLayers.length < 2) { return; }
+			/// if layer has no children
+			if (groupLayers.length < 2) {
+				if (!masterParent) {	// if layer doesn't have children or a parent add it to a list to precomp without nesting
+					nonParentedLayers.push(masterGroup.index);
+				}
+				return; 				// quit
+			}
+
+			var isGroupLayer = (masterGroup.name.match('\u25BD')) ? true : false;		// check if it's a group layer from Sketch/Figma
+			if (isGroupLayer) {
+				var bounds = masterGroup.sourceRectAtTime(thisComp.time, false);
+				var masterSize   = [Math.round(bounds.width * masterscale[0]), Math.round(bounds.height * masterscale[1])];
+			} else {
+				var masterSize = [thisComp.width, thisComp.height];
+			}
+
+			/// un-parent non-AEUX layers
+			for (var i = 0; i < groupLayers.length; i++) {
+				// thisComp.layer(groupLayers[i]).parent = null;
+			}
 
 			/// precompose the group parent and children
 			var precomp = thisComp.layers.precompose(groupLayers, masterGroup.name, true);
@@ -1531,19 +1563,23 @@ function groupToPrecomp() {
 				precomp.width = masterSize[0];
 				precomp.height = masterSize[1];
 				// reset group parent to comp center
-				precomp.layer(masterName)('ADBE Transform Group')('ADBE Position').setValue([precomp.width/2, precomp.height/2]);
+				if (isGroupLayer) {
+					precomp.layer(masterName)('ADBE Transform Group')('ADBE Position').setValue([precomp.width/2, precomp.height/2]);
+				}
 				precomp.label = masterLabel;
 
 				// loop through all layers and un-parent
 				precomp.layers[1]('ADBE Transform Group')('ADBE Rotate Z').setValue(0);
 
 				// try to delete the top most group layer, if it's a mask then unlock and delete the top two layers
-				try {
-					precomp.layers[1].remove();
-				} catch (e) {
-					precomp.layers[1].locked = false;
-					precomp.layers[1].remove();
-					precomp.layers[1].remove();
+				if (isGroupLayer) {
+					try {
+						precomp.layers[1].remove();
+					} catch (e) {
+						precomp.layers[1].locked = false;
+						precomp.layers[1].remove();
+						precomp.layers[1].remove();
+					}
 				}
 
 			/// apply transforms from the group parent to the new precomp
@@ -1558,6 +1594,12 @@ function groupToPrecomp() {
 				// set in and out points
 				newGroupLayer.inPoint = masterIn;
 				newGroupLayer.outPoint = masterOut;
+
+
+			/// Reset the anchor point
+			if (!isGroupLayer) {
+				newGroupLayer('ADBE Transform Group')('ADBE Anchor Point').setValue(masterCompPos);
+			}
 		} catch (e) {
 
 		}
@@ -1582,23 +1624,27 @@ function precompToLayers() {
 
 	/// loop through all selected layer
 	for (var i = 0; i < precompMasters.length; i++) {
+		precompMaster = precompMasters[i];
+		var isGroupLayer = (precompMaster.name.match('\u25BD')) ? true : false;		// check if it's a group layer from Sketch/Figma
+
 		inPoint = precompMasters[i].inPoint;
 		outPoint = precompMasters[i].outPoint;
 		label = precompMasters[i].label;
 		/// skip if not a comp MSG
 		if (!(precompMasters[i].source instanceof CompItem)) { continue; }
-		convertToLayers(precompMasters[i], precompMasters[i].source.layers);
-		thisComp.selectedLayers[0].inPoint = inPoint;
-		thisComp.selectedLayers[0].outPoint = outPoint;
-		thisComp.selectedLayers[0].label = label;
-	}
 
-	// thisComp.selectedLayers[0].inPoint =
+		convertToGroupLayers(precompMasters[i], precompMasters[i].source.layers, isGroupLayer);
+
+		if (isGroupLayer) {
+			thisComp.selectedLayers[0].inPoint = inPoint;
+			thisComp.selectedLayers[0].outPoint = outPoint;
+			thisComp.selectedLayers[0].label = label;
+		}
+	}
 
 	app.endUndoGroup();
 
-
-	function convertToLayers(precompMaster, precompedLayers) {
+	function convertToGroupLayers(precompMaster, precompedLayers, isGroupLayer) {
 		/// initialize group object
 		var groupObj = [{
 		    "type": "Group",
@@ -1623,13 +1669,16 @@ function precompToLayers() {
 			"layers": [0,0]
 		}]
 
+		/// store each layer with it's parent
+		var parentList = [];
+		var lockedList = [];
+
 		/// run the filter to create the guide layer
 		filterTypes(groupObj);
 
 		/// The top layer is the new guide layer
 		var r = thisComp.layer(1);
 		r.enabled = true;
-		r.name = precompMaster.name;
 		r.parent = precompMaster.parent;
 
 		/// set layer transforms
@@ -1640,11 +1689,23 @@ function precompToLayers() {
 
 		/// copy layers from the precomp into the main comp
 		for (var i = precompedLayers.length; i > 0; i--) {
+			var nonParented = false;
+			// store layer parent data
+			parentList[i] = (precompedLayers[i].parent) ? precompedLayers[i].parent.index : null;
+			lockedList[i] = (precompedLayers[i].locked) ? true : false;
+
+			// unlock layers
+			precompedLayers[i].locked = false;
+			if (precompedLayers[i].parent) {
+				precompedLayers[i].parent = null;
+				// nonParentedPos = precompedLayers[i]('ADBE Transform Group')('ADBE Position').value;
+			}
 			precompedLayers[i].copyToComp(thisComp);
 			thisComp.layer(1).setParentWithJump(r);
 			thisComp.layer(1).moveAfter(r);
-
 		}
+
+
 		/// new layer to store all the child layer indexes
 		var groupLayersList = [r.index];
 		getChildren(r, groupLayersList);
@@ -1655,13 +1716,36 @@ function precompToLayers() {
 			thisComp.layer(groupLayersList[j]).moveAfter(precompMaster);
 		}
 
+		/// re-parent layers
+		for (var l = parentList.length-1; l > 0; l--) {
+			// select new layers
+			if (!isGroupLayer) {
+				thisComp.layer(r.index + l).selected = true;
+			}
+			if (parentList[l]) {
+				thisComp.layer(r.index + l).parent = thisComp.layer(r.index + parentList[l])
+			}
+		}
+		/// re-lock layers
+		for (var m = lockedList.length-1; m > 0; m--) {
+			if (lockedList[m]) {
+				thisComp.layer(r.index + m).locked = true;
+			}
+		}
+		if (!isGroupLayer) {
+			// remove the generic group layer
+			var mainIndex = r.index;
+			r.remove()
+			thisComp.layer(mainIndex).name = precompMaster.name;
+		}
+
+		/// remove precomp from work comp
+		var precompSource = precompMaster.source;
+		precompMaster.remove();
 		/// check if the precomp exists in mutiple comps
-		if (precompMaster.source.usedIn.length < 2) {
+		if (precompSource.usedIn.length < 1) {
 			/// remove precomp from project
-			precompMaster.source.remove();
-		} else {
-			/// remove precomp from work comp
-			precompMaster.remove();
+			precompSource.remove();
 		}
 	}
 }

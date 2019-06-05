@@ -27,6 +27,9 @@ body {
   cursor: pointer;
   padding: 8px;
 }
+[v-cloak] {
+  display: none;
+}
 .row {
   clear: both;
   display: block;
@@ -187,7 +190,7 @@ hr {
     margin-left: -8px;
     margin-top: -8px;
     /* text-align: center; */
-    
+
     line-height: 1.15em;
   }
   .help-overlay .help {

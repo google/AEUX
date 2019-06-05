@@ -3,7 +3,7 @@ var prefs = getPrefs();
 const figmaApi = new fdk.FigmaApi({
   clientId: "cWdGmOYOBBVSIuPoFUdjjf",
   clientSecret: "64NFGYGuJ2r0WzHOfUEPzSlUEomVU0",
-  redirectUri: "https://aeux-55e58.firebaseapp.com/callback.html"
+  redirectUri: "https://figma.aeux.io/callback.html"
 });
 
 var loadingGif = 'https://thomas.vanhoutte.be/miniblog/wp-content/uploads/light_blue_material_design_loading.gif';
@@ -15,7 +15,7 @@ var vm = new Vue({
     figmaApiKey: "", // personal access token
     // figmaApiKey: "2368-4b47e390-2b13-4c81-911f-e6d4ade505ac", // personal access token
     fileUrl: "https://www.figma.com/file/WMXYs71NA4zPYT1T9GUPZneu/FimgasExport?node-id=0%3A1&viewport=-399%2C101%2C0.5",
-    // fileUrl: "https://www.figma.com/file/vX6CIMeB7dPLVt7lqebc83/AEUX_Test-(Copy)?node-id=0%3A1",
+    // fileUrl: "https://www.figma.com/file/UbLoB4opHcJRYL9gqGi6DwcW/AEUX-Tut?node-id=0%3A2",
     imageIdList: [],
     svgIdList: [],
     imageUrlList: [],
@@ -145,15 +145,34 @@ var vm = new Vue({
         if (vm.imageIdList.length > 0) {
             console.log('start image creation')
             downloadImages(vm.imageIdList, frame).then(urls => {
-                aeuxData[0].imageUrls = vm.imageUrlList;
-                console.log('finished image creation');
-
-                var blob = new Blob([JSON.stringify(aeuxData, false, 2)], {
-                    type: "text/plain;charset=ansi"
-                  });
-
-                  saveAs(blob, "AEUX.json");
+                saveToZip('AEUX.zip', urls)
+                // aeuxData[0].imageUrls = vm.imageUrlList;
+                // console.log('finished image creation');
+                //
+                // var blob = new Blob([JSON.stringify(aeuxData, false, 2)], {
+                //     type: "text/plain;charset=ansi"
+                //   });
+                //
+                //   saveAs(blob, "AEUX.json");
             });
+
+            function saveToZip (filename, urls) {
+                const zip = new JSZip()
+                const folder = zip.folder('AEUX')
+                urls.forEach((url)=> {
+                    const blobPromise = fetch(url.url).then(r => {
+                        if (r.status === 200) return r.blob()
+                        return Promise.reject(new Error(r.statusText))
+                    })
+                    const name = url.name + '.png';
+                    folder.file(name, blobPromise);
+                })
+                folder.file('AEUX.json', JSON.stringify(aeuxData, false, 2))
+
+                zip.generateAsync({type:"blob"})
+                    .then(blob => saveAs(blob, filename))
+                    .catch(e => console.log(e));
+            }
             // hack to download and parse svg data
         } else if (vm.svgIdList.length > 0) {
             console.log('start svg download')
@@ -219,7 +238,8 @@ async function getThumbnail(figmaId, id) {
     console.log("getting image", id);
     // vm.imageUrl = null;
     let result = await fetch(
-    "https://api.figma.com/v1/images/" + figmaId + "?ids=" + id + "&scale=1" + "&format=svg",
+    "https://api.figma.com/v1/images/" + figmaId + "?ids=" + id + "&scale=1" + "&format=png",
+    // "https://api.figma.com/v1/images/" + figmaId + "?ids=" + id + "&scale=1" + "&format=svg",
         {
             method: "GET",
             headers: {
@@ -467,3 +487,27 @@ function getPrefs() {
 
     return prefs;
 }
+
+
+/// modal video
+$(document).ready(function(){
+    var $videoSrc;
+    $('.video-btn').click(function() {
+        $videoSrc = $(this).data( "src" );
+    });
+    console.log($videoSrc);
+
+    // when the modal is opened autoplay it
+    $('#myModal').on('shown.bs.modal', function (e) {
+
+    // set the video src to autoplay and not to show related video. Youtube related video is like a box of chocolates... you never know what you're gonna get
+    $("#video").attr('src',$videoSrc + "?autoplay=1&amp;modestbranding=1&amp;showinfo=0" );
+    })
+
+    // stop playing the youtube video when I close the modal
+    $('#myModal').on('hide.bs.modal', function (e) {
+        // a poor man's stop video
+        $("#video").attr('src',$videoSrc);
+    })
+
+});

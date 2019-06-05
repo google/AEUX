@@ -13,8 +13,8 @@ if (cs.hostEnvironment.appVersion.split('.')[0]>14) {
 var scriptName = 'AEUX';
 var devName = 'sumUX';
 var toolDocUrl = 'https://aeux.io/';
-var figmaUrl = 'https://aeux-55e58.firebaseapp.com';
-var versionNumber = 0.67;
+var figmaUrl = 'https://figma.aeux.io/';
+var versionNumber = 0.69;
 var devPath = cs.getSystemPath(SystemPath.USER_DATA) + '/' + devName + '/';
 var userPath = devPath + scriptName + '/';
 
@@ -381,6 +381,7 @@ var vm = new Vue({
 									newComp: vm.prefs.newComp,
 									parametrics: vm.prefs.parametrics,
 									compScale: vm.prefs.compScale,
+									precompGroups: vm.prefs.precompGroups,
 								},
 								layerData: JSON.parse(layerData),
 								sourcePath: vm.filePath + 'msg/aeux.json',

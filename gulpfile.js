@@ -43,7 +43,7 @@ gulp.task('compress-css', function () {
 });
 
 gulp.task('compress-files', function (callback) {
-    runSequence("copy", ["compress-css", "compress-js", "compress-jsx"], callback);
+    runSequence("copy", ["compress-css", "compress-js"], callback);
 })
 
 gulp.task('compress-jsx', function () {

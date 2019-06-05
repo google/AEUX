@@ -1,8 +1,30 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"  xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
+    <title>AEUX</title>
+    <link>https://raw.githubusercontent.com/google/sketch2ae/master/.appcast.xml</link>
+    <description>Transfer layers to After Effects</description>
+    <language>en</language>
     <item>
-      <enclosure url="https://github.com/google/sketch2ae/releases/download/0.6.7/AEUX.sketchplugin.zip" sparkle:version="0.6.7"/>
+      <title>Version 0.6.9</title>
+      <description>
+          Stability, improved Ae un-precomp
+      </description>
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/0.6.9/AEUX.sketchplugin.zip" sparkle:version="0.6.8" />
+    </item>
+    <item>
+      <title>Version 0.6.8</title>
+      <description>
+          Sketch 54 support
+      </description>
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/0.6.8/AEUX.sketchplugin.zip" sparkle:version="0.6.8" />
+    </item>
+    <item>
+      <title>Version 0.6.7</title>
+      <description>
+          Initial release
+      </description>
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/0.6.7/AEUX.sketchplugin.zip" sparkle:version="0.6.7" />
     </item>
   </channel>
 </rss>

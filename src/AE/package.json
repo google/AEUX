@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "images-downloader": "git+https://github.com/adamplouff/images-downloader.git",
     "untildify": "^3.0.3",
-    "images-downloader": "git+https://github.com/adamplouff/images-downloader.git"
+    "unzipper": "^0.10.5"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "aeux",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "engines": {
     "sketch": ">=3.0"
   },
@@ -27,7 +27,9 @@
   "author": "Adam Plouff <adamplouff@gmail.com>",
   "dependencies": {
     "clipboardy": "^1.2.3",
+    "lore-server": "file:../../../../../npm/lore-server",
     "mocha-js-delegate": "^0.1.1",
+    "sketch-module-web-view": "^3.4.1",
     "vue": "^2.5.16",
     "vue-material": "^1.0.0-beta-10.2"
   },

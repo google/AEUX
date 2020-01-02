@@ -20,7 +20,7 @@
 var devName = 'sumUX';
 var toolName = 'AEUX';
 var docUrl = 'https://aeux.io/';
-var versionNumber = 0.69;
+var versionNumber = 0.7;
 var sketch = require('sketch/dom');
 var UI = require('sketch/ui');
 var Settings = require('sketch/settings');
@@ -182,6 +182,35 @@ export function openWindow(context) {
 
 }
 
+export function fetchAEUX () {
+    document = require('sketch/dom').getSelectedDocument();
+    selection = document.selectedLayers;
+
+    /// reset vars
+    folderPath = null;
+    hasArtboard = false;
+    layerCount = 0;
+
+    var aeuxData = filterTypes(selection);
+    // if (layerCount < 0) { return }
+    aeuxData[0].layerCount = layerCount;
+    aeuxData[0].folderPath = folderPath;
+
+    fetch(`http://127.0.0.1:7240/evalscript`, {
+    method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            method: 'popup',
+            // layerData: aeuxData,
+        })
+    })
+    .then(response => response.text())
+    .then(text => console.log(text))
+    .catch(e => console.error(e));
+};
 
 //// transfer layer data to AE
 export function pushJSON(skipHostNotification) {
@@ -493,54 +522,54 @@ function storeArtboard() {
 
 //// get layer data: SHAPE
 function getShape(layer) {
-    var layerType = getShapeType(layer.sketchObject);
+  var layerType = getShapeType(layer.sketchObject);
 	var layerData =  {
-        type: layerType,
+    type: layerType,
 		name: layer.name,
 		id: layer.id,
-		frame: layer.frame,
-        fill: getFills(layer),
-        stroke: getStrokes(layer),
-        shadow: getShadows(layer),
-        innerShadow: getInnerShadows(layer),
-        isVisible: layer.sketchObject.isVisible(),
+		frame: getFrame(layer),
+    fill: getFills(layer),
+    stroke: getStrokes(layer),
+    shadow: getShadows(layer),
+    innerShadow: getInnerShadows(layer),
+    isVisible: layer.sketchObject.isVisible(),
 		path: getPath(layer, layer.frame),
 		roundness: getRoundness(layer),
-        blur: getBlur(layer.sketchObject),
+    blur: getBlur(layer.sketchObject),
 		opacity: getOpacity(layer),
 		rotation: -layer.sketchObject.rotation(),
-        flip: getFlipMultiplier(layer),
+    flip: getFlipMultiplier(layer),
 		blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
-        hasClippingMask: layer.sketchObject.hasClippingMask(),
-        shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
-		};
+    hasClippingMask: layer.sketchObject.hasClippingMask(),
+    shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+  };
 
-        /// if fill is an image and should return that instead of a shape
-        if (layerData.fill != null && layerData.fill.type == 'Image') {
-            return layerData.fill;
-        }
+  /// if fill is an image and should return that instead of a shape
+  if (layerData.fill != null && layerData.fill.type == 'Image') {
+      return layerData.fill;
+  }
 
-        /// if shape is a compound get the shapes that make up the compound
-        if (layerType == 'CompoundShape') {
-            layerData.layers = getCompoundShapes(layer.layers);
-            layerData.booleanOperation = layer.layers[0].sketchObject.booleanOperation();
-        }
+  /// if shape is a compound get the shapes that make up the compound
+  if (layerType == 'CompoundShape') {
+      layerData.layers = getCompoundShapes(layer.layers);
+      layerData.booleanOperation = layer.layers[0].sketchObject.booleanOperation();
+  }
 
-    return layerData;																// output a string of the collected data
+  return layerData;																// output a string of the collected data
 
-    /// get corner roundness clamped to the shape size
-    function getRoundness(layer) {
-        try {
-            var lyr = layer.sketchObject;
-            var radius = lyr.points()[0].cornerRadius();
-            var width = lyr.frame().width();
-            var height = lyr.frame().height();
-            var maxRad = Math.min(Math.min(width, height), radius);
-            return maxRad;
-        } catch (e) {
-            return null;
-        }
-    }
+  /// get corner roundness clamped to the shape size
+  function getRoundness(layer) {
+      try {
+          var lyr = layer.sketchObject;
+          var radius = lyr.points()[0].cornerRadius();
+          var width = lyr.frame().width();
+          var height = lyr.frame().height();
+          var maxRad = Math.min(Math.min(width, height), radius);
+          return maxRad;
+      } catch (e) {
+          return null;
+      }
+  }
 }
 
 
@@ -558,16 +587,16 @@ function getSymbol(layer) {
 
 	var layerData =  {
         type: 'Symbol',
-		name: layer.master.name,
-		masterId: layer.master.id,
-		id: layer.id,
-		frame: layer.frame,
-		style: layer.style,
+        name: layer.master.name,
+        masterId: layer.master.id,
+        id: layer.id,
+        frame: getFrame(layer),
+        style: layer.style,
         isVisible: layer.sketchObject.isVisible(),
-		opacity: getOpacity(layer),
-		shadow: getShadows(layer),
-		innerShadow: getInnerShadows(layer),
-		blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
+        opacity: getOpacity(layer),
+        shadow: getShadows(layer),
+        innerShadow: getInnerShadows(layer),
+        blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
         layers: filterTypes(layer.master),
         symbolFrame: layer.master.frame,
         bgColor: sketchColorToArray(layer.master.sketchObject.backgroundColor()),
@@ -640,20 +669,20 @@ function getSymbol(layer) {
 function getGroup(layer) {
     var flip = getFlipMultiplier(layer);
 	var layerData =  {
-        type: 'Group',
-		name: '\u25BD ' + layer.name,
-		id: layer.id,
-		frame: layer.frame,
-        isVisible: layer.sketchObject.isVisible(),
+    type: 'Group',
+    name: '\u25BD ' + layer.name,
+    id: layer.id,
+    frame: getFrame(layer),
+    isVisible: layer.sketchObject.isVisible(),
 		opacity: getOpacity(layer),
-        shadow: getShadows(layer),
-		innerShadow: getInnerShadows(layer),
-		rotation: -layer.sketchObject.rotation() * (flip[0]/100) * (flip[1]/100),
-		blendMode: layer.sketchObject.style().contextSettings().blendMode(),
-        flip: flip,
-        layers: filterTypes(layer),
-        hasClippingMask: layer.sketchObject.hasClippingMask(),
-        shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+    shadow: getShadows(layer),
+    innerShadow: getInnerShadows(layer),
+    rotation: -layer.sketchObject.rotation() * (flip[0]/100) * (flip[1]/100),
+    blendMode: layer.sketchObject.style().contextSettings().blendMode(),
+    flip: flip,
+    layers: filterTypes(layer),
+    hasClippingMask: layer.sketchObject.hasClippingMask(),
+    shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
 		};
   return layerData;
 }
@@ -740,42 +769,75 @@ function getText(layer) {
 //// get layer data: IMAGE
 function getImage(layer) {
 	var layerData =  {
-        type: 'Image',
-		name: layer.name,
-		id: layer.id,
-		frame: layer.frame,
-        isVisible: layer.sketchObject.isVisible(),
-		opacity: getOpacity(layer),
-		blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
-        hasClippingMask: layer.sketchObject.hasClippingMask(),
-        shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+    type: 'Image',
+    name: layer.name,
+    id: layer.id,
+    frame: getFrame(layer),
+    isVisible: layer.sketchObject.isVisible(),
+    opacity: getOpacity(layer),
+    blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
+    rotation: -layer.sketchObject.rotation(),
+    hasClippingMask: layer.sketchObject.hasClippingMask(),
+    shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
 	};
 
-    if ( !getFolderPath() ) { return null };        // canceled
+    if ( !getFolderPath() ) { return null; }        // canceled
 
     var imageFile = exportLayer(layer, folderPath);
-    layerData.path = imageFile.path;
-    layerData.scale = imageFile.scale;
+    // layerData.path = imageFile.path;
+    // layerData.scale = imageFile.scale;
     return layerData;
 
 
     /// export image
     function exportLayer(layer, path) {
-        sketch.export(layer, {
-            output: path,
-            'use-id-for-name': true,
-            overwriting: true,
-            'save-for-web': true,
-            'group-contents-only': true,
-            scales: 4,
-        })
+        layer.image.nsdata.writeToFile_atomically(path + layer.id + '.png', true);
 
         return {
             path: path,
             scale: 'scale'
-            }
+        };
     }
 }
+// //// get layer data: IMAGE
+// function getImage(layer) {
+// 	var layerData =  {
+//     type: 'Image',
+// 		name: layer.name,
+// 		id: layer.id,
+// 		frame: getFrame(layer),
+//     isVisible: layer.sketchObject.isVisible(),
+// 		opacity: getOpacity(layer),
+// 		blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
+//     hasClippingMask: layer.sketchObject.hasClippingMask(),
+//     shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+// 	};
+
+//     if ( !getFolderPath() ) { return null; }        // canceled
+
+//     var imageFile = exportLayer(layer, folderPath);
+//     layerData.path = imageFile.path;
+//     layerData.scale = imageFile.scale;
+//     return layerData;
+
+
+//     /// export image
+//     function exportLayer(layer, path) {
+//         sketch.export(layer, {
+//             output: path,
+//             'use-id-for-name': true,
+//             overwriting: true,
+//             // 'save-for-web': true,
+//             'group-contents-only': true,
+//             scales: 4,
+//         });
+
+//         return {
+//           path: path,
+//           scale: 'scale'
+//         };
+//     }
+// }
 
 
 //// get layer data: COMPOUND SHAPE
@@ -1227,6 +1289,18 @@ function getSavePath() {
         return false;
 	}
     return true;        // folder path exists
+}
+
+//// rearrange origin of a shape
+function getFrame(layer) {
+  var frame = layer.frame;
+
+  return {
+    width: frame.width,
+    height: frame.height,
+    x: frame.x + frame.width/2,
+    y: frame.y + frame.height/2,
+  }
 }
 
 

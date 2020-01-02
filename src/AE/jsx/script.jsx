@@ -208,7 +208,11 @@ function aeText(layer, opt_parent) {
 		r = thisComp.layers.addText('');
 	}
 	if (layer.kind == 'Area') {
-		r = thisComp.layers.addBoxText([layer.frame.width, layer.frame.height], '');
+        if (hostApp == 'Figma') {
+            r = thisComp.layers.addBoxText([0.01, 0.01], '');
+        } else {
+            r = thisComp.layers.addBoxText([layer.frame.width, layer.frame.height], '');
+        }
 	}
 
 	/// set layer name
@@ -217,20 +221,7 @@ function aeText(layer, opt_parent) {
 	/// deselect layer
 	r.selected = false;
 
-	// check for parenting
-	if (opt_parent !== null) {
-		// parent layer
-		r.parent = opt_parent;
-		// move below parent layer
-		r.moveAfter(opt_parent);
-		// is the layer visible and is the parent visible?
-		r.enabled = (layer.isVisible && opt_parent.enabled );
-	} else {
-		// increment label color
-		labelColor = labelColor % 16 + 1;
-		// is the layer visible?
-		r.enabled = layer.isVisible;
-	}
+	
 	/// set layer label color
 	r.label = labelColor;
 
@@ -251,7 +242,13 @@ function aeText(layer, opt_parent) {
 	var fill = [layer.textColor[0], layer.textColor[1], layer.textColor[2]];
 	var opacity = layer.textColor[3];
 	textDoc.applyFill = true;
-	textDoc.fillColor = fill;
+    textDoc.fillColor = fill;
+    
+    //// rezise the box if figma
+    if (hostApp == 'Figma') {
+        textDoc.boxTextSize = [layer.frame.width, layer.frame.height];
+    }
+
 	//// text fill opacity
 	if (opacity < 1) {
 		var textOpacity = r('ADBE Text Properties')(4).addProperty('ADBE Text Animator');
@@ -307,13 +304,15 @@ function aeText(layer, opt_parent) {
 			var boundsTop = r.sourceRectAtTime(thisComp.time, false).top;
 			r('ADBE Transform Group')('ADBE Position').setValue([ (layer.frame.x + justificationOffset) * compMult, (layer.frame.y - boundsTop) * compMult]);
 		}
-	} else {		// text box
-		if (layer.rotation != 0 || layer.flip != [100,100]) {
-			var rect = r.sourceRectAtTime(0, false);
+    } else {		// text box
+        if (layer.rotation != 0 || (layer.flip[0] != 100 && layer.flip[1] != 100) || hostApp != 'Figma') {
+			// var rect = r.sourceRectAtTime(0, false);
 			var centeredPos = [(layer.frame.x) * compMult, (layer.frame.y) * compMult];
 			r('ADBE Transform Group')('ADBE Position').setValue( centeredPos );		// set position
 		} else {
-			r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, layer.frame.y * compMult]);
+			r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, (layer.frame.y + layer.fontSize/6) * compMult]);
+			// r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, (layer.frame.y) * compMult]);
+			// r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, layer.frame.y * compMult]);
 		}
 	}
 
@@ -322,6 +321,24 @@ function aeText(layer, opt_parent) {
 	r('ADBE Transform Group')('ADBE Scale').setValue([layer.flip[0] * compMult, layer.flip[1] * compMult]);
 
 
+    // check for parenting
+	if (opt_parent !== null) {
+		// parent layer
+		// if (hostApp == 'Sketch') {
+            r.setParentWithJump(opt_parent);
+        // } else {
+        //     r.parent = opt_parent;
+        // }
+		// move below parent layer
+		r.moveAfter(opt_parent);
+		// is the layer visible and is the parent visible?
+		r.enabled = (layer.isVisible && opt_parent.enabled );
+	} else {
+		// increment label color
+		labelColor = labelColor % 16 + 1;
+		// is the layer visible?
+		r.enabled = layer.isVisible;
+	}
 
 	} catch(e) {
 		alert(e.toString() + '\nError on line: ' + e.line.toString());
@@ -413,6 +430,7 @@ function aeText(layer, opt_parent) {
 function aeGroup(layer, opt_parent) {
 	/// if auto-precomp is enabled
 	if (prefs.precompGroups || layer.type == 'Component') {
+        frameRate = prefs.frameRate;
 		// skip if an empty group
 		if (layer.layers.length < 1) { return; }
 
@@ -423,7 +441,7 @@ function aeGroup(layer, opt_parent) {
 		var groupComp = app.project.items.addComp(	nameInc(layer.name, app.project.items),
 												Math.max(Math.round(layer.frame.width * compMult), 4),	// x size
 												Math.max(Math.round(layer.frame.height * compMult), 4),	// y size
-												1, thisComp.duration, 60);					// pixelAspect=1, duration=60sec, frameRate=60fps
+												1, thisComp.duration, frameRate);					// pixelAspect=1, duration=60sec, frameRate=60fps
 
 		groupComp.bgColor = thisComp.bgColor;							// set the bgColor
 		groupComp.parentFolder = groupFolder;							// move this to the groups folder
@@ -432,7 +450,9 @@ function aeGroup(layer, opt_parent) {
 		// temporarily switch thisComp var to the group precomp
 		var mainComp = thisComp;
 		thisComp = groupComp;
-		// build layers within group
+        // build layers within group
+        // var g = groupComp.layers.addShape();
+        // g('ADBE Transform Group')('ADBE Position').setValue([-groupComp.width/2, -groupComp.height/2])
 		filterTypes(layer.layers);
 		// switch back to main comp
 		thisComp = mainComp;
@@ -465,12 +485,22 @@ function aeGroup(layer, opt_parent) {
 		labelColor = labelColor % 16 + 1;
 		r.label = labelColor;
 		// set the layer to shy
-		r.shy = true;
+        r.shy = true;
+        
+        // set transforms
+		r('ADBE Transform Group')('ADBE Anchor Point').setValue( [(layer.frame.width/2) * compMult, (layer.frame.height/2) * compMult] );
+		r('ADBE Transform Group')('ADBE Position').setValue( [(layer.frame.x + layer.frame.width/2) * compMult, (layer.frame.y + layer.frame.height/2) * compMult] );
+		r('ADBE Transform Group')('ADBE Rotate Z').setValue( layer.rotation );
+		r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
 
 		/// if the group layer has a parent
 		if (opt_parent !== null) {
-			// set the parent
-			r.parent = opt_parent;
+            // set the parent
+            if (hostApp == 'Sketch') {
+                r.setParentWithJump(opt_parent);
+            } else {
+                r.parent = opt_parent;
+            }
 			// move the layer after the parent
 			r.moveAfter(opt_parent);
 		}
@@ -505,12 +535,6 @@ function aeGroup(layer, opt_parent) {
 		// turn off the eyeball
 		r.enabled = false;
 
-		// set transforms
-		r('ADBE Transform Group')('ADBE Anchor Point').setValue( [(layer.frame.width/2) * compMult, (layer.frame.height/2) * compMult] );
-		r('ADBE Transform Group')('ADBE Position').setValue( [(layer.frame.x + layer.frame.width/2) * compMult, (layer.frame.y + layer.frame.height/2) * compMult] );
-		r('ADBE Transform Group')('ADBE Rotate Z').setValue( layer.rotation );
-		r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
-
 		setMask(r, layer);
 	}
 }
@@ -543,7 +567,18 @@ function aeRect(layer, opt_parent) {
 															(layer.frame.y + layer.frame.height/2)*compMult]);
 	r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
 	r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
-
+    
+    /// if the group layer has a parent
+    if (opt_parent !== null) {
+        // set the parent
+        if (hostApp == 'Sketch') {
+            r.setParentWithJump(opt_parent);
+        } else {
+            r.parent = opt_parent;
+        }
+        // move the layer after the parent
+        r.moveAfter(opt_parent);
+    }
 
 	setMask(r, layer);
 }
@@ -575,7 +610,19 @@ function aeEllipse(layer, opt_parent) {
 	r('ADBE Transform Group')('ADBE Position').setValue([	(layer.frame.x + layer.frame.width/2)*compMult,
 															(layer.frame.y + layer.frame.height/2)*compMult]);			// set position
 	r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);											// set opacity
-	r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+    r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+    
+    /// if the group layer has a parent
+    if (opt_parent !== null) {
+        // set the parent
+        if (hostApp == 'Sketch') {
+            r.setParentWithJump(opt_parent);
+        } else {
+            r.parent = opt_parent;
+        }
+        // move the layer after the parent
+        r.moveAfter(opt_parent);
+    }
 
 	setMask(r, layer);
 }
@@ -633,7 +680,20 @@ function aePath(layer, opt_parent) {
 	group('ADBE Vector Transform Group')('ADBE Vector Rotation').setValue(layer.rotation);
 	group('ADBE Vector Transform Group')('ADBE Vector Scale').setValue([100 * compMult, 100 * compMult]);
 	r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
-	r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+    r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+    
+    /// if the group layer has a parent
+    if (opt_parent !== null) {
+        // set the parent
+        if (hostApp == 'Sketch') {
+            r.setParentWithJump(opt_parent);
+        } else {
+            // r.parent = opt_parent;
+            r.setParentWithJump(opt_parent);
+        }
+        // move the layer after the parent
+        r.moveAfter(opt_parent);
+    }
 
 	setMask(r, layer);
 }
@@ -667,7 +727,19 @@ function aeCompound(layer, opt_parent) {
 	r('ADBE Transform Group')('ADBE Rotate Z').setValue( layer.rotation );
 	r('ADBE Transform Group')('ADBE Position').setValue( centeredPos );
 	r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
-	r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+    r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+    
+    /// if the group layer has a parent
+    if (opt_parent !== null) {
+        // set the parent
+        // if (hostApp == 'Sketch') {
+            r.setParentWithJump(opt_parent);
+        // } else {
+        //     r.parent = opt_parent;
+        // }
+        // move the layer after the parent
+        r.moveAfter(opt_parent);
+    }
 
     setMask(r, layer);
 
@@ -769,7 +841,11 @@ function aeSymbol(layer, opt_parent) {
 	/// if the group layer has a parent
 	if (opt_parent !== null) {
 		// set the parent
-		r.parent = opt_parent;
+		// if (hostApp == 'Sketch') {
+            r.setParentWithJump(opt_parent);
+        // } else {
+        //     r.parent = opt_parent;
+        // }
 		// move the layer after the parent
 		r.moveAfter(opt_parent);
 		// set layer visibility (eyeball)
@@ -804,7 +880,7 @@ function aeSymbol(layer, opt_parent) {
 
 //// import and add image
 function aeImage(layer, opt_parent) {
-	imageFolder = createNamedFolder('Images');
+    imageFolder = createNamedFolder('Images');
 
 	// check if file is already imported
 	var bmpImage = getItem(layer.id, FileSource, imageFolder);
@@ -816,7 +892,10 @@ function aeImage(layer, opt_parent) {
 		var bmpFile;
 			try {
 				bmpFile = new ImportOptions(new File(layer.path + layer.id + '@4x.png'));
-				fileFound = true;
+                fileFound = true;
+                
+                // import
+			    if (fileFound) { bmpImage = app.project.importFile(bmpFile); }
 			} catch (e) {
 				try {
 					// alert(sourcePath + '/' + layer.id + '@4x.png')
@@ -824,18 +903,28 @@ function aeImage(layer, opt_parent) {
 						bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '@4x.png'));
 					}
 					if (hostApp == 'Figma') {
-						bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '.png'));
+                        if (File(sourcePath + '/' + layer.id + '.png').exists) {
+                            // alert('PNG ' + layer.id)
+                            bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '.png'));
+                        } 
+                        if (File(sourcePath + '/' + layer.id + '.jpg').exists) {
+                            // alert('JPG ' + layer.id)
+                            bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '.jpg'));
+                        }
+						
 					}
 
-					fileFound = true;
+                    fileFound = true;
+                    
+                    // import
+			        if (fileFound) { bmpImage = app.project.importFile(bmpFile); }
 
 				} catch (e) {
 					returnMessage.push(6); 					//'Can't locate image file'
 					bmpImage = app.project.importPlaceholder(layer.id + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
 				}
 			}
-			// import
-			if (fileFound) { bmpImage = app.project.importFile(bmpFile); }
+			
 			// move to IMAGES folder
 			bmpImage.parentFolder = imageFolder;
 			// deselect
@@ -846,10 +935,32 @@ function aeImage(layer, opt_parent) {
 	r.selected = false;
 	r.name = layer.name;
 
-	/// if the group layer has a parent
+	/// add layer elements
+	addDropShadow(r, layer);
+	addInnerShadow(r, layer);
+	setLayerBlendMode(r, layer);
+
+	setMask(r, layer);
+
+	// set transforms
+	var centeredPos = [(layer.frame.x + layer.frame.width/2) * compMult, (layer.frame.y + layer.frame.height/2) * compMult];
+    r('ADBE Transform Group')('ADBE Position').setValue(centeredPos);
+    // if Sketch scale to 25% for the 4x mult
+    if (hostApp == 'Sketch') { 
+        r('ADBE Transform Group')('ADBE Scale').setValue([25*compMult,25*compMult]); 
+    } else {
+        // get the scale from the size of the image
+        var w = layer.frame.width / r.width * 100;
+        var h = layer.frame.height / r.height * 100;
+        
+        r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]); 
+    }
+
+    /// if the group layer has a parent
 	if (opt_parent !== null) {
 		// set the parent
-		r.parent = opt_parent;
+        r.parent = opt_parent;
+        // r.setParentWithJump(opt_parent);
 		// move the layer after the parent
 		r.moveAfter(opt_parent);
 		// set layer visibility (eyeball)
@@ -861,25 +972,14 @@ function aeImage(layer, opt_parent) {
 		r.enabled = layer.isVisible;
 	}
 	r.label = labelColor;
-
-	/// add layer elements
-	addDropShadow(r, layer);
-	addInnerShadow(r, layer);
-	setLayerBlendMode(r, layer);
-
-	setMask(r, layer);
-
-	// set transforms
-	var centeredPos = [(layer.frame.x + layer.frame.width/2) * compMult, (layer.frame.y + layer.frame.height/2) * compMult];
-	r('ADBE Transform Group')('ADBE Position').setValue(centeredPos);
-	r('ADBE Transform Group')('ADBE Scale').setValue([25*compMult,25*compMult]);
+	
 
 	// func to get image file from project
 	function getItem(itemName, itemInstanceName, imageFolder) {
 		if (imageFolder.numItems > 0) {
 			for (var i = 1; i <= imageFolder.numItems; i ++) {
 				var curItem = imageFolder.item(i);
-				if (curItem.name === itemName || curItem.name === itemName + '.png') {
+				if (curItem.name === itemName || curItem.name === itemName + '.png' || curItem.name === itemName + '.jpg') {
 					if (curItem instanceof itemInstanceName || (curItem.mainSource !== 'undefined' && (curItem.mainSource instanceof itemInstanceName || curItem.mainSource instanceof PlaceholderSource) )) {
 						return curItem;
 					}
@@ -988,6 +1088,7 @@ function aeArtboard(layer) {
 	// skip the code if panel check box for new comp disabled
 	if (prefs.newComp) {
 		compMult = prefs.compScale;
+		frameRate = prefs.frameRate;
 
 		if (layer.size[0] * compMult > 30000) {
 			returnMessage.push(3); 					//'Comp width 30,000+'
@@ -1000,7 +1101,7 @@ function aeArtboard(layer) {
 		thisComp = app.project.items.addComp(	nameInc(layer.name, app.project.items),
 												Math.max(Math.round(layer.size[0] * compMult), 4),
 												Math.max(Math.round(layer.size[1] * compMult), 4),
-												1, 60, 60);	// pixelAspect=1, duration=60sec, frameRate=60fps
+												1, 60, frameRate);	// pixelAspect=1, duration=60sec, frameRate=60fps
 
 		// set the comp background color to the artboard background color
 		thisComp.bgColor = [layer.bgColor[0],
@@ -1030,7 +1131,11 @@ function initShapeLayer(layer, opt_parent) {
 	/// if the group layer has a parent
 	if (opt_parent !== null) {
 		// set the parent
-		r.parent = opt_parent;
+		// if (hostApp == 'Sketch') {
+        //     r.setParentWithJump(opt_parent);
+        // } else {
+        //     r.parent = opt_parent;
+        // }
 		// move the layer after the parent
 		r.moveAfter(opt_parent);
 		// set layer visibility (eyeball)
@@ -1206,6 +1311,8 @@ function setMask(currentLayer, layerData) {
 			newMask.name = '\u25A8 ' + newMask.name;
 			try { newMask(2).addProperty('ADBE Vector Graphic - Fill'); } catch (e) {}		// if not a shape layer
 			newMask.locked = true;
+
+        if (hostApp == 'Figma') { maskLayer[layerID].remove() }     // figma cant have the underlying mask layer visible so delete it
 
 		currentLayer.trackMatteType = TrackMatteType.ALPHA;
 		} catch (e) {}
@@ -1736,7 +1843,7 @@ function precompToLayers() {
 			// remove the generic group layer
 			var mainIndex = r.index;
 			r.remove()
-			thisComp.layer(mainIndex).name = precompMaster.name;
+			// thisComp.layer(mainIndex).name = precompMaster.name;
 		}
 
 		/// remove precomp from work comp
@@ -1883,18 +1990,24 @@ function updateAePanel(msgData) {
 	updateDialog.show();
 }
 
-//// Define save location for Figma images
-function downloadFigmaImages() {
-	resetProgressDialog('Downloading Figma images', true);
-
-	var filePath = Folder.selectDialog(['Download Figma images - Cancel to skip download and just build layers']);
-	if (filePath == null) { 	// canceled
-		progressDialog.hide();
-		return null
-	};
-
-	return filePath.absoluteURI;
+function openFile () {
+    var filePath = File.openDialog('Select a .json or zip file', "XML or ASE:*.xml;*.ase", false);
+    return filePath;
 }
+
+//// Define save location for Figma images
+// function downloadFigmaImages() {
+// 	resetProgressDialog('Downloading Figma images', true);
+
+// 	var filePath = Folder.selectDialog(['Download Figma images - Cancel to skip download and just build layers']);
+// 	if (filePath == null) { 	// canceled
+// 		progressDialog.hide();
+// 		return null
+// 	};
+
+// 	return filePath.absoluteURI;
+// }
+
 
 //// Progress bar popup as scriptUI
 var progressDialog = new Window ('palette', 'Hold on. One sec.');
@@ -1933,9 +2046,12 @@ return {
     updateAePanel: function (msgData) {
         return updateAePanel(msgData);
     },
-    downloadFigmaImages: function () {
-        return downloadFigmaImages();
+    openFile: function () {
+        return openFile();
     },
+    // downloadFigmaImages: function () {
+    //     return downloadFigmaImages();
+    // },
 };
 
 })();

@@ -27,7 +27,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
 
     layers.forEach(layer => {
         if (layer.visible === false) { return; }         // skip layer if hidden
-        console.log(layer.name, layer.type);
+        // console.log(layer.name, layer.type);
         if (layer.type == "GROUP" || layer.type == "FRAME") {
 
             aeuxData.push(getGroup(layer, parentFrame));
@@ -49,7 +49,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
             layerCount++;
         }
         if (layer.type == "INSTANCE" || layer.type == "COMPONENT") {    // instances and master symbols
-            console.log(layer.name);
+            // console.log(layer.name);
             aeuxData.push(getComponent(layer, parentFrame));
             layerCount++;
         }
@@ -142,16 +142,26 @@ function getText(layer, parentFrame) {
         // y: layer.frame.y + layer.frame.height / 2 + layer.sketchObject.glyphBounds().origin.y,
     }
     // }
+    var fillColor = getFills(layer), textColor;
+    // console.log(fillColor.length);
+    
+    if (fillColor.length > 0) {
+        // console.log('getColor');
+        textColor = fillColor[0].color || fillColor[0].gradient.points[0].color;
+    } else {
+        textColor = [0,0,0,0];
+    }
+    
 	var layerData =  {
         type: 'Text',
         kind: 'Area',
-		name: layer.name,
+		name: layer.name.replace(/[\u2028]/g, ' ').replace(/[\u2029]/g, ' '),
         stringValue: getTextProps(layer),
 		id: layer.id,
 		frame: frame,
         isVisible: (layer.visible !== false),
 		opacity: layer.opacity*100 || 100,
-        textColor: getFills(layer)[0].color || getFills(layer)[0].gradient.points[0].color,
+        textColor: textColor,
         fill: null,
         stroke: getStrokes(layer),
 		blendMode: getLayerBlending(layer.blendMode),
@@ -218,7 +228,7 @@ function getGroup(layer, parentFrame) {
 		id: layer.id,
 		frame: frame,
         isVisible: (layer.visible !== false),
-		opacity: Math.round(layer.opacity*100 * 100) || 100,
+		opacity: Math.round(layer.opacity*100) || 100,
 		// rotation: getRotation(layer) * (flip[1]/100),
 		rotation: getRotation(layer),
 		blendMode: getLayerBlending(layer.blendMode),
@@ -228,7 +238,7 @@ function getGroup(layer, parentFrame) {
         layers: filterTypes(layer, frame),
     };
     getEffects(layer, layerData);
-    console.log(layerData)
+    // console.log(layerData)
   return layerData;
 }
 //// get layer data: SYMBOL
@@ -323,7 +333,7 @@ function getComponent(layer, parentFrame) {
 }
 //// get layer data: BOOLEAN_OPERATION
 function getBoolean(layer, parentFrame, isMultipath) {
-    console.log('getBoolean');
+    // console.log('getBoolean');
     // var flip = getFlipMultiplier(layer);
     var frame = getFrame(layer, parentFrame);
     // console.log(layer.name, getBoolType(layer))
@@ -331,7 +341,7 @@ function getBoolean(layer, parentFrame, isMultipath) {
     var path = getPath(layer, frame);
 
     if (path == 'multiPath') {
-        console.log('bool multipath');
+        // console.log('bool multipath');
         isMultipath = true;
     }
 
@@ -356,8 +366,7 @@ function getBoolean(layer, parentFrame, isMultipath) {
     getEffects(layer, layerData);
 
     if (isMultipath) {
-        console.log('multipath smarts', layer.name)
-        // xxx
+        // console.log('multipath smarts', layer.name)
         // try {
             layerData.layers = getCompoundPaths(layer.fillGeometry[0].path, layer);
         // } catch (error) {
@@ -370,7 +379,7 @@ function getBoolean(layer, parentFrame, isMultipath) {
     //     layerData.layers = getCompoundShapes(layer.children, boolType);
         // layerData.layers = getCompoundPaths(layer.fillGeometry, layer);            /// test if paths.lenght > 1
     } else {
-        console.log('run getCompoundShapes' )
+        // console.log('run getCompoundShapes' )
         // layerData.layers = getCompoundShapes(layer.children, boolType);            /// test if paths.lenght > 1
         try {
             layerData.layers = filterTypes(layer, frame, boolType);
@@ -379,7 +388,7 @@ function getBoolean(layer, parentFrame, isMultipath) {
         }
     }
 
-    console.log('bool', layerData);
+    // console.log('bool', layerData);
     if (layerData.layers.length < 1) { return null }
     return layerData;
 }
@@ -399,7 +408,7 @@ function getCompoundShapes(layers, boolType, isMultipath) {
         var layer = layers[i];
         var frame = getFrame(layer);
         var path = getPath(layer, frame);
-        console.log(path)
+        // console.log(path)
         // if (path == 'multiPath') {
         //     return getBoolean(layer, null, true);
         // }
@@ -433,7 +442,7 @@ function getCompoundShapes(layers, boolType, isMultipath) {
             layerList[layerList.length-1].layers = filterTypes(layer, frame, boolType);
         }
     }
-    console.log(layerList)
+    // console.log(layerList)
     return layerList;
 }
 function getCompoundPaths(paths, layer) {
@@ -648,13 +657,13 @@ function getFills(layer) {
                     var color = colorObjToArray(fill.color);
                     var fillObj = {
     					type: 'fill',
-    					enabled: fill.visible !== false,
+    					enabled: (fill.visible !== false) ? 1 : 0,
     					color: color,
     					opacity: Math.round(color[3] * 100),
     					blendMode: getShapeBlending( fill.blendMode ),
     				}
                 }
-
+                
                 // add obj string to array
 				fillData.push(fillObj);
 			}
@@ -666,11 +675,11 @@ function getFills(layer) {
 }
 //// get layer data: IMAGE
 function getImageFill(layer) {
-    console.log('getImageFill')
+    // console.log('getImageFill')
 	var layerData =  {
         type: 'Image',
 		name: layer.name,
-        id: layer.id.replace(':', '-'),
+        id: layer.id.replace(/:/g, '-'),
 		frame: getFrame(layer),
         isVisible: (layer.visible !== false),
 		opacity: layer.opacity*100 || 100,
@@ -725,7 +734,7 @@ function getStrokes(layer) {
                     var color = colorObjToArray(stroke.color);
                     strokeObj = {
                         type: 'fill',
-                        enabled: stroke.visible !== false,
+                        enabled: (stroke.visible !== false) ? 1 : 0,
         				color: color,
         				opacity: color[3] * 100,
         				width: layer.strokeWeight,
@@ -930,7 +939,7 @@ function getPath(layer, bounding, type) {
         try {
             if (!layer.fillGeometry[0]) {
                 // if (layer.children[0].fillGeometry[0]) { return 'multiPath' }
-                console.log('get svg');
+                // console.log('get svg');
                 vm.svgIdList.push(layer.id);
                 return null
             }
@@ -980,10 +989,10 @@ function parseSvg(str, transformed) {
     // add line breaks between SVG commands
     var path = str.replace(/\s*([mlvhqczMLVHQCZ])\s*/g,"\n$1 ")
                 .replace(/,/g," ")
-                .replace(/-/g," -")
+                // .replace(/-/g," -")
                 .replace(/ +/g," ");
     var strings = path.split("\n");
-
+    // console.log(path);
     // shift all the points so the second point is first then reverse
     strings.splice(strings.length-1, 0, strings.splice(0, 1)[0]);
     strings.splice(strings.length-1, 0, strings.splice(0, 1)[0]);
@@ -1022,6 +1031,7 @@ function parseSvg(str, transformed) {
     // store all points/tangents
     for (var i = 0; i < strings.length; i++) {
         string = strings[i].trim();     // remove white space
+
         if (string < 1) { continue; }   // skip if empty
 
 
@@ -1044,7 +1054,7 @@ function parseSvg(str, transformed) {
             minY = Math.min(minY, terms[1])
 
             // add coords to pathObj
-            pathObj.points.push(terms);
+            pathObj.points.push( [parseFloat(terms[0]), parseFloat(terms[1])] );
             pathObj.inTangents.push( [0,0] );
             pathObj.outTangents.push( [0,0] );
         }
@@ -1055,7 +1065,8 @@ function parseSvg(str, transformed) {
             minY = Math.min(minY, terms[1])
 
             // add coords to pathObj
-            pathObj.points.push(terms);
+            // pathObj.points.push(terms);
+            pathObj.points.push( [parseFloat(terms[0]), parseFloat(terms[1])] );
             pathObj.inTangents.push( [0,0] );
             pathObj.outTangents.push( [0,0] );
         }
@@ -1071,11 +1082,7 @@ function parseSvg(str, transformed) {
 
             outTangent = [terms[2]-terms[4], terms[3]-terms[5]];
             pathObj.outTangents.push( outTangent );
-
-            // console.log('inTan', [ terms[0], terms[1] ]);
-
-            // alert(outTangent)
-            // alert(JSON.stringify(pathObj.outTangents, false, 2));
+            // console.log(pathObj);
         }
 
         // horizontal/vertical line
@@ -1105,6 +1112,7 @@ function parseSvg(str, transformed) {
         }
         // console.log(op, terms);
     }
+    // console.log(pathObj);
     // shift inTangents list
     pathObj.inTangents.splice(0, 0, pathObj.inTangents.splice(pathObj.inTangents.length-1, 1)[0]);
 

@@ -450,6 +450,24 @@ input#file-path {
     margin: 8px -18px 0 0;
     border: none;
 }
+.number-input {
+    background-color: #454545;
+    color: #EFEFEF;
+    font-family: 'Source Code Pro', monospace;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    /* padding-left: 5px; */
+    outline: 0;
+    /* margin-top: 2px;
+    margin-left: 3px; */
+    margin: 2px 3px;
+    width: 36px;
+    text-align: center;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 .option {
     height: 16px;
     margin-bottom: 4px;

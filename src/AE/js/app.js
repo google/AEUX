@@ -3,6 +3,7 @@
 //// variables
 var cs = new CSInterface();
 var fs = require('fs');
+var unzipper = require('unzipper');
 
 // if using AE CC2018+
 if (cs.hostEnvironment.appVersion.split('.')[0]>14) {
@@ -146,6 +147,7 @@ function getPrefs() {
 				precompGroups: false,
 				parametrics: true,
 				compScale: 3,
+				frameRate: 60,
 				expand: {
 					groups: true,
 					options: true,
@@ -177,6 +179,7 @@ var vm = new Vue({
 				options: true,
 			},
 			artboard: null,
+			frameRate: 60,
 		},
 		showHelp: false,
 		compScaleOptions: [
@@ -264,40 +267,41 @@ var vm = new Vue({
 						parametrics: vm.prefs.parametrics,
 						compScale: vm.prefs.compScale,
 						precompGroups: vm.prefs.precompGroups,
+						frameRate: vm.prefs.frameRate || 60,
 					},
 					layerData: parsedData,
 					sourcePath: path.split('/').slice(0,-1).join('/'),
 				}
 
-				if (parsedData[0].hostApp == 'Figma' &&
-					parsedData[0].imageUrls.length > 0) {
+				// if (parsedData[0].hostApp == 'Figma' &&
+				// 	parsedData[0].imageUrls.length > 0) {
 
-					// error message: needs CC2018+
-					if (cs.hostEnvironment.appVersion.split('.')[0]>14) {
-						evalScript('downloadFigmaImages').then(function(imagePath) {
-							if (imagePath == 'null') { buildLayers(compObj); return }		// skip download and build layers
-							imagePath = untildify(imagePath)
-							// console.log(imagePath);
-							// console.log(parsedData[0].imageUrls);
+				// 	// error message: needs CC2018+
+				// 	if (cs.hostEnvironment.appVersion.split('.')[0]>14) {
+				// 		evalScript('downloadFigmaImages').then(function(imagePath) {
+				// 			if (imagePath == 'null') { buildLayers(compObj); return }		// skip download and build layers
+				// 			imagePath = untildify(imagePath)
+				// 			// console.log(imagePath);
+				// 			// console.log(parsedData[0].imageUrls);
 
-							download(parsedData[0].imageUrls, imagePath)
-							///// hack the download lib to accept custom file names
-							.then(function(results) {
-								compObj.sourcePath = imagePath;
-								buildLayers(compObj);
-							    console.log('Images downloaded', result);
-							})
-							.catch(function(error) {console.log("downloaded error", error)})
-						});
-					} else {
-						//error
-						buildLayers(compObj, [7]);
-						return;
-					}
-				} else {
-					console.log(compObj);
+				// 			download(parsedData[0].imageUrls, imagePath)
+				// 			///// hack the download lib to accept custom file names
+				// 			.then(function(results) {
+				// 				compObj.sourcePath = imagePath;
+				// 				buildLayers(compObj);
+				// 			    console.log('Images downloaded', result);
+				// 			})
+				// 			.catch(function(error) {console.log("downloaded error", error)})
+				// 		});
+				// 	} else {
+				// 		//error
+				// 		buildLayers(compObj, [7]);
+				// 		return;
+				// 	}
+				// } else {
+					console.log('compObj');
 					buildLayers(compObj);
-				}
+				// }
 
 
                 /// dropping a file to update the admin files
@@ -354,8 +358,15 @@ var vm = new Vue({
 
 		//// open dialog for reading a file from disk
 		openFile: function () {
-			var path = window.cep.fs.showOpenDialog(false, false, 'SELECT AEUX.json file', null, ['json']).data[0];
-			vm.buildLayersFromFile(path);
+            // var path = window.cep.fs.showOpenDialog(false, false, 'SELECT AEUX.json file', null, ['json']).data[0];            
+            evalScript('openFile').then(function(results) {
+                var path = untildify(results);
+                console.log(path);
+                vm.buildLayersFromFile(path);
+                
+            });
+            // vm.buildLayersFromFile(path);
+
 		},
 		//// open documentation URL
 		openDocLink: function () {
@@ -433,9 +444,18 @@ var dropArea = document.getElementById('app');
 	}
 
 	function handleDrop(e) {
-		var droppedFile = e.dataTransfer.files[0];
+        var droppedFile = e.dataTransfer.files[0];        
 		if (droppedFile.type == 'application/json') {
             vm.buildLayersFromFile(droppedFile.path, true);
+            
+        } else if (droppedFile.type == 'application/zip') {
+            fs.createReadStream(droppedFile.path)
+            .pipe(unzipper.Parse())
+            .on('entry', entry => {
+                console.log(entry);
+                
+            });
+            // vm.buildLayersFromFile(droppedFile.path, true);
 		} else {
 			vm.footerMessage = "Oops that's not a .json file";
 			setTimeout(function () {

@@ -15,8 +15,9 @@ var vm = new Vue({
     figmaApiKey: "", // personal access token
     // figmaApiKey: "2368-4b47e390-2b13-4c81-911f-e6d4ade505ac", // personal access token
     fileUrl: "https://www.figma.com/file/WMXYs71NA4zPYT1T9GUPZneu/FimgasExport?node-id=0%3A1&viewport=-399%2C101%2C0.5",
-    // fileUrl: "https://www.figma.com/file/UbLoB4opHcJRYL9gqGi6DwcW/AEUX-Tut?node-id=0%3A2",
+    // fileUrl: "https://www.figma.com/file/a4pdj5zNX8ddxLlIox4Pu3/N_HPRedesign-(Copy)",
     imageIdList: [],
+    downloadVersion: '0.6.9',
     svgIdList: [],
     imageUrlList: [],
     aeuxData: {},
@@ -97,7 +98,7 @@ var vm = new Vue({
 
         var file_key = vm.fileUrl.split("/file/")[1].split("/")[0];
         getJson(file_key).then(figmaPagesJson => {
-            console.log(figmaPagesJson);
+            // console.log(figmaPagesJson);
 
             vm.thumbnails.length = 0;
             vm.thumbnails = {};
@@ -139,21 +140,14 @@ var vm = new Vue({
         vm.imageIdList = [];
         vm.svgIdList = [];
         var aeuxData = aeux.convert(frame);
-        console.log(aeuxData)
+        // console.log(aeuxData)
 
         // download images if images in frame
         if (vm.imageIdList.length > 0) {
-            console.log('start image creation')
-            downloadImages(vm.imageIdList, frame).then(urls => {
-                saveToZip('AEUX.zip', urls)
-                // aeuxData[0].imageUrls = vm.imageUrlList;
-                // console.log('finished image creation');
-                //
-                // var blob = new Blob([JSON.stringify(aeuxData, false, 2)], {
-                //     type: "text/plain;charset=ansi"
-                //   });
-                //
-                //   saveAs(blob, "AEUX.json");
+            // console.log('start image creation')
+            downloadImages(vm.imageIdList, frame)
+            .then(urls => {
+                saveToZip('AEUX_'+ frame.name +'.zip', urls)
             });
 
             function saveToZip (filename, urls) {
@@ -167,7 +161,7 @@ var vm = new Vue({
                     const name = url.name + '.png';
                     folder.file(name, blobPromise);
                 })
-                folder.file('AEUX.json', JSON.stringify(aeuxData, false, 2))
+                folder.file('AEUX_'+ frame.name +'.json', JSON.stringify(aeuxData, false, 2))
 
                 zip.generateAsync({type:"blob"})
                     .then(blob => saveAs(blob, filename))
@@ -183,14 +177,14 @@ var vm = new Vue({
                     type: "text/plain;charset=ansi"
                   });
 
-                saveAs(blob, "AEUX.json");
+                saveAs(blob, 'AEUX_'+ frame.name +'.json');
             });
         } else {
             var blob = new Blob([JSON.stringify(aeuxData, false, 2)], {
                 type: "text/plain;charset=ansi"
               });
 
-              saveAs(blob, "AEUX.json");
+              saveAs(blob, 'AEUX_'+ frame.name +'.json');
               console.log('save');
         }
     },
@@ -251,36 +245,54 @@ async function getThumbnail(figmaId, id) {
     let data = await result.json();
     return data.images[id];
 }
-async function downloadImages(ids, frame, downloadSvg) {
-//   vm.loading = "loading...";
-    frame.isGeneratingImages = true;
-    var file_key = vm.fileUrl.split("/file/")[1].split("/")[0];
-    var fetchURL = "https://api.figma.com/v1/images/" + file_key + "?ids=" + ids.join(',') + "&scale=4";
-    if (downloadSvg) { fetchURL += "&format=svg"};      // add option to create svgs
-
-    console.log("loading images", ids);
-    let result = await fetch( fetchURL,
-        {
-            method: "GET",
-            headers: {
-            'Authorization': 'Bearer ' + vm.figmaApiKey      // with OAuth
-            // "X-Figma-Token": vm.figmaApiKey // with a personal access token
-            }
-        }
-    );
+async function downloadImages(ids, frame) {
     vm.imageUrlList = [];
-    let data = await result.json();
+    frame.isGeneratingImages = true;
 
-    for (var i = 0; i < ids.length; i++) {
-        vm.imageUrlList.push({
-            url: data.images[ ids[i] ],
-            name: ids[i].replace(':', '-'),
+    try {
+        console.log('plop');
+        
+        let file_key = vm.fileUrl.split("/file/")[1].split("/")[0];
+
+        // separate function to make code more clear
+        const grabContent = url => fetch(url, {
+                method: 'GET',
+                headers: {
+                'Authorization': 'Bearer ' + vm.figmaApiKey      // with OAuth
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                id = Object.keys(data.images)[0];
+                
+                vm.imageUrlList.push({
+                    url: data.images[ id ],
+                    name: id.replace(/:/g, '-'),
+                });
+                console.log('generated image at', data.images[ id ])
+            })
+            .catch(error => {
+                console.log(error)
+            })
+
+        
+        let urls = [];
+
+        ids.forEach(id => {
+            var fetchURL = "https://api.figma.com/v1/images/" + file_key + "?ids=" + id + "&scale=4";
+            urls.push(fetchURL)
         });
-        // vm.imageUrlList.push(data.images[ ids[i] ]);
+
+        await Promise
+            .all(urls.map(grabContent))
+
+        frame.isGeneratingImages = false;
+        return vm.imageUrlList; 
+    } catch (error) {
+        frame.isGeneratingImages = false;
+        return vm.imageUrlList; 
     }
-    // console.log(vm.imageUrlList);
-    frame.isGeneratingImages = false;
-    return vm.imageUrlList;
+    
 }
 async function downloadSvgs(aeuxData, ids, frame) {
     frame.isGeneratingImages = true;

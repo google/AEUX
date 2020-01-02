@@ -1,0 +1,7 @@
+{
+  "name": "AEUX",
+  "id": "740305243961530375",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html"
+}

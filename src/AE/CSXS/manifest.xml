@@ -2,7 +2,7 @@
 <ExtensionManifest
 	Version="5.0"
 	ExtensionBundleId="AEUX"
-	ExtensionBundleVersion="0.6.9"
+	ExtensionBundleVersion="0.7.0"
 	ExtensionBundleName="AEUX"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<ExtensionList>
@@ -24,6 +24,7 @@
 			<DispatchInfo >
 				<Resources>
 				<MainPath>./html/index.html</MainPath>
+                <ScriptPath>./jsx/script.jsx</ScriptPath>
 				<CEFCommandLine>
 					<Parameter>--enable-nodejs</Parameter>
 					<Parameter>--mixed-context</Parameter>

@@ -28,6 +28,7 @@
     "gulp-yuicompressor": "^0.0.3",
     "jsxbin": "^1.5.1",
     "run-sequence": "^2.2.1",
+    "webpack-cli": "^3.3.6",
     "zxp-sign-cmd": "^1.0.0"
   },
   "dependencies": {

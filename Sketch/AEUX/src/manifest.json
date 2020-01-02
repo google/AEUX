@@ -1,0 +1,38 @@
+{
+  "name": "AEUX",
+  "description": "Transfer layers to After Effects",
+  "author": "Adam Plouff",
+  "homepage": "https://aeux.io",
+  "identifier": "com.wearesumux.AEUX",
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "icon": "icon.png",
+  "commands": [
+    {
+      "name": "Open panel",
+      "identifier": "com.wearesumux.AEUX.panel",
+      "script": "./panel-view.js",
+      "handlers": {
+        "run": "onRun",
+        "actions": {
+          "Shutdown": "onShutdown"
+        }
+      },
+      "shortcut": "ctrl shift z"
+    },
+    {
+      "name": "Push layers to Ae",
+      "identifier": "com.wearesumux.AEUX.push",
+      "script": "./panel-view.js",
+      "handler": "fetchAEUX",
+      "shortcut": "ctrl shift x"
+    }
+  ],
+  "menu": {
+    "title": "AEUX",
+    "items": [
+      "com.wearesumux.AEUX.panel",
+      "com.wearesumux.AEUX.push"
+    ]
+  }
+}

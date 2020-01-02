@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AEUX</title>
+  <link rel="stylesheet" href="./normalize.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body data-app-region="drag">
+    <div id="app"><div v-cloak>
+        <div class="wrapper" :class="{ 'dark-mode': darkMode }">
+            <div class="row">
+                <div class="group-heading">AEUX</div>
+                <div class="help" @click="helpLink">
+                    <div class="over"></div>
+                    <svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"/><path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/></svg>
+                </div>
+                <div class="button big" :class="{thinking: thinking}" @click="fetchAEUX">
+                    <svg v-show="thinking != 'pushJSON'" fill="#000000" viewBox="0 0 24 24" width="24">
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/>
+                    </svg>
+            
+                    <svg v-show="thinking == 'pushJSON'" class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+                    </svg>
+                    <div>
+                        Send selection to Ae
+                    </div>
+                </div>
+                
+    
+                <!-- <div class="button text" @click="sketchCall('saveJSON')">
+            
+                    <svg v-show="thinking == 'saveJSON'" class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+                    </svg>
+                    <div v-show="thinking != 'saveJSON'">
+                        Export AEUX.json
+                    </div>
+                </div> -->
+            </div>
+            <!-- <div class="button big" @click="toot">toot</div> -->
+        </div>
+        
+    </div></div>
+        
+  
+
+  <!-- <div> -->
+    <button id="button">Get a random number</button>
+  <!-- </div> -->
+  <!-- <div id="answer"></div> -->
+
+  <!-- notice the "../resources_" here. It's because webview.js will be compiled in a different folder with the prefix. -->
+  
+  <script src="../resources_webview.js"></script>
+</body>
+</html>

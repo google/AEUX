@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ExtensionManifest ExtensionBundleId="com.aeux" ExtensionBundleVersion="0.7.0" ExtensionBundleName="aeux" Version="8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ExtensionList>
+    <Extension Id="com.aeux.panel" Version="1.0.0" />
+  </ExtensionList>
+  <ExecutionEnvironment>
+    <HostList>
+      <Host Name="AEFT" Version="13.0" />
+    </HostList>
+    <LocaleList>
+      <Locale Code="All" />
+    </LocaleList>
+    <RequiredRuntimeList>
+      <RequiredRuntime Name="CSXS" Version="8.0" />
+    </RequiredRuntimeList>
+  </ExecutionEnvironment>
+  <DispatchInfoList>
+    <Extension Id="com.aeux.panel">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./public/index-dev.html</MainPath>
+          <!-- <MainPath>./dist/index.html</MainPath> -->
+          <CEFCommandLine>
+            <Parameter>--enable-nodejs</Parameter>
+            <Parameter>--mixed-context</Parameter>
+          </CEFCommandLine>
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>AEUX</Menu>
+          <Geometry>
+            <Size>
+              <Height>400</Height>
+              <Width>280</Width>
+            </Size>
+            <MaxSize>
+              <Height>500</Height>
+              <Width>598</Width>
+            </MaxSize>
+            <MinSize>
+              <Height>300</Height>
+              <Width>260</Width>
+            </MinSize>
+          </Geometry>
+          <Icons />
+        </UI>
+      </DispatchInfo>
+    </Extension>
+  </DispatchInfoList>
+</ExtensionManifest>

@@ -1,0 +1,11 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "outFile": "./host.jsx",
+    "allowJs": true,
+    "noLib": true,
+    "types": ["types-for-adobe/AfterEffects/2018"]
+  },
+  "files": ["host.ts"],
+  "exclude": ["node_modules"]
+}

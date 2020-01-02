@@ -1,0 +1,4 @@
+node_modules
+archive
+^(\.git)
+ZXPSignCmd.exe

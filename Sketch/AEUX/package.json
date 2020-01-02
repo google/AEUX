@@ -1,0 +1,37 @@
+{
+  "name": "aeux",
+  "version": "0.1.0",
+  "engines": {
+    "sketch": ">=3.0"
+  },
+  "skpm": {
+    "name": "AEUX",
+    "manifest": "src/manifest.json",
+    "main": "aeux.sketchplugin",
+    "assets": [
+      "assets/**/*",
+      "resources/**/*"
+    ],
+    "sketch-assets-file": "sketch-assets/icons.sketch"
+  },
+  "scripts": {
+    "build": "skpm-build",
+    "watch": "skpm-build --watch",
+    "start": "skpm-build --watch",
+    "postinstall": "npm run build && skpm-link"
+  },
+  "devDependencies": {
+    "@skpm/builder": "^0.7.4",
+    "@skpm/extract-loader": "^2.0.2",
+    "css-loader": "^3.2.0",
+    "html-loader": "^0.5.5"
+  },
+  "resources": [
+    "resources/**/*.js"
+  ],
+  "dependencies": {
+    "sketch-module-web-view": "^3.1.4",
+    "vue": "^2.6.10"
+  },
+  "author": "Adam Plouff <adamplouff@gmail.com>"
+}

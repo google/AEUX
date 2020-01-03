@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 <template>
   <div class="content">
             <div class="build-source">
@@ -115,6 +116,8 @@
 </template>
 
 <script>
+/*jshint esversion: 6, asi: true */
+
 // import { log } from "util";
 import fs from 'fs'
 import amulets from 'amulets'

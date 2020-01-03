@@ -1,3 +1,4 @@
+/*jshint esversion: 6, asi: true */
 import BrowserWindow from 'sketch-module-web-view'
 import { getWebview } from 'sketch-module-web-view/remote'
 import UI from 'sketch/ui'
@@ -12,33 +13,6 @@ var document, selection, folderPath, saveName, layerCount, aeSharePath, flatten,
 
 
 const webviewIdentifier = 'aeux.webview'
-
-function newMessage(port, msg) {
-    var PORT = port || "3200";
-    var HOST = "127.0.0.1";
-    var returnedMsg = null;
-
-    // var headers = new Headers();
-    // headers.append('Content-Type', 'application/json');
-    fetch(`http://${HOST}:${PORT}/evalscript`, {
-        method: "POST",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(msg)
-    })
-    .then(res => {
-        returnedMsg = res.json()            
-        return returnedMsg
-    })
-    .then(msg => console.log(msg))
-    .catch(error => {
-        console.log("Looks like there was a problem:", error);
-    })
-
-    return returnedMsg;
-}
 
 export default function () {
   const options = {
@@ -85,7 +59,7 @@ export default function () {
     NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url))
   })
   // open a link
-  webContents.on('fetchAEUX', msg => {
+  webContents.on('fetchAEUX', () => {
     fetchAEUX()
     // document = require('sketch/dom').getSelectedDocument();
     // selection = document.selectedLayers;
@@ -113,6 +87,8 @@ export function onShutdown() {
 }
 
 export function fetchAEUX () {
+    let existingWebview = getWebview(webviewIdentifier)
+    
     document = require('sketch/dom').getSelectedDocument();
     selection = document.selectedLayers;
 
@@ -128,14 +104,16 @@ export function fetchAEUX () {
 
     console.log(aeuxData);
 
+    
+
     var msg = {
-        prefs: {
-          newComp: true,
-          parametrics: false,
-          compScale: 1,
-          precompGroups: false,
-          frameRate: 60,
-        },
+        // prefs: {
+        //   newComp: true,
+        //   parametrics: false,
+        //   compScale: 1,
+        //   precompGroups: false,
+        //   frameRate: 60,
+        // },
         layerData: aeuxData,
     }
 
@@ -146,16 +124,37 @@ export function fetchAEUX () {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            // method: 'popup',
             method: 'buildLayers',
             data: msg,
-            switch: 'aftereffects'
+            switch: 'aftereffects',
+            getPrefs: true,
         })
     })
-    .then(response => response.text())
-    .then(text => console.log(text))
-    .catch(e => console.error(e));
-};
+    .then(response => response.json())
+    .then(json => {
+        // get back a message from Ae and display it at the bottom of Sketch
+        console.log(json)
+        let lyrs = json.layerCount        
+        let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
+        
+        if (!existingWebview) {     // webview is closed
+            UI.message(msg)
+        } else {
+            // send something to the webview
+            existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
+        }
+    })
+    .catch(e => {
+        console.error(e)
+        let msgToWebview = 'Unable to communicate with Ae'
+        if (!existingWebview) {     // webview is closed
+            UI.message(msgToWebview)
+        } else {
+            // send something to the webview            
+            existingWebview.webContents.executeJavaScript(`setFooterMsg('${msgToWebview}')`)
+        }
+    });
+}
 
 
 
@@ -247,54 +246,54 @@ function storeArtboard() {
 
 //// get layer data: SHAPE
 function getShape(layer) {
-  var layerType = getShapeType(layer.sketchObject);
+    var layerType = getShapeType(layer.sketchObject);
 	var layerData =  {
-    type: layerType,
-		name: layer.name,
-		id: layer.id,
-		frame: getFrame(layer),
-    fill: getFills(layer),
-    stroke: getStrokes(layer),
-    shadow: getShadows(layer),
-    innerShadow: getInnerShadows(layer),
-    isVisible: layer.sketchObject.isVisible(),
-		path: getPath(layer, layer.frame),
-		roundness: getRoundness(layer),
-    blur: getBlur(layer.sketchObject),
-		opacity: getOpacity(layer),
-		rotation: -layer.sketchObject.rotation(),
-    flip: getFlipMultiplier(layer),
-		blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
-    hasClippingMask: layer.sketchObject.hasClippingMask(),
-    shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
-  };
+        type: layerType,
+        name: layer.name,
+        id: layer.id,
+        frame: getFrame(layer),
+        fill: getFills(layer),
+        stroke: getStrokes(layer),
+        shadow: getShadows(layer),
+        innerShadow: getInnerShadows(layer),
+        isVisible: layer.sketchObject.isVisible(),
+        path: getPath(layer, layer.frame),
+        roundness: getRoundness(layer),
+        blur: getBlur(layer.sketchObject),
+        opacity: getOpacity(layer),
+        rotation: -layer.sketchObject.rotation(),
+        flip: getFlipMultiplier(layer),
+        blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
+        hasClippingMask: layer.sketchObject.hasClippingMask(),
+        shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+    };
 
-  /// if fill is an image and should return that instead of a shape
-  if (layerData.fill != null && layerData.fill.type == 'Image') {
-      return layerData.fill;
-  }
+    /// if fill is an image and should return that instead of a shape
+    if (layerData.fill != null && layerData.fill.type == 'Image') {
+        return layerData.fill;
+    }
 
-  /// if shape is a compound get the shapes that make up the compound
-  if (layerType == 'CompoundShape') {
-      layerData.layers = getCompoundShapes(layer.layers);
-      layerData.booleanOperation = layer.layers[0].sketchObject.booleanOperation();
-  }
+    /// if shape is a compound get the shapes that make up the compound
+    if (layerType == 'CompoundShape') {
+        layerData.layers = getCompoundShapes(layer.layers);
+        layerData.booleanOperation = layer.layers[0].sketchObject.booleanOperation();
+    }
 
   return layerData;																// output a string of the collected data
 
   /// get corner roundness clamped to the shape size
-  function getRoundness(layer) {
-      try {
-          var lyr = layer.sketchObject;
-          var radius = lyr.points()[0].cornerRadius();
-          var width = lyr.frame().width();
-          var height = lyr.frame().height();
-          var maxRad = Math.min(Math.min(width, height), radius);
-          return maxRad;
-      } catch (e) {
-          return null;
-      }
-  }
+    function getRoundness(layer) {
+        try {
+            var lyr = layer.sketchObject;
+            var radius = lyr.points()[0].cornerRadius();
+            var width = lyr.frame().width();
+            var height = lyr.frame().height();
+            var maxRad = Math.min(Math.min(width, height), radius);
+            return maxRad;
+        } catch (e) {
+            return null;
+        }
+    }
 }
 
 

@@ -1,3 +1,5 @@
+/*jshint esversion: 6, asi: true */
+
 // disable the context menu (eg. the right click menu) to have a more native feel
 document.addEventListener('contextmenu', (e) => {
   e.preventDefault()
@@ -16,6 +18,10 @@ window.setRandomNumber = (randomNumber) => {
 window.setDarkMode = (darkMode) => {
     vm.darkMode = darkMode
 }
+window.setFooterMsg = (msg) => {
+    vm.setFooterMsg(msg)
+    // vm.darkMode = !vm.darkMode
+}
 import Vue from 'vue/dist/vue.min.js'
 
 var vm = new Vue({
@@ -23,6 +29,7 @@ var vm = new Vue({
     data: {
         darkMode: false,
         thinking: false,
+        footerMsg: null,
     },
     methods: {
         helpLink() {
@@ -33,10 +40,13 @@ var vm = new Vue({
             // window.postMessage('nativeLog', 'Called from the webview')
             window.postMessage('fetchAEUX')
             this.thinking = 'pushJson'
-            
-            setTimeout(() => {
-                
-            }, 10000);
         },
+        setFooterMsg(msg) {
+            this.footerMsg = msg
+
+            setTimeout(() => {
+                this.footerMsg = null
+            }, 5000);
+        }
     }
 })

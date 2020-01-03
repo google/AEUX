@@ -136,7 +136,7 @@ function buildLayers(compObj) {
     // var duration = endTime.getTime() - startTime.getTime()
     // alert(duration);
 
-    return JSON.stringify({msg: returnMessage});
+    return JSON.stringify({msg: returnMessage, layerCount});
 }
 
 //// send layer data to the right layer build function

@@ -23,7 +23,11 @@
   "devDependencies": {
     "@skpm/builder": "^0.7.4",
     "@skpm/extract-loader": "^2.0.2",
+    "@typescript-eslint/eslint-plugin": "^2.14.0",
+    "@typescript-eslint/parser": "^2.14.0",
     "css-loader": "^3.2.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-vue": "^6.1.2",
     "html-loader": "^0.5.5"
   },
   "resources": [

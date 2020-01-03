@@ -159,7 +159,7 @@ var AEUX = (function () {
         // var endTime = new Date();	// start timer for clocking
         // var duration = endTime.getTime() - startTime.getTime()
         // alert(duration);
-        return JSON.stringify({ msg: returnMessage });
+        return JSON.stringify({ msg: returnMessage, layerCount: layerCount });
     }
     //// send layer data to the right layer build function
     function filterTypes(layerData, opt_parent) {

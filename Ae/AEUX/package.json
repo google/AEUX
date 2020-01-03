@@ -13,7 +13,7 @@
     "help": "bombino-cmd help"
   },
   "dependencies": {
-    "amulets": "file:../../../Modules/amulets",
+    "amulets": "file:../../../../Modules/amulets",
     "cep-spy": "^1.1.1",
     "core-js": "^3.1.2",
     "starlette": "^0.4.4",

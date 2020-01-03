@@ -40,8 +40,10 @@
                     </div>
                 </div> -->
             </div>
-            <!-- <div class="button big" @click="toot">toot</div> -->
         </div>
+        <transition name="lift">
+            <div class="footer" v-if="footerMsg">{{ footerMsg }}</div>
+        </transition>
         
     </div></div>
         

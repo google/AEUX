@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
 <template>
-  <div class="content">
+  <div class="content" v-if="prefsLoaded">
             <div class="build-source">
                 <!-- <div class="build-button message" v-show="!prefs.artboard">Push layers from Sketch or drop an AEUX.json file</div>
                 <div class="build-button" v-if="prefs.artboard" @click="readFileAndBuildLayers()">
@@ -9,7 +8,7 @@
                     <div class="artboard-name">{{ prefs.artboard.name }}</div>
                 </div> -->
 
-                <div class="row">
+                <!-- <div class="row"> -->
                     <div class="button-group">
                         <div class="button" v-bind:class="{selected: prefs.newComp}" @click="setPref('newComp', true)"><span class="icon">
                             <svg width="24" height="24" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/><path fill="none" d="M0 0h24v24H0z"/></svg>
@@ -24,103 +23,93 @@
                             <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
                         </svg></span>
                     </div> -->
-                </div>
+                <!-- </div> -->
 
 
-                <div class="row">
-                    <div class="option" v-show="prefs.newComp">
-                        <div class="dropup">
-                            <button class="dropbtn">{{ prefs.compScale }}x</button>
-                            <div class="dropup-content">
-                                <a v-for="option in compScaleOptions" @click="setPref('compScale', option.value)"><span v-show="option.value == prefs.compScale"></span>{{ option.text }}</a>
-                            </div>
+                <!-- <div class="row"> -->
+                    <div v-show="prefs.newComp">
+                        <dropdown
+                            class="comp-scale"
+                            label=""
+                            :items="compScaleOptions"
+                            :active="prefs.compScale"
+                            @update="val => setPref('compScale', parseInt(compScaleOptions[val].value) + 1)"
+                        />
+                        <div class="comp-scale-label">
+                            Comp size multiplier
                         </div>
-                        Comp size multiplier
+                        
                     </div>
-                </div>
+                <!-- </div> -->
             </div>
 
+            <section-toggle label="options" :open="prefs.expand.options" @clicked="fold('options')">
+                <checkbox
+                    :checked="prefs.parametrics"
+                    @clicked="val => setPref('parametrics', val)"
+                    label="Detect parametric shapes"
+                />
+                <checkbox
+                    :checked="prefs.precompGroups"
+                    @clicked="val => setPref('precompGroups', val)"
+                    label="Precomp groups"
+                />
+                <div class="option">
+                    <input type="number" class="number-input" id="frameRate" v-model="prefs.frameRate" @change="savePrefs()">
+                    <label for="frameRate">New comp fps</label>
+                </div>
+            </section-toggle>
 
-            <div class="fold-group">
-                <div class="group-heading" @click="fold('options')">
-                    Options
-                    <div class="fold-icon" v-bind:class="{flip : !prefs.expand.options}">
-                        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
-                    </div>
+
+            <section-toggle label="groups" :open="prefs.expand.groups" @clicked="fold('groups')">
+                <div class="func-button full-width" @click="aeCall('groupToPrecomp')"><span class="icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M5 15H3v4c0 1.1.9 2 2 2h4v-2H5v-4zM5 5h4V3H5c-1.1 0-2 .9-2 2v4h2V5zm14-2h-4v2h4v4h2V5c0-1.1-.9-2-2-2zm0 16h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                    </svg>
+                </span>Precomp
                 </div>
 
-                <transition name="fold">
-                    <div class="fold-content" v-show="prefs.expand.options">
-                        <div class="option">
-                            <input type="checkbox" class="option-checkbox" id="parametrics" v-model="prefs.parametrics" @click="savePrefs()">
-                            <label for="parametrics">Detect parametric shapes</label>
-                        </div>
-                        <div class="option">
-                            <input type="checkbox" class="option-checkbox" id="precompGroups" v-model="prefs.precompGroups" @click="setPref('precompGroups', prefs.precompGroups)">
-                            <label for="precompGroups">Precomp groups</label>
-                        </div>
-                        <!-- <div class="option">
-                            <input type="checkbox" class="option-checkbox" id="autoBuild" v-model="prefs.autoBuild" @click="savePrefs()">
-                            <label for="autoBuild">Auto build artboards</label>
-                        </div> -->
-                        <div class="option">
-                            <input type="number" class="number-input" id="frameRate" v-model="prefs.frameRate" @change="savePrefs()">
-                            <label for="frameRate">New comp fps</label>
-                        </div>
-                    </div>
-                </transition>
-            </div>
-
-
-
-            <div class="fold-group">
-                <div class="group-heading" @click="fold('groups')">
-                    Groups
-                    <div class="fold-icon" v-bind:class="{flip : !prefs.expand.groups}">
-                        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
-                    </div>
+                <div class="func-button full-width" @click="aeCall('precompToLayers')"><span class="icon">
+                    <svg viewBox="0 0 24 24" width="24"><clipPath id="a"><path d="m0 0h24v24h-24z"/></clipPath><path clip-path="url(#a)" d="m15 3 2.3 2.3-2.89 2.87 1.42 1.42 2.87-2.89 2.3 2.3v-6zm-12 6 2.3-2.3 2.87 2.89 1.42-1.42-2.89-2.87 2.3-2.3h-6zm6 12-2.3-2.3 2.89-2.87-1.42-1.42-2.87 2.89-2.3-2.3v6zm12-6-2.3 2.3-2.87-2.89-1.42 1.42 2.89 2.87-2.3 2.3h6z"/><path clip-path="url(#a)" d="m0 0h24v24h-24z" fill="none"/></svg>
+                </span>Un-Precomp
                 </div>
 
-                <transition name="fold">
-                    <div class="fold-content" v-show="prefs.expand.groups">
-                        <div class="func-button full-width" @click="aeCall('groupToPrecomp')"><span class="icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M5 15H3v4c0 1.1.9 2 2 2h4v-2H5v-4zM5 5h4V3H5c-1.1 0-2 .9-2 2v4h2V5zm14-2h-4v2h4v4h2V5c0-1.1-.9-2-2-2zm0 16h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
-                            </svg>
-                        </span>Precomp
-                        </div>
+                <div class="func-button full-width" @click="aeCall('toggleGroupVisibility')"><span class="icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
+                    </svg>
+                </span>Toggle guide layer visibility
+                </div>
 
-                        <div class="func-button full-width" @click="aeCall('precompToLayers')"><span class="icon">
-                            <svg viewBox="0 0 24 24" width="24"><clipPath id="a"><path d="m0 0h24v24h-24z"/></clipPath><path clip-path="url(#a)" d="m15 3 2.3 2.3-2.89 2.87 1.42 1.42 2.87-2.89 2.3 2.3v-6zm-12 6 2.3-2.3 2.87 2.89 1.42-1.42-2.89-2.87 2.3-2.3h-6zm6 12-2.3-2.3 2.89-2.87-1.42-1.42-2.87 2.89-2.3-2.3v6zm12-6-2.3 2.3-2.87-2.89-1.42 1.42 2.89 2.87-2.3 2.3h6z"/><path clip-path="url(#a)" d="m0 0h24v24h-24z" fill="none"/></svg>
-                        </span>Un-Precomp
-                        </div>
+                <div class="func-button full-width" @click="aeCall('deleteGroupLayers')"><span class="icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                    </span>Delete group layers
+                </div>
+            </section-toggle>
 
-                        <div class="func-button full-width" @click="aeCall('toggleGroupVisibility')"><span class="icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-                            </svg>
-                        </span>Toggle guide layer visibility
-                        </div>
-
-                        <div class="func-button full-width" @click="aeCall('deleteGroupLayers')"><span class="icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                            </svg>
-                            </span>Delete group layers
-                        </div>
-                    </div>
-                </transition>
-            </div>
+            <section-toggle label="system" :open="prefs.expand.system" @clicked="fold('system')">
+                <button 
+                    class="btn-text full"
+                    @click.exact="openDocLink" 
+                    @click.alt="openConfig">
+                    Learn stuff
+                </button>
+                <panel-info :text="`${spy.extName} - ${spy.extVersion}`"><i>Brought to you by your friends at Google motion design</i></panel-info>
+            </section-toggle>
 
     </div>
 </template>
 
 <script>
-/*jshint esversion: 6, asi: true */
+/*jshint esversion: 6, asi: true*/
+
 
 // import { log } from "util";
 import fs from 'fs'
 import amulets from 'amulets'
+
 amulets.options({
     devName: 'sumUX'
 })
@@ -129,9 +118,15 @@ const port_ae = 7240
 
 let vm =  {
 	name: "AEUX",
-	props: {
-		msg: String
-	},
+	// props: {
+	// 	msg: String
+    // },
+    components: {
+        checkbox: require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/checkbox/Checkbox.vue").default,
+        dropdown: require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/dropdown/Dropdown.vue").default,
+        "section-toggle": require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/Section-Toggle.vue").default,
+        "panel-info": require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/Panel-Info.vue").default,
+    },
 	data: () => ({
     aeuxVersion: 0.6,
 		prefs: {
@@ -142,20 +137,22 @@ let vm =  {
 			parametrics: true,
 			compScale: 3,
 			expand: {
-				groups: true,
-				options: true,
+				groups: false,
+				options: false,
+				system: false,
 			},
 			// artboard: null,
 			frameRate: 60,
-		},
+        },
+        prefsLoaded: false,
 		// showHelp: false,
 		compScaleOptions: [
-			{text: '1x', value: 1},
-			{text: '2x', value: 2},
-			{text: '3x', value: 3},
-			{text: '4x', value: 4},
-			{text: '5x', value: 5},
-			{text: '6x', value: 6},
+			{label: '1x', value: '0'},
+			{label: '2x', value: '1'},
+			{label: '3x', value: '2'},
+			{label: '4x', value: '3'},
+			{label: '5x', value: '4'},
+            {label: '6x', value: '5'},
 		],
 		// userPath: this.cs.getSystemPath(SystemPath.USER_DATA) + '/sumUX/AEUX/',
 		// newLayers: false,
@@ -166,9 +163,17 @@ let vm =  {
     aeCall (msg) {
         amulets.evalScript(msg)
     },
+    openDocLink () {
+        amulets.webLink('http://aeux.io')
+    },
+    openConfig () {
+        amulets.openUserFolder('config')
+    },
     //// read the prefs file outside of the signed extension at intitialization
     getPrefs() {
         this.prefs = amulets.getPrefs(this.prefs)
+        console.log(this.prefs);
+        this.prefsLoaded = true
     },
     getPrefsSync() {
         /// read the layer data file
@@ -189,40 +194,10 @@ let vm =  {
     //// set pref and save to prefs file
     setPref (pref, value) {
             this.prefs[pref] = value
+            console.log(this.prefs.compScale);
+            
             this.savePrefs()      
     },
-    // filterLoreMsg(msg) {
-    //     console.log(msg);
-      
-    //     if (msg.method == 'buildLayers') {
-    //         this.buildLayers(msg.layerData)
-    //     }
-    //     if (msg.method == 'buildLayersAndImages') {
-    //         evalScript('setFilePath', this.filePath)
-    //         .then(aeFolderPath => {
-    //             let images = msg.layerData[0].images;
-    //             // let folderPath = '/Users/adamplouff/Desktop/sk/'\
-    //             let folderPath = untildify(aeFolderPath)
-    //             msg.layerData[0].folderPath = folderPath
-
-    //             images.forEach(image => {
-    //                 let data = image.imgData
-    //                 let fileName = image.name
-    //                 console.log(fileName);
-                    
-
-    //                 let savePath = folderPath + fileName
-
-    //                 fs.writeFileSync(decodeURI(savePath), data, 'base64', function(err) {
-    //                     console.log(err);
-    //                 });
-    //             });
-
-    //             this.buildLayers(msg.layerData)
-    //         })
-            
-    //     }
-    // },
     //// message to AE to start building layers from JSON
     buildLayers(data) {
       // console.log('data');
@@ -381,7 +356,10 @@ let vm =  {
         },
         userPath() {
             return this.cs.getSystemPath(SystemPath.USER_DATA) + '/sumUX/AEUX/'
-        }
+        },
+        spy() {
+            return require("cep-spy").default;
+        },
 	},
 	mounted() {
 		console.log("Top-level root instance (App.vue):");
@@ -568,11 +546,12 @@ button.full-width {
     padding-bottom: 4px;
 }
 .build-source, .group {
-    /* border-bottom: solid 1px rgba(128, 128, 128, 0.2); */
     vertical-align: middle;
-    margin-bottom: 4px;
-    float: left;
+    margin: 6px 0;
+    /* float: left; */
     width: 100%;
+    /* height: 58px; */
+    display: flow-root;
 }
 .build-location {
     border-bottom: solid 1px rgba(128, 128, 128, 0.2);
@@ -582,8 +561,6 @@ button.full-width {
     float: left;
     margin-bottom: 4px;
     width: 100%;
-    /* height: auto; */
-    /* overflow-y: hidden; */
 }
 .fold-content {
     padding-bottom: 4px;
@@ -651,9 +628,6 @@ button.full-width {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-.collection-item:hover, .build-button:hover, .dropup:hover .dropbtn, .func-button:hover {
-    /* background-color: rgba(0, 0, 0, 0.2); */
 }
 span.badge {
     float: right;
@@ -865,8 +839,9 @@ input[type=number]::-webkit-outer-spin-button {
     height: 16px;
     margin-bottom: 4px;
     margin-left: -2px;
-    float: left;
+    margin-top: 2px;
     width: 100%;
+    padding-bottom: 4px;
 }
 .option-checkbox {
     box-sizing: border-box;
@@ -902,54 +877,32 @@ select {
     width: 40px;
 }
 
-
-/* Dropup Button */
-.dropbtn {
-    box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.15);
-	border: 1px solid rgba(255, 255, 255, 0.75);
-    border-radius: 1px;
-    padding: 0px 4px;
-    margin: 0 4px;
-    width: 40px;
-    color: #f0f0f0;
-    font-family: 'Roboto', monospace;
+.comp-scale {
+    width: 50px;
+    float: left;
+    margin: 0 !important;
 }
-
-.dropup {
-    position: relative;
-    display: inline-block;
-    margin: 2px -1px;
+.comp-scale-label {
+    float: left;
+    margin: 9px 7px;
 }
-
-.dropup-content {
-    display: none;
-    position: absolute;
-    background-color: #f1f1f1;
-    width: 40px;
-    bottom: -62px;
-    z-index: 1;
-    margin-left: 4px;
+.full {
+    width: 100%;
 }
-.dropup-content span {
-    float: right;
-    padding: 4px;
-    border-radius: 4px;
-    margin-top: 5px;
-    background-color: #0377BC;
+.btn-text {
+    background-color: var(--color-scrollbar-thumb);
+    border-radius: 2px;
+    border: 1px solid var(--color-btn-pill-active);
+    color: var(--color-btn-pill-border);
+    padding: 2px 8px 4px 8px;
+    margin: 4px 0;
 }
-
-.dropup-content a {
-    color: black;
-    padding: 1px 6px;
-    text-decoration: none;
-    display: block;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+.btn-text:hover {
+    background-color: var(--color-btn-disabled);
+    /* color: var(--color-bg); */
 }
-
-.dropup-content a:hover {background-color: #ccc}
-
-.dropup:hover .dropup-content {
-    display: block;
+.btn-text:active {
+    background-color: var(--color-btn-active);
+    /* color: var(--color-bg); */
 }
 </style>

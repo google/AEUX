@@ -100,7 +100,7 @@ export function fetchAEUX () {
     var aeuxData = filterTypes(selection);
     // if (layerCount < 0) { return }
     aeuxData[0].layerCount = layerCount;
-    // aeuxData[0].folderPath = folderPath;
+    // aeuxData[0].folderPath = 6olderPath;
 
     console.log(aeuxData);
 

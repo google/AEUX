@@ -32,7 +32,7 @@
                             class="comp-scale"
                             label=""
                             :items="compScaleOptions"
-                            :active="prefs.compScale"
+                            :active="prefs.compScale - 1"
                             @update="val => setPref('compScale', parseInt(compScaleOptions[val].value) + 1)"
                         />
                         <div class="comp-scale-label">
@@ -128,7 +128,7 @@ let vm =  {
         "panel-info": require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/Panel-Info.vue").default,
     },
 	data: () => ({
-    aeuxVersion: 0.6,
+    aeuxVersion: 0.7,
 		prefs: {
 			// updateTime: 0,
 			// autoBuild: false,

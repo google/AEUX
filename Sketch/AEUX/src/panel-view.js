@@ -9,7 +9,7 @@ var devName = 'sumUX';
 var toolName = 'AEUX';
 var docUrl = 'https://aeux.io/';
 var versionNumber = 0.7;
-var document, selection, folderPath, saveName, layerCount, aeSharePath, flatten, hasArtboard, exportCanceled;
+var document, selection, folderPath, imageList = [], aveName, layerCount, aeSharePath, flatten, hasArtboard, exportCanceled;
 
 
 const webviewIdentifier = 'aeux.webview'
@@ -20,11 +20,12 @@ export default function () {
     width: 240,
     height: 180,
     titleBarStyle: 'hiddenInset',
-    hidesOnDeactivate: false,
+    remembersWindowFrame: true,
+    // hidesOnDeactivate: false,
     // resizable: false,
     // movable: false,
     // minimizable: false,
-    // alwaysOnTop: true,
+    alwaysOnTop: true,
     show: false,
     webPreferences: {
         devTools: true,
@@ -98,62 +99,89 @@ export function fetchAEUX () {
     layerCount = 0;
 
     var aeuxData = filterTypes(selection);
-    // if (layerCount < 0) { return }
+    if (layerCount < 1) {
+        existingWebview.webContents.executeJavaScript(`setFooterMsg('0 layers sent to Ae')`)
+        return 
+    }
     aeuxData[0].layerCount = layerCount;
     // aeuxData[0].folderPath = 6olderPath;
 
     console.log(aeuxData);
 
-    
-
-    var msg = {
-        // prefs: {
-        //   newComp: true,
-        //   parametrics: false,
-        //   compScale: 1,
-        //   precompGroups: false,
-        //   frameRate: 60,
-        // },
-        layerData: aeuxData,
-    }
-
-    fetch(`http://127.0.0.1:7240/evalscript`, {
-    method: "POST",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            method: 'buildLayers',
-            data: msg,
-            switch: 'aftereffects',
-            getPrefs: true,
+    if (imageList.length < 1) {
+        fetch(`http://127.0.0.1:7240/evalscript`, {
+        method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                method: 'buildLayers',
+                data: {layerData: aeuxData},
+                switch: 'aftereffects',
+                getPrefs: true,
+            })
         })
-    })
-    .then(response => response.json())
-    .then(json => {
-        // get back a message from Ae and display it at the bottom of Sketch
-        console.log(json)
-        let lyrs = json.layerCount        
-        let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
-        
-        if (!existingWebview) {     // webview is closed
-            UI.message(msg)
-        } else {
-            // send something to the webview
-            existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
-        }
-    })
-    .catch(e => {
-        console.error(e)
-        let msgToWebview = 'Unable to communicate with Ae'
-        if (!existingWebview) {     // webview is closed
-            UI.message(msgToWebview)
-        } else {
-            // send something to the webview            
-            existingWebview.webContents.executeJavaScript(`setFooterMsg('${msgToWebview}')`)
-        }
-    });
+        .then(response => response.json())
+        .then(json => {
+            // get back a message from Ae and display it at the bottom of Sketch
+            console.log(json)
+            let lyrs = json.layerCount        
+            let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
+            
+            if (!existingWebview) {     // webview is closed
+                UI.message(msg)
+            } else {
+                // send something to the webview
+                existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
+            }
+        })
+        .catch(e => {
+            console.error(e)
+            let msgToWebview = 'Unable to communicate with Ae'
+            if (!existingWebview) {     // webview is closed
+                UI.message(msgToWebview)
+            } else {
+                // send something to the webview            
+                existingWebview.webContents.executeJavaScript(`setFooterMsg('${msgToWebview}')`)
+            }
+        });
+    } else {        // save images
+        console.log('images need to be built');
+        fetch(`http://127.0.0.1:7240/writeFiles`, {
+        method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                switch: 'aftereffects',
+                images: imageList
+            })
+        })
+        .then(response => response.json())
+        .then(res => {
+            console.log(res);
+            aeuxData[0].folderPath = res.path
+            
+            fetch(`http://127.0.0.1:7240/evalscript`, {
+            method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    method: 'buildLayers',
+                    data: {layerData: aeuxData},
+                    // switch: 'aftereffects',
+                    getPrefs: true,
+                })
+            })
+        })
+        .catch(e => {
+            console.error(e)
+        });
+    }
 }
 
 
@@ -164,6 +192,7 @@ function filterTypes(selection) {
     /// reset vars
     var selectedLayerInfo = [];
     var layers = selection.layers;
+    var imageList = [];
 
     /// get artboard data
     if (!hasArtboard) { selectedLayerInfo.push( storeArtboard() ); }
@@ -493,21 +522,31 @@ function getText(layer) {
 //// get layer data: IMAGE
 function getImage(layer) {
 	var layerData =  {
-    type: 'Image',
-    name: layer.name,
-    id: layer.id,
-    frame: getFrame(layer),
-    isVisible: layer.sketchObject.isVisible(),
-    opacity: getOpacity(layer),
-    blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
-    rotation: -layer.sketchObject.rotation(),
-    hasClippingMask: layer.sketchObject.hasClippingMask(),
-    shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
-	};
+        type: 'Image',
+        name: layer.name,
+        id: layer.id,
+        frame: getFrame(layer),
+        isVisible: layer.sketchObject.isVisible(),
+        opacity: getOpacity(layer),
+        blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
+        rotation: -layer.sketchObject.rotation(),
+        hasClippingMask: layer.sketchObject.hasClippingMask(),
+        shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+    };
 
-    if ( !getFolderPath() ) { return null; }        // canceled
+    let imgData = layer.image.nsdata.base64EncodedStringWithOptions(0).toString()
+    
+    imageList.push({
+        name: layer.id + '.png',
+        // imgData: _arrayBufferToBase64(layer.image.nsdata)
+        imgData: `${imgData.replace(/<|>/g, '')}`
+        // imgData: layer.image.nsdata.base64EncodedDataWithOptions(0)
+    })
+    console.log(imageList)
 
-    var imageFile = exportLayer(layer, folderPath);
+    // if ( !getFolderPath() ) { return null; }        // canceled
+
+    // var imageFile = exportLayer(layer, folderPath);
     // layerData.path = imageFile.path;
     // layerData.scale = imageFile.scale;
     return layerData;

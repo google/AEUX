@@ -66,6 +66,7 @@ function getCompMultiplier(artboardWidth) {
 function buildLayers(compObj) {
     try {
     // alert(JSON.stringify(compObj, false, 2));
+    // alert(JSON.stringify(compObj.layerData[0], false, 2));
     /// reset variables
     // downloadDialog.hide();
 
@@ -1008,7 +1009,7 @@ function aeSymbol(layer, opt_parent) {
 //// import and add image
 function aeImage(layer, opt_parent) {
 //   alert(JSON.stringify(layer, false, 2))
-    imageFolder = createNamedFolder('Images');
+    var imageFolder = createNamedFolder('Images');
     // alert(layer.path + layer.id + '.jpg')
 
     // check if file is already imported
@@ -1020,11 +1021,11 @@ function aeImage(layer, opt_parent) {
 
         var bmpFile;
             try {
-                if (File(folderPath + layer.id + '.png').exists) {
-                    bmpFile = new ImportOptions(new File(folderPath + layer.id + '.png'));
+                if (File(folderPath + '/' + layer.id + '.png').exists) {
+                    bmpFile = new ImportOptions(new File(folderPath + '/' + layer.id + '.png'));
                     fileFound = true;
-                } else if (File(folderPath + layer.id + '.jpg').exists) {
-                    bmpFile = new ImportOptions(new File(folderPath + layer.id + '.jpg'));
+                } else if (File(folderPath + '/' + layer.id + '.jpg').exists) {
+                    bmpFile = new ImportOptions(new File(folderPath + '/' + layer.id + '.jpg'));
                     fileFound = true;
                 }
                 
@@ -1035,33 +1036,10 @@ function aeImage(layer, opt_parent) {
                 } else {
                   /// add placeholder
                 }
-            // } catch (e) {
-            //     try {
-            //         // alert(sourcePath + '/' + layer.id + '@4x.png')
-            //         // if (hostApp == 'Sketch') {
-            //         //     bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '@4x.png'));
-            //         // }
-            //         // if (hostApp == 'Figma') {
-            //             if (File(sourcePath + '/' + layer.id + '.png').exists) {
-            //                 alert('PNG ' + layer.id)
-            //                 bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '.png'));
-            //             } 
-            //             if (File(sourcePath + '/' + layer.id + '.jpg').exists) {
-            //                 // alert('JPG ' + layer.id)
-            //                 bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '.jpg'));
-            //             }
-                        
-            //         // }
-
-            //         fileFound = true;
-                    
-            //         // import
-            //         if (fileFound) { bmpImage = app.project.importFile(bmpFile); }
-
-                } catch (e) {
-                    returnMessage.push(6); 					//'Can't locate image file'
-                    bmpImage = app.project.importPlaceholder(layer.id + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
-                }
+            } catch (e) {
+                returnMessage.push(6); 					//'Can't locate image file'
+                bmpImage = app.project.importPlaceholder(layer.id + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
+            }
             // }
             
             // move to IMAGES folder

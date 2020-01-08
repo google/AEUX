@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
+  "repository": "",
   "license": "ISC",
   "devDependencies": {
     "css-loader": "^3.2.0",
@@ -21,9 +22,9 @@
   },
   "dependencies": {
     "file-saver": "^2.0.2",
+    "file-type": "^12.4.2",
     "fs": "0.0.1-security",
     "jszip": "^3.2.2",
-    "lore-server": "file:../../../../../../npm/lore-server",
     "vue": "^2.6.10"
   }
 }

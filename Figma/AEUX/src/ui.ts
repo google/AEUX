@@ -1,12 +1,10 @@
-import * as saveAs from 'file-saver'
-import * as JSZip from 'JSZip'
 import * as fileType from 'file-type'
 import Vue from 'vue/dist/vue.esm.js'
 import * as aeux from './aeux.js'
-import Lore from '/Users/adamplouff/Dropbox/Projects/Code/npm/lore-server/index.js'
+// import Lore from '/Users/adamplouff/Dropbox/Projects/Code/npm/lore-server/index.js'
 import './ui.css'
 
-const lore = new Lore(7240)
+// const lore = new Lore(7240)
 
 var vm = new Vue({
 	el: '#app',
@@ -44,20 +42,26 @@ onmessage = (event) => {
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
         // console.log(aeuxData);
 
-        lore.message({
-            method: 'buildLayers',
-            layerData: aeuxData,
+        fetch(`http://127.0.0.1:7240/evalscript`, {
+        method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                method: 'buildLayers',
+                data: {layerData: aeuxData},
+                switch: 'aftereffects',
+                getPrefs: true,
+            })
         })
         .then(response => {
-            if (!response.ok) {
-                footerMessage('0', 'sent. \nIs AEUX open in Ae?');
-            } else {
-                footerMessage(aeuxData[0].layerCount, 'sent to Ae');
-            }
-        })
-        .catch(() => {
-            footerMessage('0', 'sent. \nIs AEUX open in Ae?');
-        })
+            console.log(response);
+            return response.json()}
+        )
+        .catch(e => {
+            console.error(e)
+        });
     }
     if (msg && msg.type === 'footerMsg') {
         console.log('LayerCount', msg.layerCount);
@@ -65,16 +69,15 @@ onmessage = (event) => {
     }
 	if (msg && msg.type === 'exportJsonAndImages') {
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
-
-        // const zip = new JSZip()
-        //     const folder = zip.folder('AEUX')
+        console.log(aeuxData);
+        let imageList = [];
 
         msg.images.forEach(img => {
             const filetype = fileType(img.bytes)
-            const blob = new Blob([img.bytes], { type: filetype.mime })
+            // const blob = new Blob([img.bytes], { type: filetype.mime })
             const name = img.name + '.' + filetype.ext
 
-            aeuxData[0].images.push({
+            imageList.push({
                 name, 
                 imgData: _arrayBufferToBase64(img.bytes)
             })
@@ -82,11 +85,73 @@ onmessage = (event) => {
         })
 
         console.log(aeuxData);
-        
-        lore.message({
-            method: 'buildLayersAndImages',
-            layerData: aeuxData,
+
+        fetch(`http://127.0.0.1:7240/writeFiles`, {
+        method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                // method: 'buildLayers',
+                // data: {layerData: aeuxData},
+                switch: 'aftereffects',
+                // getPrefs: true,
+                images: imageList
+            })
         })
+        .then(response => response.json())
+        .then(res => {
+            console.log(res);
+            aeuxData[0].folderPath = res.path
+            
+            fetch(`http://127.0.0.1:7240/evalscript`, {
+            method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    method: 'buildLayers',
+                    data: {layerData: aeuxData},
+                    // switch: 'aftereffects',
+                    getPrefs: true,
+                })
+            })
+        })
+        .catch(e => {
+            console.error(e)
+        });
+
+        
+
+        // fetch(`http://127.0.0.1:7240/evalscript`, {
+        // method: "POST",
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         method: 'buildLayers',
+        //         data: {layerData: aeuxData},
+        //         switch: 'aftereffects',
+        //         getPrefs: true,
+        //     })
+        // })
+        // .then(response => {
+        //     console.log(response);
+        //     return response.json()}
+        // )
+        // .catch(e => {
+        //     console.error(e)
+        // });
+        
+
+
+        // lore.message({
+        //     method: 'buildLayersAndImages',
+        //     layerData: aeuxData,
+        // })
             
             // folder.file('AEUX.json', JSON.stringify(aeuxData, undefined, 2))
 

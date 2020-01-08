@@ -100,7 +100,7 @@
   }
   .button {
     /* border: 1px solid #dadada; */
-    background-color: #f7f7f7;
+    background-color: rgba(0, 0, 0, 0.04);
     box-sizing: border-box;
     display: block;
     margin: 4px 0;
@@ -110,6 +110,7 @@
     text-align: center;
     align-content: center;
     font-weight: 300;
+    border-radius: 3px;
   }
   .button svg {
     pointer-events: none;
@@ -175,7 +176,6 @@
     display: block;
     /* Position the tooltip text */
     position: absolute;
-    index: 1;
     padding: 4px 6px;
     left: 0;
     opacity: 0;
@@ -186,7 +186,7 @@
     visibility: visible;
     opacity: 1;
   }
-  
+/*   
   .help-overlay {
       z-index: 2;
       opacity: 1;
@@ -198,7 +198,6 @@
       padding: 8px;
       margin-left: -8px;
       margin-top: -8px;
-      /* text-align: center; */
   
       line-height: 1.15em;
     }
@@ -229,7 +228,6 @@
         padding-right: 20px;
     }
     .help-overlay .link {
-        /* text-transform: uppercase; */
         margin: 16px 16px 16px 20px;
         font-size: 14px;
         font-style: italic;
@@ -253,7 +251,7 @@
     .fade-enter,
     .fade-leave-to {
       opacity: 0;
-    }
+    } */
   
   
   .spinner {

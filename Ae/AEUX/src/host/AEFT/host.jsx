@@ -99,6 +99,7 @@ var AEUX = (function () {
     function buildLayers(compObj) {
         try {
             // alert(JSON.stringify(compObj, false, 2));
+            // alert(JSON.stringify(compObj.layerData[0], false, 2));
             /// reset variables
             // downloadDialog.hide();
             returnMessage = [];
@@ -938,7 +939,7 @@ var AEUX = (function () {
     //// import and add image
     function aeImage(layer, opt_parent) {
         //   alert(JSON.stringify(layer, false, 2))
-        imageFolder = createNamedFolder('Images');
+        var imageFolder = createNamedFolder('Images');
         // alert(layer.path + layer.id + '.jpg')
         // check if file is already imported
         var bmpImage = getItem(layer.id, FileSource, imageFolder);
@@ -948,12 +949,12 @@ var AEUX = (function () {
             var fileFound = false;
             var bmpFile;
             try {
-                if (File(folderPath + layer.id + '.png').exists) {
-                    bmpFile = new ImportOptions(new File(folderPath + layer.id + '.png'));
+                if (File(folderPath + '/' + layer.id + '.png').exists) {
+                    bmpFile = new ImportOptions(new File(folderPath + '/' + layer.id + '.png'));
                     fileFound = true;
                 }
-                else if (File(folderPath + layer.id + '.jpg').exists) {
-                    bmpFile = new ImportOptions(new File(folderPath + layer.id + '.jpg'));
+                else if (File(folderPath + '/' + layer.id + '.jpg').exists) {
+                    bmpFile = new ImportOptions(new File(folderPath + '/' + layer.id + '.jpg'));
                     fileFound = true;
                 }
                 // import
@@ -963,25 +964,6 @@ var AEUX = (function () {
                 else {
                     /// add placeholder
                 }
-                // } catch (e) {
-                //     try {
-                //         // alert(sourcePath + '/' + layer.id + '@4x.png')
-                //         // if (hostApp == 'Sketch') {
-                //         //     bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '@4x.png'));
-                //         // }
-                //         // if (hostApp == 'Figma') {
-                //             if (File(sourcePath + '/' + layer.id + '.png').exists) {
-                //                 alert('PNG ' + layer.id)
-                //                 bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '.png'));
-                //             } 
-                //             if (File(sourcePath + '/' + layer.id + '.jpg').exists) {
-                //                 // alert('JPG ' + layer.id)
-                //                 bmpFile = new ImportOptions(new File(sourcePath + '/' + layer.id + '.jpg'));
-                //             }
-                //         // }
-                //         fileFound = true;
-                //         // import
-                //         if (fileFound) { bmpImage = app.project.importFile(bmpFile); }
             }
             catch (e) {
                 returnMessage.push(6); //'Can't locate image file'

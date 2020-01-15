@@ -1,10 +1,9 @@
 <template>
   <div id="app">
-    <!--
-      Example of importing a component
-    -->
     <menus />
-    <AEUX msg="Welcome to Your Vue CLI panel" />
+    <Panel>
+        <AEUX />
+    </Panel>
   </div>
 </template>
 

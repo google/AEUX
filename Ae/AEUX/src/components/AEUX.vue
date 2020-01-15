@@ -1,14 +1,90 @@
 <template>
-  <div class="content" v-if="prefsLoaded">
-            <div class="build-source">
-                <!-- <div class="build-button message" v-show="!prefs.artboard">Push layers from Sketch or drop an AEUX.json file</div>
-                <div class="build-button" v-if="prefs.artboard" @click="readFileAndBuildLayers()">
-                    <span class="badge" v-bind:class="{new: newLayers}">{{ prefs.artboard.layerCount }}</span>
-                    <div class="build-comp">Build Comp</div>
-                    <div class="artboard-name">{{ prefs.artboard.name }}</div>
-                </div> -->
+    <Wrapper v-if="prefsLoaded">
+        <Dropzone />
+        <Button-Group :active="prefs.newComp" exclusive @update="val => setPref('newComp', (val + 1)%2)">
+			<Button prefix-icon="plus" label="New Comp" tall margin="0px" />
+			<Button
+				prefix-icon="arrow-down"
+				label="Current"
+				tall
+				margin="0px"
+			/>
+		</Button-Group>
+        <Dropdown
+			v-if="prefs.newComp == 1"
+			:items="compScaleOptions"
+			:active="prefs.compScale - 1"
+			label="Comp size multiplier"
+			label-to-right
+			@update="val => setPref('compScale', parseInt(compScaleOptions[val].value) + 1)"
+		/>
 
-                <!-- <div class="row"> -->
+        <Fold
+			label="Options"
+			:open="prefs.expand.options"
+            @clicked="fold('options')"
+            :margin-top="!prefs.newComp ? '6px' : ''"
+		>
+			<Toggle
+				label="Detect parametric shapes"
+				:state="true"
+				@update="val => (detectParametricShapes = val)"
+			/>
+			<Toggle
+				label="Precomp groups"
+				:state="false"
+				@update="val => (precompGroups = val)"
+			/>
+		</Fold>
+
+        <Fold label="Groups" 
+            :open="prefs.expand.groups"
+            @clicked="fold('groups')">
+			<Button-Group grid column>
+				<Button
+					left
+					tall
+					icon-size="20px"
+					prefix-icon="image-filter-center-focus-weak"
+					label="Precomp"
+                    @click="aeCall('groupToPrecomp')"
+				/>
+				<Button
+					left
+					tall
+					icon-size="20px"
+					prefix-icon="arrow-expand-all"
+					label="Un-Precomp"
+                    @click="aeCall('precompToLayers')"
+				/>
+				<Button
+					left
+					tall
+					icon-size="20px"
+					prefix-icon="eye-off"
+					label="Toggle guide layer visibility"
+                    @click="aeCall('toggleGroupVisibility')"
+				/>
+				<Button
+					left
+					tall
+					icon-size="20px"
+					prefix-icon="delete"
+					label="Delete group layers"
+                    @click="aeCall('deleteGroupLayers')"
+				/>
+			</Button-Group>
+		</Fold>
+
+        <Fold label="System" :open="prefs.expand.system" @clicked="fold('system')">
+            <Button block goto="https://aeux.io" @altClick="openConfig">Learn stuff</Button>
+            <Panel-Info name uppercase version>
+                <i>Brought to you by your friends at Google motion design</i>
+            </Panel-Info>
+        </Fold>
+    </Wrapper>
+  <!-- <div class="content" v-if="prefsLoaded">
+            <div class="build-source">
                     <div class="button-group">
                         <div class="button" v-bind:class="{selected: prefs.newComp}" @click="setPref('newComp', true)"><span class="icon">
                             <svg width="24" height="24" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/><path fill="none" d="M0 0h24v24H0z"/></svg>
@@ -18,15 +94,7 @@
                             </span>Current
                         </div>
                     </div>
-                    <!-- <div class="button import" @click="openFile()"><span class="icon">
-                        <svg width="16" height="16" viewBox="0 0 24 24">
-                            <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
-                        </svg></span>
-                    </div> -->
-                <!-- </div> -->
 
-
-                <!-- <div class="row"> -->
                     <div v-show="prefs.newComp">
                         <dropdown
                             class="comp-scale"
@@ -40,7 +108,6 @@
                         </div>
                         
                     </div>
-                <!-- </div> -->
             </div>
 
             <section-toggle label="options" :open="prefs.expand.options" @clicked="fold('options')">
@@ -99,7 +166,7 @@
                 <panel-info :text="`${spy.extName} - ${spy.extVersion}`"><i>Brought to you by your friends at Google motion design</i></panel-info>
             </section-toggle>
 
-    </div>
+    </div> -->
 </template>
 
 <script>
@@ -132,13 +199,13 @@ let vm =  {
 		prefs: {
 			// updateTime: 0,
 			// autoBuild: false,
-			newComp: true,
+			newComp: 0,
 			precompGroups: false,
 			parametrics: true,
 			compScale: 3,
 			expand: {
+                options: true,
 				groups: false,
-				options: false,
 				system: false,
 			},
 			// artboard: null,
@@ -194,8 +261,7 @@ let vm =  {
     //// set pref and save to prefs file
     setPref (pref, value) {
             this.prefs[pref] = value
-            console.log(this.prefs.compScale);
-            
+            // console.log(this.prefs.compScale);
             this.savePrefs()      
     },
     //// message to AE to start building layers from JSON
@@ -379,530 +445,5 @@ export default vm
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
-@font-face {
-	font-family: 'Roboto';
-	src: url('/assets/fonts/Roboto-Light.ttf') format('truetype');
-	font-weight: normal;
-	font-style: normal;
-}
-@font-face {
-	font-family: 'Roboto Mono';
-	src: url('/assets/fonts/RobotoMono-Regular.ttf') format('truetype');
-	font-weight: normal;
-	font-style: normal;
-}
-body, pre {
-    color: #d2d2d2;
-    overflow-x: hidden;
-    overflow: hidden;
-    -webkit-user-select: none;
-    cursor: default;
-    font-family: 'Roboto', sans-serif;
-    /* font-size: 11px; */
-    line-height: 1.5em;
-    letter-spacing: 0.05em;
-    margin: 0;
-    min-width: 170px;
-    /* background-color: #111; */
-}
-#app {
-    height: 100vh;
-    box-sizing: border-box;
-    border: solid 2px rgba(3, 119, 187, 0);
-}
-.content {
-    padding: 0 8px;
-    height: 100%;
-    overflow-y: scroll;
-    /* padding-right: 24px; */
-    margin-right: -16px;
-}
-a {
-    color: #fff;
-}
-.header {
-    padding-left: 8px;
-    background-color: rgba(1,1,1,0.1);
-}
-.header>div {
-    display: inline-block;
-}
-.footer {
-    z-index: 1;
-    bottom: 0;
-    position: absolute;
-    width: 100vw;
-    background-color: #0377BC;
-    text-align: center;
-    padding: 4px;
-    padding-right: 32px;
-    line-height: 1.15em;
-    /* white-space: pre-wrap; */
-    word-wrap: break-word;
-    font-family: inherit;
-}
-.lift-enter-active, .lift-leave-active {
-  transition: opacity .5s;
-  transition: margin-bottom .5s;
-}
-.lift-enter, .lift-leave-to {
-  opacity: 0;
-  margin-bottom: -30px;
-}
-.message {
-    vertical-align: middle;
-}
-.row {
-    /* width: 100%;
-    float: left; */
-    display: block;
-    min-width: 190px;
-}
-.tab-name {
-    width: 50px;
-    text-transform: capitalize;
-    position: relative;
-    /* font-family: 'Roboto Mono', monospace; */
-    font-size: 12px;
-    vertical-align: middle;
-    text-align: center;
-}
-.tab>svg {
-    fill: rgb(172, 212, 6);
-}
-.group-heading {
-    position: relative;
-    /* font-family: 'Roboto Mono', monospace; */
-    text-transform: uppercase;
-    font-size: 10px;
-    vertical-align: middle;
-    padding: 4px 0 6px 0;
-    display: block;
-    height: 12px;
-    overflow: hidden;
-    letter-spacing: 0.1em;
-}
-.button {
-    border: none;
-    /* font-family: 'Roboto Mono', monospace; */
-    /* text-transform: uppercase; */
-    background-color: #393939;
-    color: #dddddd;
-    /* margin: 1px; */
-    display: inline-block;
-}
-.nav {
-    background-color: rgba(255, 255, 255, 0);
-    border-radius: 2px;
-    height: 28px;
-    width: 36px;
-}
-button:focus {
-    outline: 0;
-}
-button:hover {
-    background-color: #0377BC;
-}
-button.selected {
-    background-color: rgba(255, 255, 255, 0.15);
-}
-.button-group {
-    /* width: auto;
-    margin-bottom: 4px; */
-    display: inline;
-    /* float: left; */
-}
-.button-group>.button {
-    background-color: rgba(255, 255, 255, 0.08);
-    box-sizing: border-box;
-    /* border: 1px solid rgba(0, 0, 0, 0); */
-    /* min-width: 39%; */
-    display: inline-block;
-    height: 24px;
-    margin: 0;
-    padding: 5px 10px 0 2px;
-    /* text-transform: uppercase; */
-    font-size: 10px;
-    overflow: hidden;
-}
-.button>span.icon {
-    float: left;
-    margin-right: 2px;
-    margin-top: -2px;
-}
-.button>span.icon>svg {
-    width: 18px;
-    height: 18px;
-    fill: #d2d2d2;
-}
-.button-group>.selected {
-    background-color: rgba(255, 255, 255, 0.15);
-    /* border: 1px solid rgba(255, 255, 255, 0.6); */
-    border-radius: 1px;
-}
-button.full-width {
-    width: 100%;
-    height: 32px;
-    padding-bottom: 4px;
-}
-.build-source, .group {
-    vertical-align: middle;
-    margin: 6px 0;
-    /* float: left; */
-    width: 100%;
-    /* height: 58px; */
-    display: flow-root;
-}
-.build-location {
-    border-bottom: solid 1px rgba(128, 128, 128, 0.2);
-}
-.fold-group {
-    border-top: solid 1px rgba(128, 128, 128, 0.2);
-    float: left;
-    margin-bottom: 4px;
-    width: 100%;
-}
-.fold-content {
-    padding-bottom: 4px;
-    float: left;
-    width: 100%;
-}
-.fold-icon {
-    float: right;
-    margin-top: -2px;
-    fill: #d2d2d2;
-    height: 18px;
-    transform-origin: 50% 50%;
-    transition: all 0.15s cubic-bezier(0.0, 0.0, 0.2, 1);
-}
-.fold-icon.flip {
-    transform: rotate(-90deg);
-}
-.io-sketch {
-    overflow: hidden;
-}
-.import {
-    /* float: right; */
-    padding: 4px 2px 0 3px;
-}
-.help {
-    float: right;
-    padding-top: 4px;
-    padding-right: 3px;
-    fill: #fff;
-}
-.func-button {
-    /* border: 1px solid rgba(255, 255, 255, 0.15); */
-    background-color: rgba(255, 255, 255, 0.15);
-    border-radius: 2px;
-    display: block;
-    padding: 3px 8px;
-    margin: 6px 0;
-    /* text-transform: uppercase; */
-    /* font-family: 'Roboto Mono', monospace; */
-    font-size: 10px;
-}
-.func-button svg {
-    margin-right: 4px;
-    width: 18px;
-    height: 18px;
-    fill: #d2d2d2;
-    margin-bottom: -5px;
-}
-.build-button {
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    background-color: rgba(255, 255, 255, 0.15);
-    border-radius: 2px;
-    display: block;
-    padding: 6px 8px;
-    margin-bottom: 8px;
-    vertical-align: middle;
-    max-height: 64px;
-}
-.build-comp {
-    font-style: italic;
-    text-transform: uppercase;
-}
-.artboard-name {
-    color: #eee;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-span.badge {
-    float: right;
-    background-color: #474747;
-    border: #393939 solid 1px;
-    border-radius: 4px;
-    padding: 2px 4px;
-    margin-top: 5px;
-}
-span.badge.new {
-    background-color: #0377BC;
-}
-.nav .badge.new {
-    border-radius: 6px;
-    padding: 3px 3px;
-    top: 9px;
-    margin-left: 9px;
-    position: absolute;
-}
-span.icon {
-    margin-right: 4px;
-}
-span.dropdown {
-    float: right;
-    background-color: #0377BC;
-}
-.tooltiptext {
-    visibility: hidden;
-    float: none;
-    pointer-events: none;
-    background-color: #5e5e5e;
-    color: #eee;
-    text-align: center;
-    line-height: 1.5em;
-    padding: 4px 6px;
-    border-radius: 1px;
-    font-family: 'Roboto', sans-serif;
-    text-align: left;
-    text-transform: none;
-    font-size: 10px;
-    display: block;
 
-    /* Position the tooltip text */
-    position: absolute;
-    z-index: 1;
-    margin-top: 2px;
-
-    opacity: 0;
-    transition: opacity 0.3s;
-    transition-delay: .25s;
-}
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
-
-.help-overlay {
-    z-index: 2;
-    opacity: 1;
-    position: absolute;
-    background-color: #0377BC;
-    color: #fff;
-    /* width: 154px; */
-    height: 100vh;
-    padding: 8px;
-    margin-right: -8px;
-    /* margin-top: -8px; */
-    /* text-align: center; */
-
-    line-height: 1.15em;
-}
-.help-overlay .tooltiptext {
-    background-color: #85c3e7;
-    color: #2e2d2d;
-}
-.help-overlay .group-heading {
-    float: left;
-    padding: 0;
-}
-.help-overlay .help {
-    padding-right: 20px;
-    /* margin-top: -6px; */
-}
-.help-overlay .content {
-    height: 100%;
-    width: 100%;
-    /* float: left; */
-    overflow-y: scroll;
-    /* overflow-x: hidden; */
-    margin-top: 8px;
-    padding: 0;
-    padding-right: 8px;
-    -webkit-mask-image: -webkit-gradient(linear, left 88%, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))
-}
-.help-overlay .icon {
-    float: left;
-    margin-top: 3px;
-    display: inline;
-}
-.help-overlay .func-button .icon {
-    margin-top: -3px;
-}
-.help-overlay svg {
-    pointer-events: none;
-    fill: #fff;
-
-    /* float: left; */
-    /* margin-bottom: 4px; */
-    width: 14px;
-    /* margin-top: -5px; */
-}
-.help-overlay .group-heading {
-    color: #fff;
-}
-.help-overlay .group {
-    float: left;
-    margin-bottom: 8px;
-    margin-right: 20px;
-    padding-bottom: 8px;
-    width: auto;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-.help-overlay .link {
-    /* text-transform: uppercase; */
-    margin: 16px 0 16px -10px;
-    text-align: center;
-    width: 100vw;
-    padding-bottom: 20px;
-    font-size: 14px;
-    font-style: italic;
-}
-.help-overlay .link:hover {
-    text-decoration: underline;
-}
-.help-overlay .title {
-    display: inline;
-    padding: 4px 0 0 4px;
-    margin-bottom: 4px;
-    font-size: 13px;
-    float: left;
-}
-.help-overlay .box {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 6px 4px 4px 4px;
-    width: 90%;
-    font-style: italic;
-    text-transform: uppercase;
-}
-.help-overlay .icon.box {
-    width: auto;
-    padding: 2px 6px;
-}
-.help-overlay .badge {
-    float: right;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 2px;
-    padding: 2px;
-    font-size: 9px;
-    font-style: normal;
-    margin-top: -2px;
-}
-.help-overlay .text {
-    display: block;
-    float: left;
-    font-weight: 300;
-    margin-bottom: 4px;
-    width: 100%;
-}
-.help-overlay hr {
-    float: left;
-    width: 100%;
-    border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity .3s;
-}
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-input#file-path {
-    font-family: 'Roboto Mono', monospace;
-    width: 100%;
-    padding: 4px 8px;
-    margin: 8px -18px 0 0;
-    border: none;
-}
-.number-input {
-    background-color: #454545;
-    color: #EFEFEF;
-    font-family: 'Source Code Pro', monospace;
-    border: 1px solid rgba(255, 255, 255, 0.75);
-    /* padding-left: 5px; */
-    outline: 0;
-    /* margin-top: 2px;
-    margin-left: 3px; */
-    margin: 2px 3px;
-    width: 36px;
-    text-align: center;
-}
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.option {
-    height: 16px;
-    margin-bottom: 4px;
-    margin-left: -2px;
-    margin-top: 2px;
-    width: 100%;
-    padding-bottom: 4px;
-}
-.option-checkbox {
-    box-sizing: border-box;
-    -webkit-appearance: none;
-	border: 1px solid rgba(255, 255, 255, 0.75);
-	padding: 5px;
-	border-radius: 1px;
-	display: inline-block;
-	position: relative;
-    vertical-align: bottom;
-    outline: 0;
-}
-.option-checkbox:checked:after {
-    background-color: rgba(255, 255, 255, 0.75);
-    width: 8px;
-    height: 8px;
-    margin: -4px;
-    content: ' ';
-    position: absolute;
-}
-select {
-    box-sizing: border-box;
-    -webkit-appearance: none;
-    overflow: scroll;
-    outline: 0;
-    background-color: rgba(255, 255, 255, 0.15);
-	border: 1px solid rgba(255, 255, 255, 0.75);
-    padding: 1px 4px;
-    margin-left: 4px;
-    border-radius: 1px;
-    color: #f0f0f0;
-    /* font-family: 'Roboto Mono', monospace; */
-    width: 40px;
-}
-
-.comp-scale {
-    width: 50px;
-    float: left;
-    margin: 0 !important;
-}
-.comp-scale-label {
-    float: left;
-    margin: 9px 7px;
-}
-.full {
-    width: 100%;
-}
-.btn-text {
-    background-color: var(--color-scrollbar-thumb);
-    border-radius: 2px;
-    border: 1px solid var(--color-btn-pill-active);
-    color: var(--color-btn-pill-border);
-    padding: 2px 8px 4px 8px;
-    margin: 4px 0;
-}
-.btn-text:hover {
-    background-color: var(--color-btn-disabled);
-    /* color: var(--color-bg); */
-}
-.btn-text:active {
-    background-color: var(--color-btn-active);
-    /* color: var(--color-bg); */
-}
 </style>

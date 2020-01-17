@@ -59,7 +59,7 @@ export default function () {
   webContents.on('externalLinkClicked', url => {
     NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url))
   })
-  // open a link
+  // send layer data to Ae
   webContents.on('fetchAEUX', () => {
     fetchAEUX()
     // document = require('sketch/dom').getSelectedDocument();
@@ -89,6 +89,7 @@ export function onShutdown() {
 
 export function fetchAEUX () {
     let existingWebview = getWebview(webviewIdentifier)
+    imageList = []
     
     document = require('sketch/dom').getSelectedDocument();
     selection = document.selectedLayers;

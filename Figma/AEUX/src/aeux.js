@@ -1,3 +1,4 @@
+/*jshint esversion: 6, asi: true*/
 var versionNumber = 0.6;
 var frameData, layers, hasArtboard, layerCount, layerData;
 export function convert (data) {
@@ -8,6 +9,7 @@ export function convert (data) {
     // console.log('tester', vm.imageUrlList);
     var layerData = filterTypes(data);
     layerData[0].layerCount = layerCount;
+console.log('layerData', layerData);
 
     return layerData;
 }
@@ -33,7 +35,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         
         if (layer.visible === false) { return; }         // skip layer if hidden
         // console.log(layer.name, layer.type);
-        if (layer.type == "GROUP" || layer.type == "FRAME") {
+        if (layer.type == "GROUP" || layer.type == "FRAME" || layer.type == "AUTOLAYOUT") {            
             aeuxData.push(getGroup(layer, parentFrame));
         }
         if (layer.fillGeometry && layer.fillGeometry.length > 1) { layer.type = "BOOLEAN_OPERATION" }         // overwrite the layer type
@@ -55,7 +57,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         }
         if (layer.type == "INSTANCE" || layer.type == "COMPONENT") {    // instances and master symbols
             // console.log(layer.name);
-            console.log('SYMBOL');
+            // console.log('SYMBOL');
             
             aeuxData.push(getComponent(layer, parentFrame));
             layerCount++;
@@ -86,29 +88,32 @@ function getShape(layer, parentFrame, boolType) {
     // console.log(layer.relativeTransform[0][0]);
 
 	var layerData =  {
-    type: layerType,
+        type: layerType,
 		name: layer.name,
 		id: layer.id,
 		frame: frame,
 		// absoluteBoundingBox: layer.absoluteBoundingBox,
-    fill: getFills(layer),
-    stroke: getStrokes(layer),
-    isVisible: (layer.visible !== false),
+        fill: getFills(layer),
+        stroke: getStrokes(layer),
+        isVisible: (layer.visible !== false),
 		path: path,
-		roundness: (layer.type == 'RECTANGLE') ? Math.round(layer.cornerRadius) || 0 : 0,
+		roundness: Math.round(layer.cornerRadius) || 0,
+		// roundness: (layer.type == 'RECTANGLE') ? Math.round(layer.cornerRadius) || 0 : 0,
 		opacity: layer.opacity*100 || 100,
-    rotation: getRotation(layer),
+        rotation: getRotation(layer),
 		flip: getFlipMultiplier(layer),
-    blendMode: getLayerBlending(layer.blendMode),
-    booleanOperation: boolType || getBoolType(layer),
-    isMask: layer.isMask,
-    // for polygons and stars
-    pointCount: layer.pointCount || null,     
-    isStar: (layer.type == 'STAR') ? true : false,
-    outerRad: Math.max(frame.width, frame.height) / 2,
-    innerRad: layer.innerRadius || null,
-    polyScale: getPolyscale(layer),
+        blendMode: getLayerBlending(layer.blendMode),
+        booleanOperation: boolType || getBoolType(layer),
+        isMask: layer.isMask,
+        // for polygons and stars
+        pointCount: layer.pointCount || null,     
+        isStar: (layer.type == 'STAR') ? true : false,
+        outerRad: Math.max(frame.width, frame.height) / 2,
+        innerRad: layer.innerRadius || null,
+        polyScale: getPolyscale(layer),
   };
+//   console.log(layerData.roundness);
+  
 
   /// if fill is an image and should return that instead of a shape
   if (layerData.fill != null && layerData.fill.type == 'Image') {
@@ -117,7 +122,7 @@ function getShape(layer, parentFrame, boolType) {
 
   getEffects(layer, layerData);
 
-  console.log(layerData);
+//   console.log(layerData);
   return layerData;																// output a string of the collected data
 }
 //// get layer data: TEXT
@@ -138,16 +143,16 @@ function getText(layer, parentFrame) {
 	var layerData =  {
         type: 'Text',
         kind: 'Area',
-		    name: layer.name,
+        name: layer.name.replace(/[\u2028]/g, ' '),
         stringValue: getTextProps(layer),
         id: layer.id,
         frame: frame,
         isVisible: (layer.visible !== false),
-		    opacity: layer.opacity*100 || 100,
+        opacity: layer.opacity*100 || 100,
         textColor: getFills(layer)[0].color || getFills(layer)[0].gradient.points[0].color,
         fill: null,
         stroke: getStrokes(layer),
-		    blendMode: getLayerBlending(layer.blendMode),
+        blendMode: getLayerBlending(layer.blendMode),
         // fontName: layer.style.fontPostScriptName,
         fontName: layer.fontName.family.replace(' ', '') + '-' + layer.fontName.style.replace(' ', ''),
         fontSize: layer.fontSize,
@@ -167,8 +172,8 @@ function getText(layer, parentFrame) {
 
 
 
-    function getTextProps(layer) {
-        var text = layer.characters.replace(/[\u2028]/g, '\n');
+    function getTextProps(layer) {        
+        var text = layer.characters.replace(/[\u2028]/g, '\n');        
         // var transformVal = 0;
         // var transformVal = layer.sketchObject.styleAttributes()["MSAttributedStringTextTransformAttribute"];
 
@@ -226,36 +231,48 @@ function getGroup(layer, parentFrame) {
     // console.log('group frame', layer.name, stackOffset);
     
 	var layerData =  {
-    type: 'Group',
+        type: 'Group',
 		name: '\u25BD ' + layer.name,
 		id: layer.id,
 		frame: calcFrame,
-    isVisible: (layer.visible !== false),
+        isVisible: (layer.visible !== false),
 		opacity: Math.round(layer.opacity * 100) || 100,
 		// rotation: getRotation(layer) * (flip[1]/100),
 		rotation: getRotation(layer),
 		blendMode: getLayerBlending(layer.blendMode),
-    flip: getFlipMultiplier(layer),
-    // hasClippingMask: false,
-    shouldBreakMaskChain: true,
-    layers: filterTypes(layer, frame),
+        flip: getFlipMultiplier(layer),
+        // hasClippingMask: false,
+        shouldBreakMaskChain: true,
+        layers: [],
     // layers: filterTypes(layer, frame),
-  };
+    };
+    if (layer.type == 'AUTOLAYOUT') {
+        layerData.layers = filterTypes(layer)
+        // console.log('background', getShape(layer));
+        
+        layerData.layers.unshift(getShape(layer, frame))  // add the background of the frame
+        layerData.layers[0].type = 'AutoLayoutBG'
+    } else {
+        layerData.layers = filterTypes(layer, frame)
+    }
   getEffects(layer, layerData);
-  console.log(layerData)
+//   console.log(layerData)
   return layerData;
 }
 //// get layer data: SYMBOL
 function getComponent(layer, parentFrame) {
-    var frame = getFrame(layer, parentFrame);
+    var frame = getFrame(layer);
+    var calcFrame = getFrame(layer, parentFrame);
+    console.log('DO IT INSTANCE');
+    
 
 	var layerData =  {
         type: 'Component',
-		    name: layer.name,
+        name: layer.name,
         masterId: layer.componentId,
         // masterId: 'override',
         id: layer.id,
-        frame: frame,
+        frame: calcFrame,
         // frame: {x: 0, y: 0, width: 100, height: 100},
         isVisible: (layer.visible !== false),
         opacity: layer.opacity*100 || 100,
@@ -268,9 +285,19 @@ function getComponent(layer, parentFrame) {
         flip: getFlipMultiplier(layer),
         isMask: layer.isMask,
         // layers: filterTypes(layer, {x: 0, y: 0, width: frame.width, height: frame.height}),
-        layers: filterTypes(layer),
+        // layers: filterTypes(layer),
         // layers: filterTypes(layer, frame),
     };
+    if (layer.layoutMode !== 'NONE') {
+        layerData.layers = filterTypes(layer)
+        // console.log('background', getShape(layer));
+        
+        layerData.layers.unshift(getShape(layer, frame))  // add the background of the frame
+        layerData.layers[0].type = 'AutoLayoutBG'
+    } else {
+        layerData.layers = filterTypes(layer, frame)
+    }
+
     getEffects(layer, layerData);
 
     // getOverrides(layer, layerData);

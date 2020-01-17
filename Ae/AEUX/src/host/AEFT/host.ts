@@ -23,6 +23,7 @@ var prefs = {
     compScale: 3,
     newComp: true,
     precompGroups: true,
+    frameRate: 60,
 }
 
 ///////// initialize elements /////////
@@ -199,6 +200,18 @@ function filterTypes(layerData, opt_parent) {
         if (layerData[i].type === 'Artboard') {
                 // couldnt create a comp from artboard data
             if (aeArtboard(layerData[i]) == false) { break };
+        }
+        // the background of a Figma AutoLayout frame
+        if (layerData[i].type === 'AutoLayoutBG') {
+            var bg = aeRect(layerData[i], null);
+            if (groupParent) {
+                // bg.parent = groupParent;
+                bg.setParentWithJump(opt_parent);
+                bg.moveAfter(groupParent);
+            // } else {
+                // bg.moveAfter(thisComp.layer(layerData.length));
+            }
+            pbar.value += progressInc;
         }
 
     }
@@ -445,12 +458,13 @@ function aeGroup(layer, opt_parent) {
   // alert(JSON.stringify(layer, false, 2))
     /// if auto-precomp is enabled
     if (prefs.precompGroups || layer.type == 'Component') {
-        frameRate = prefs.frameRate;
+        var frameRate = prefs.frameRate;
         // skip if an empty group
         if (layer.layers.length < 1) { return; }
 
         // find or create Groups folder
-        groupFolder = createNamedFolder('Groups');
+        var folderName = (layer.type == 'Component') ? 'Components' : 'Groups';
+        var groupFolder = createNamedFolder(folderName);
 
         // create new comp in the project
         var groupComp = app.project.items.addComp(	nameInc(layer.name, app.project.items),
@@ -469,7 +483,7 @@ function aeGroup(layer, opt_parent) {
         // var g = groupComp.layers.addShape();
         // g('ADBE Transform Group')('ADBE Position').setValue([-groupComp.width/2, -groupComp.height/2])
         // if (hostApp == 'Sketch') {
-          filterTypes(layer.layers);
+          filterTypes(layer.layers, null);
         // } else {
           // // create a group layer and set the transforms within the precomp
           // var g = groupComp.layers.addShape();
@@ -500,10 +514,13 @@ function aeGroup(layer, opt_parent) {
 
         // set transforms
         r.collapseTransformation = true;
-        // skip position if parented
-        if (!opt_parent) {
-          r('ADBE Transform Group')('ADBE Position').setValue( [layer.frame.x * compMult, layer.frame.y * compMult] );
+        r('ADBE Transform Group')('ADBE Position').setValue( [layer.frame.x * compMult, layer.frame.y * compMult] );
+
+        if (opt_parent) {
+            r.setParentWithJump(opt_parent);
+            r.moveAfter(opt_parent);
         }
+        
         // r('ADBE Transform Group')('ADBE Position').setValue( [(layer.frame.x + layer.frame.width/2) * compMult, (layer.frame.y + layer.frame.height/2) * compMult] );		// set position
         r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);														// set scale
         // r('ADBE Transform Group')('ADBE Rotate Z').setValue( layer.rotation );
@@ -569,11 +586,11 @@ function aeGroup(layer, opt_parent) {
 
         // create a rectangle
         r(2)(1)(2).addProperty('ADBE Vector Shape - Rect');
-        if (hostApp == 'Figma') {
+        // if (hostApp == 'Figma') {
           // skip size for groups
-        } else {
+        // } else {
           r(2)(1)(2)(1)('ADBE Vector Rect Size').setValue( [layer.frame.width * compMult, layer.frame.height * compMult] );
-        }
+        // }
         r(2)(1)(2)(1)('ADBE Vector Rect Position').setValue( [(layer.frame.width * compMult)/2, (layer.frame.height * compMult)/2] );
 
         /// give the rect a fill so it's selectable
@@ -651,6 +668,7 @@ function aeRect(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    return r;
 }
 
 //// parametric ellipse
@@ -2075,7 +2093,7 @@ function resetProgressDialog(str, hideProgressBar) {
     if (hideProgressBar) {
 
     } else {
-        pbar = progressDialog.add ('progressbar', undefined, 0, 1);
+        var pbar = progressDialog.add ('progressbar', undefined, 0, 1);
         pbar.value = 0;
         pbar.preferredSize.width = 300;
         // pbar.value = 0;

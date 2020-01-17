@@ -13,12 +13,27 @@ figma.ui.onmessage = message => {
         imageBytesList = []
 
         if (figma.currentPage.selection.length < 1) { return }      // nothing selected
-                
-        let selection = nodeToObj(figma.currentPage.selection);        
+        
+        // let selection = nodeToObj(figma.currentPage.selection);                
 
-        if (frameArr[0].children.length < 1) {
-            frameArr[0].children = selection;
+        // if (frameArr[0].children.length < 1) {
+        //     frameArr[0].children = selection;
+        // }
+        // console.log('frameArr: ', frameArr);
+
+        try {
+            let selection = nodeToObj(figma.currentPage.selection);                
+
+            if (frameArr[0].children.length < 1) {
+                frameArr[0].children = selection;
+            }
+            console.log('frameArr: ', frameArr);
+        } catch (error) {
+            console.log(error);
+            console.log('selected layers need to be inside of a frame');
+            figma.ui.postMessage({type: 'footerMsg', action: 'selected layers need to be inside of a frame', layerCount: null});
         }
+        
 
         // send message to UI
         if (imageHashList.length > 0) {            
@@ -46,52 +61,59 @@ figma.ui.onmessage = message => {
 }
 
 function nodeToObj (nodes) {
-  console.log('nodes', nodes);
-  console.log(nodes.length);
+//   console.log('nodes', nodes);
   
   if (nodes.length < 1) { return [] }
 
   
-    console.log(nodes[0].type);
+    // console.log(nodes[0].type);
     let arr = [];
 
-    if (nodes[0] && (nodes[0].type === 'FRAME' || nodes[0].type === 'COMPONENT')) {            // a frame is directly selected
-      console.log('GOT A FRAME');
-      // console.log(nodes[0].children);
-      hasFrameData = true     // dont need to get the frame data
-      frameArr.push( getElement(nodes[0], false) );
-      nodes = nodes[0].children
-      
-      // frameArr.push( nodeToObj(nodes[0].children) )
-      // return [];
+    // look for the parent frame of everything except regular (non-autoLayout) frames and loose components
+    if (nodes[0] && (
+        (nodes[0].type === 'FRAME' && nodes[0].parent.type === 'PAGE') || 
+        // (nodes[0].type === 'FRAME' && nodes[0].layoutMode === 'NONE') || 
+        (nodes[0].type === 'COMPONENT' && nodes[0].parent.type === 'PAGE' ) )) {            // a frame or a component master outside of a frame is directly selected
+        
+            console.log('GOT A FRAME');
+        // console.log(nodes[0].children);
+        hasFrameData = true     // dont need to get the frame data
+        frameArr.push( getElement(nodes[0], false) );
+        nodes = nodes[0].children
     }
-    // } else {                                    // shapes are selected
-        // get shapes
+
+    // get shapes 
+    if (nodes.length < 1) { return [] }
     nodes.forEach(node => {
-      // get the frame data
-      if (!hasFrameData) {
-        console.log('get the frame data');
-        let frame = findFrame(node);
-        // console.log('frame:', frame);
-        let frameData = getElement(frame, true);    // skip gathering children data
-        frameData.children = [];                    // clear the children of the frame to push them later
+        // get the frame data
 
-        frameArr.push(frameData);
-      }
+        if (!hasFrameData) {
+            if (node.parent.type === 'PAGE') { return }     // layer is outside of a frame 
 
-      let obj = getElement(node, false)
-      arr.push(obj);
+            // console.log('get the frame data');
+            let frame = findFrame(node);
+            
+            // console.log('frame:', frame);
+            let frameData = getElement(frame, true);    // skip gathering children data
+            frameData.children = [];                    // clear the children of the frame to push them later
+
+            frameArr.push(frameData);
+        }
+
+        let obj = getElement(node, false)
+        arr.push(obj);
     });
-        // console.log('arr: ', arr);
-    // }
+    // console.log('arr: ', arr);
     
     return arr;
     
 
     function findFrame(node) {
-        // console.log('node.type', node.type);
-        
-        if (node.type !== 'FRAME' && node.type !== 'COMPONENT') {
+        console.log('node:', node);
+        console.log('node.type:', node.type);
+        if ((node.type !== 'FRAME' && !(node.type === 'COMPONENT' && node.parent.type === 'PAGE' )) 
+            || (node.type === 'FRAME' && node.layoutMode !== 'NONE')) {
+        // if (node.type !== 'FRAME' && node.type !== 'COMPONENT') {
             return findFrame(node.parent);
         } else {
             hasFrameData = true;
@@ -99,9 +121,13 @@ function nodeToObj (nodes) {
         }
     }
     function getElement(node, skipChildren) {
-        console.log('node', node);
-        let obj = {};
-		    for (const key in node) {
+        // console.log('node', node);
+        let obj = {
+            children: [],
+            type: null,
+        };
+
+        for (const key in node) {
             let element = node[key];
             // console.log(element);
             
@@ -126,9 +152,11 @@ function nodeToObj (nodes) {
 
             // layer.fontName !== (figma.mixed)) ? layer.fontName.family : layer.getRangeFontName(0,1).family
             // if (key === 'parent') { console.log(element); }
-
+            
             obj[key] = element;
         }
+        // keep track of Auto-layout frames for alignment of children
+        if (node.type === 'FRAME' && node.layoutMode !== 'NONE') { obj.type = 'AUTOLAYOUT'}
         
         return obj;
     }

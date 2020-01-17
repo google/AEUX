@@ -1,7 +1,8 @@
 <template>
     <Wrapper v-if="prefsLoaded">
         <Dropzone />
-        <Button-Group :active="prefs.newComp" exclusive @update="val => setPref('newComp', (val + 1)%2)">
+        <!-- <Button-Group :active="prefs.newComp" exclusive> -->
+        <Button-Group :active="(prefs.newComp) ? 0: 1" exclusive @update="val => setPref('newComp', val == 0)">
 			<Button prefix-icon="plus" label="New Comp" tall margin="0px" />
 			<Button
 				prefix-icon="arrow-down"
@@ -11,7 +12,7 @@
 			/>
 		</Button-Group>
         <Dropdown
-			v-if="prefs.newComp == 1"
+			v-show="prefs.newComp"
 			:items="compScaleOptions"
 			:active="prefs.compScale - 1"
 			label="Comp size multiplier"
@@ -27,13 +28,13 @@
 		>
 			<Toggle
 				label="Detect parametric shapes"
-				:state="true"
-				@update="val => (detectParametricShapes = val)"
+				:state="prefs.parametrics"
+				@update="val => setPref('parametrics', val)"
 			/>
 			<Toggle
 				label="Precomp groups"
-				:state="false"
-				@update="val => (precompGroups = val)"
+				:state="prefs.precompGroups"
+				@update="val => setPref('precompGroups', val)"
 			/>
 		</Fold>
 
@@ -199,7 +200,7 @@ let vm =  {
 		prefs: {
 			// updateTime: 0,
 			// autoBuild: false,
-			newComp: 0,
+			newComp: true,
 			precompGroups: false,
 			parametrics: true,
 			compScale: 3,
@@ -261,7 +262,7 @@ let vm =  {
     //// set pref and save to prefs file
     setPref (pref, value) {
             this.prefs[pref] = value
-            // console.log(this.prefs.compScale);
+            console.log(pref, this.prefs[pref]);
             this.savePrefs()      
     },
     //// message to AE to start building layers from JSON

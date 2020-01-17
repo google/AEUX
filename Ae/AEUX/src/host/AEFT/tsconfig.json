@@ -4,6 +4,7 @@
     "outFile": "./host.jsx",
     "allowJs": true,
     "noLib": true,
+    "removeComments": true,
     "types": ["types-for-adobe/AfterEffects/2018"]
   },
   "files": ["host.ts"],

@@ -250,7 +250,9 @@ onmessage = (event) => {
 // }
 
 function footerMessage(layerCount, action) {
-    if (layerCount == 1) {
+    if (!layerCount) {
+        vm.footerMessage = action
+    } else if (layerCount == 1) {
         vm.footerMessage = layerCount + ' layer ' + action
     } else {
         vm.footerMessage = layerCount + ' layers ' + action

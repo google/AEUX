@@ -11,7 +11,7 @@
     {
       "name": "Open panel",
       "identifier": "com.wearesumux.AEUX.panel",
-      "script": "./panel-view.js",
+      "script": "./plugin.js",
       "handlers": {
         "run": "onRun",
         "actions": {
@@ -21,10 +21,22 @@
       "shortcut": "ctrl shift z"
     },
     {
-      "name": "Push layers to Ae",
+      "name": "Send selection to Ae",
       "identifier": "com.wearesumux.AEUX.push",
-      "script": "./panel-view.js",
-      "handler": "fetchAEUX",
+      "script": "./plugin.js",
+      "handler": "fetchAEUX"
+    },
+    {
+      "name": "Detach selected symbols",
+      "identifier": "com.wearesumux.AEUX.detach",
+      "script": "./plugin.js",
+      "handler": "detachSymbols"
+    },
+    {
+      "name": "Flatten selected shapes",
+      "identifier": "com.wearesumux.AEUX.flatten",
+      "script": "./plugin.js",
+      "handler": "flattenCompounds",
       "shortcut": "ctrl shift x"
     }
   ],
@@ -32,7 +44,10 @@
     "title": "AEUX",
     "items": [
       "com.wearesumux.AEUX.panel",
-      "com.wearesumux.AEUX.push"
+      "-",
+      "com.wearesumux.AEUX.push",
+      "com.wearesumux.AEUX.detach",
+      "com.wearesumux.AEUX.flatten"
     ]
   }
 }

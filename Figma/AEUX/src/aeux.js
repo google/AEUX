@@ -295,7 +295,8 @@ function getComponent(layer, parentFrame) {
         layerData.layers.unshift(getShape(layer, frame))  // add the background of the frame
         layerData.layers[0].type = 'AutoLayoutBG'
     } else {
-        layerData.layers = filterTypes(layer, frame)
+        layerData.layers = filterTypes(layer, {x: frame.width/2, y: frame.height/2, width: frame.width, height: frame.height})
+        // layerData.layers = filterTypes(layer, frame)
     }
 
     getEffects(layer, layerData);

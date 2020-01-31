@@ -1,4 +1,4 @@
-figma.showUI(__html__, { width: 166, height: 160 });
+figma.showUI(__html__, { width: 166, height: 150 });
 let hasFrameData;
 let frameArr = []
 let imageHashList = []
@@ -6,7 +6,7 @@ let imageBytesList = []
 
 // receive message from the UI
 figma.ui.onmessage = message => {
-	if (message.type === 'getSelection') {
+	if (message.type === 'exportSelection') {
         hasFrameData = false;
         frameArr = []
         imageHashList = []
@@ -39,22 +39,36 @@ figma.ui.onmessage = message => {
         if (imageHashList.length > 0) {            
             storeImageData( Array.from(new Set(imageHashList)), frameArr )
         } else {
-            figma.ui.postMessage({type: 'exportJson', data: frameArr});
+            figma.ui.postMessage({type: 'fetchAEUX', data: frameArr});
         }
         
   }
   
-  if (message.type === 'flattenLayers') {
-    if (figma.currentPage.selection.length < 1) { return }      // nothing selected
+    if (message.type === 'flattenLayers') {
+        if (figma.currentPage.selection.length < 1) { return }      // nothing selected
 
-    // let selection = nodeToObj(figma.currentPage.selection)
-    let layerCount = flattenRecursive(figma.currentPage.selection, 0)
+        // let selection = nodeToObj(figma.currentPage.selection)
+        let layerCount = flattenRecursive(figma.currentPage.selection, 0) || 0
 
-    // reselect layers
-    figma.currentPage.selection = figma.currentPage.selection
+        // reselect layers
+        figma.currentPage.selection = figma.currentPage.selection
 
-    figma.ui.postMessage({type: 'footerMsg', action: 'flattened', layerCount});
-  }
+        figma.ui.postMessage({type: 'footerMsg', action: 'flattened', layerCount});
+    }
+    if (message.type === 'detachComponents') {
+        console.log('detachComponents');
+        let layerCount = 4;
+        
+        // if (figma.currentPage.selection.length < 1) { return }      // nothing selected
+
+        // // let selection = nodeToObj(figma.currentPage.selection)
+        // let layerCount = flattenRecursive(figma.currentPage.selection, 0)
+
+        // // reselect layers
+        // figma.currentPage.selection = figma.currentPage.selection
+
+        figma.ui.postMessage({type: 'footerMsg', action: 'flattened', layerCount});
+    }
 
 	//Communicate back to the UI
 	// console.log('send message back to ui');
@@ -188,22 +202,35 @@ async function storeImageData (imageHashList, layers) {
         console.log(bytes);
     }
     
-    figma.ui.postMessage({type: 'exportJsonAndImages', images: imageBytesList, data: layers});
+    figma.ui.postMessage({type: 'fetchImagesAndAEUX', images: imageBytesList, data: layers});
     
 }
 
-function flattenRecursive(selection, layerCount) {
-  selection.forEach(shape => {
-      if (shape.children) {
-        layerCount = flattenRecursive(shape.children, layerCount)
-      } else {
-        let t = shape.relativeTransform;
-        /// check for transforms
-        if (t[0][0].toFixed(6) != 1 || t[0][1].toFixed(6) != 0 || t[1][0].toFixed(6) != 0 || t[1][1].toFixed(6) != 1) {
-          figma.flatten( [shape] )
-          layerCount ++
-        }
-      }
-  });
-  return layerCount
+function flattenRecursive(selection, layerCount) {        
+    try {
+        selection.forEach(shape => {
+            if (shape.type == 'BOOLEAN_OPERATION') {
+                figma.flatten( [shape] )
+                layerCount ++
+            }
+
+            if (shape.children) {
+                layerCount = flattenRecursive(shape.children, layerCount)
+            } else {
+                let t = shape.relativeTransform;
+                /// check for transforms
+                if (t[0][0].toFixed(6) != 1 || t[0][1].toFixed(6) != 0 || t[1][0].toFixed(6) != 0 || t[1][1].toFixed(6) != 1 ||
+                    false) {                    
+                    figma.flatten( [shape] )
+                    layerCount ++
+                }
+            }
+        });
+        return layerCount
+    } catch (error) {
+        console.log(error);
+        
+        return layerCount
+    }
+  
 }

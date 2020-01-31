@@ -17,14 +17,13 @@
     font-style: italic;
   }
   body {
-    font-family: 'Roboto', monospace;
+    font-family: 'Roboto', sans-serif;
     font-size: 11px;
     /* font-weight: 300; */
     color: #919191;
     overflow: hidden;
     -webkit-user-select: none;
-    cursor: pointer;
-    
+    cursor: default;
   }
   .wrapper {
     background-color: #fefefe;
@@ -100,7 +99,7 @@
   }
   .button {
     /* border: 1px solid #dadada; */
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: rgba(160, 160, 160, 0.03);
     box-sizing: border-box;
     display: block;
     margin: 4px 0;
@@ -110,7 +109,7 @@
     text-align: center;
     align-content: center;
     font-weight: 300;
-    border-radius: 3px;
+    border-radius: 2px;
   }
   .button svg {
     pointer-events: none;
@@ -123,7 +122,7 @@
     margin-top: -3px;
   }
   .button:hover {
-    background-color: rgba(0, 0, 0, 0.07);
+    background-color: rgba(160, 160, 160, 0.15);
   }
   .button.big {
       height: 74px;
@@ -143,11 +142,28 @@
       font-size: 10px;
       display: block;
       float: left;
-      width: 32%;
+      width: calc(50% - 2px);
       /* height: 80px; */
       padding: 16px 0 8px 0;
-      margin-left: 2px;
+      margin-right: 4px;
   }
+  .button.horiz:last-of-type {
+    margin-right: 0;
+  }
+  .button.horiz svg {
+      width: 14px;
+      height: 14px;
+  }
+  /* .button.horiz {
+      color: #aaa;
+      font-size: 10px;
+      display: block;
+      float: left;
+      width: 32%;
+      /* height: 80px;
+      padding: 16px 0 8px 0;
+      margin-left: 2px;
+  } */
   /* .button.horiz:not(:first-child) {
       margin-right: 2px;
   } */
@@ -186,119 +202,104 @@
     visibility: visible;
     opacity: 1;
   }
-/*   
-  .help-overlay {
-      z-index: 2;
-      opacity: 1;
-      position: absolute;
-      background-color: #0377BC;
-      color: #fff;
-      width: 154px;
-      height: 100vh;
-      padding: 8px;
-      margin-left: -8px;
-      margin-top: -8px;
-  
-      line-height: 1.15em;
-    }
-    .help-overlay .help {
-      padding-right: 4px;
-    }
-    .help-overlay .content {
-      height: 192px;
-      width: 170px;
-      overflow-y: scroll;
-      margin-top: 8px;
-      padding-top: 8px;
-      -webkit-mask-image: -webkit-gradient(linear, left 88%, left bottom, from(rgba(0,0,0,1)), to(rgba(0,0,0,0)))
-    }
-    .help-overlay svg {
-      pointer-events: none;
-      fill: #fff;
-      display: inline;
-      float: left;
-      margin-bottom: 4px;
-    }
-    .help-overlay .group-heading {
-        color: #fff;
-    }
-    .help-overlay .group {
-        float: left;
-        margin-bottom: 8px;
-        padding-right: 20px;
-    }
-    .help-overlay .link {
-        margin: 16px 16px 16px 20px;
-        font-size: 14px;
-        font-style: italic;
-    }
-    .help-overlay .title {
-        display: inline;
-        padding: 4px 0 0 4px;
-        margin-bottom: 4px;
-        font-size: 13px;
-        float: left;
-    }
-    .help-overlay .text {
-        display: block;
-        float: left;
-        font-weight: 300;
-    }
-    .fade-enter-active,
-    .fade-leave-active {
-      transition: opacity .3s;
-    }
-    .fade-enter,
-    .fade-leave-to {
-      opacity: 0;
-    } */
-  
-  
-  .spinner {
-    animation: rotator 1.4s linear infinite;
-  }
-  @keyframes rotator {
-    0% {
-      transform: rotate(0deg);
+.spinner {
+    -webkit-animation: rotator 1.4s linear infinite;
+            animation: rotator 1.4s linear infinite;
+}
+
+@-webkit-keyframes rotator {
+    0%       {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
     }
     100% {
-      transform: rotate(360deg);
-    }
-  }
-  .path {
-    stroke-dasharray: 45;
-    stroke-dashoffset: 0;
-    transform-origin: center;
-    animation: dash 1.4s ease-in-out infinite, colors 5.6s ease-in-out infinite;
-  }
-  @keyframes colors {
+        -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+    }   
+}
+
+@keyframes rotator {
     0% {
-      stroke: #4285F4;
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+    }
+}
+.path {
+    stroke-dasharray: 187;
+    stroke-dashoffset: 0;
+    -webkit-transform-origin: center;
+        -ms-transform-origin: center;
+            transform-origin: center;
+    -webkit-animation: dash 1.4s ease-in-out infinite, colors 5.6s ease-in-out infinite;
+            animation: dash 1.4s ease-in-out infinite, colors 5.6s ease-in-out infinite;
+}
+
+@-webkit-keyframes colors {
+    0% {
+        stroke: #4285F4;
     }
     25% {
-      stroke: #DE3E35;
+        stroke: #DE3E35;
     }
     50% {
-      stroke: #F7C223;
+        stroke: #F7C223;
     }
     75% {
-      stroke: #1B9A59;
+        stroke: #1B9A59;
     }
     100% {
-      stroke: #4285F4;
+        stroke: #4285F4;
     }
-  }
-  @keyframes dash {
+}
+
+@keyframes colors {
     0% {
-      stroke-dashoffset: 45;
+        stroke: #4285F4;
+    }
+    25% {
+        stroke: #DE3E35;
     }
     50% {
-      stroke-dashoffset: 11.25;
-      transform: rotate(135deg);
+        stroke: #F7C223;
+    }
+    75% {
+        stroke: #1B9A59;
     }
     100% {
-      stroke-dashoffset: 45;
-      transform: rotate(450deg);
+        stroke: #4285F4;
     }
-  }
-  
+}
+@-webkit-keyframes dash {
+    0% {
+        stroke-dashoffset: 187;
+    }
+    50% {
+        stroke-dashoffset: 46.75;
+        -webkit-transform: rotate(135deg);
+                transform: rotate(135deg);
+    }
+    100% {
+        stroke-dashoffset: 187;
+        -webkit-transform: rotate(450deg);
+                transform: rotate(450deg);
+    }
+}
+@keyframes dash {
+    0% {
+        stroke-dashoffset: 187;
+    }
+    50% {
+        stroke-dashoffset: 46.75;
+        -webkit-transform: rotate(135deg);
+                transform: rotate(135deg);
+    }
+    100% {
+        stroke-dashoffset: 187;
+        -webkit-transform: rotate(450deg);
+            transform: rotate(450deg);
+    }
+}

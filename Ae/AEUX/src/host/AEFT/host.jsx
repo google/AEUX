@@ -1405,7 +1405,7 @@ var AEUX = (function () {
         if (hideProgressBar) {
         }
         else {
-            var pbar = progressDialog.add('progressbar', undefined, 0, 1);
+            pbar = progressDialog.add('progressbar', undefined, 0, 1);
             pbar.value = 0;
             pbar.preferredSize.width = 300;
         }

@@ -17,12 +17,12 @@ const webviewIdentifier = 'aeux.webview'
 export default function () {
   const options = {
     identifier: webviewIdentifier,
-    width: 240,
-    height: 180,
+    width: 180,
+    height: 208,
     titleBarStyle: 'hiddenInset',
     remembersWindowFrame: true,
     // hidesOnDeactivate: false,
-    // resizable: false,
+    resizable: false,
     // movable: false,
     // minimizable: false,
     alwaysOnTop: true,
@@ -62,10 +62,14 @@ export default function () {
   // send layer data to Ae
   webContents.on('fetchAEUX', () => {
     fetchAEUX()
-    // document = require('sketch/dom').getSelectedDocument();
-    // selection = document.selectedLayers;
-
-    // UI.message(document)
+  })
+  // send layer data to Ae
+  webContents.on('detachSymbols', () => {
+    detachSymbols()
+  })
+  // send layer data to Ae
+  webContents.on('flattenCompounds', () => {
+    flattenCompounds()
   })
 
 
@@ -182,6 +186,99 @@ export function fetchAEUX () {
         .catch(e => {
             console.error(e)
         });
+    }
+}
+
+//// recursivly detach symbols from masters
+export function detachSymbols() {
+    
+    document = require('sketch/dom').getSelectedDocument();
+    selection = document.selectedLayers;
+
+    // reset vars
+    layerCount = 0;
+    var layers = selection.layers;
+
+    /// if an artboard is selected, process all layers inside of it
+    if ( layers.length > 0 && (layers[0].type == 'Artboard' || layers[0].type == 'SymbolMaster')) {
+        layers = layers[0].layers;
+    }
+
+    /// run process
+    detachChildren(layers);
+
+    /// completion message
+    let existingWebview = getWebview(webviewIdentifier)
+    let lyrs = layerCount        
+    let msg = (lyrs == 1) ? lyrs + ' symbol detached' : lyrs + ' symbols detached'
+    if (!existingWebview) {     // webview is closed
+        UI.message(msg)
+    } else {
+        existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
+    }
+
+    /// recursive func
+    function detachChildren(layers) {
+        for (var i = 0; i < layers.length; i++) {
+            var layer = layers[i];
+
+            if ( layer.type == 'Group' ) {
+                detachChildren(layer.layers)
+            }
+            if ( layer.type == 'SymbolInstance' ) {
+                // detachChildren(layer.master.layers);
+                var detatchedGroup = layer.detach();
+				if (detatchedGroup.layers.length < 2) {
+					detatchedGroup.sketchObject.ungroup();
+				}
+                layerCount++;
+            }
+        }
+    }
+}
+
+//// simplify complex layers by recursivly flattening compound shapes
+export function flattenCompounds(skipHostNotification) {
+    document = require('sketch/dom').getSelectedDocument();
+    selection = document.selectedLayers;
+
+    /// reset vars
+    layerCount = 0;
+    var layers = selection.layers;
+
+    /// if an artboard is selected, process all layers inside of it
+    if ( layers.length > 0 && (layers[0].type == 'Artboard' || layers[0].type == 'SymbolMaster')) {
+        layers = layers[0].layers;
+    }
+
+    /// run process
+    flattenChildren(layers);
+
+    /// completion message
+    let existingWebview = getWebview(webviewIdentifier)
+    let lyrs = layerCount        
+    let msg = (lyrs == 1) ? lyrs + ' shape flattened' : lyrs + ' shapes flattened'
+    if (!existingWebview) {     // webview is closed
+        UI.message(msg)
+    } else {
+        existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
+    }
+
+    /// recursive func
+    function flattenChildren(layers) {
+        for (var i = 0; i < layers.length; i++) {
+            var layer = layers[i];
+            var layerType = getShapeType(layer.sketchObject);
+
+            if ( layer.type == 'Group' ) {
+                flattenChildren(layer.layers)
+            }
+            if ( layerType == 'CompoundShape' ) {
+                layer.sketchObject.flatten();
+                layerCount++;
+            }
+
+        }
     }
 }
 

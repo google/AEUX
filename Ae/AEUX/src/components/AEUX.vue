@@ -36,6 +36,13 @@
 				:state="prefs.precompGroups"
 				@update="val => setPref('precompGroups', val)"
 			/>
+            <Input-Scroll 
+                label='Frame Rate:' 
+                suffix="fps" 
+                :value="prefs.frameRate"
+                :reset-value="prefs.frameRate"
+                :min="1" 
+                :max="99" />
 		</Fold>
 
         <Fold label="Groups" 

@@ -391,8 +391,14 @@ function getBoolean(layer, parentFrame, isMultipath) {
 
     if (isMultipath) {
         console.log('get that multipath');        
+        console.log(layer);
+        try {
+            layerData.layers = getCompoundPaths(layer.vectorPaths[0].data, layer);
+        } catch (error) {
+            layerData.layers = []
+            // xxx
+        }
         
-        layerData.layers = getCompoundPaths(layer.vectorPaths[0].data, layer);
     } else {
         // console.log('run getCompoundShapes' )
         // layerData.layers = getCompoundShapes(layer.children, boolType);            /// test if paths.lenght > 1
@@ -978,14 +984,18 @@ function getPolyscale(layer) {
 
 //// convert color obj to array
 function colorObjToArray(colorObj) {
-    // console.log(colorObj);
-    
-    var c = (colorObj.length > 0) ? colorObj[0] : colorObj;
-    var alpha = c.opacity || c.color.a || 1;
+    console.log('colorObj', colorObj);
+    try {
+        var c = (colorObj.length > 0) ? colorObj[0] : colorObj;
+        var alpha = c.opacity || c.color.a || 1;
 
-    if (c.color.r === undefined) { return null }
+        if (c.color.r === undefined) { return null }
+        
+        return [c.color.r, c.color.g, c.color.b, alpha];
+    } catch (error) {
+        return [1, 1, 1, 1]
+    }
     
-    return [c.color.r, c.color.g, c.color.b, alpha];
 }
 
 //// return enumerated layer blending mode

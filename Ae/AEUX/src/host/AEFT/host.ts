@@ -24,6 +24,7 @@ var prefs = {
     newComp: true,
     precompGroups: true,
     frameRate: 60,
+    duration: 5,
 }
 
 ///////// initialize elements /////////
@@ -1227,7 +1228,8 @@ function aeArtboard(layer) {
     // skip the code if panel check box for new comp disabled
     if (prefs.newComp) {
         compMult = prefs.compScale;
-        frameRate = prefs.frameRate;
+        var frameRate = prefs.frameRate;
+        var duration = prefs.duration;
 
         if (layer.size[0] * compMult > 30000) {
             returnMessage.push(3); 					//'Comp width 30,000+'
@@ -1240,7 +1242,7 @@ function aeArtboard(layer) {
         thisComp = app.project.items.addComp(	nameInc(layer.name, app.project.items),
                                                 Math.max(Math.round(layer.size[0] * compMult), 4),
                                                 Math.max(Math.round(layer.size[1] * compMult), 4),
-                                                1, 60, frameRate);	// pixelAspect=1, duration=60sec, frameRate=60fps
+                                                1, duration, frameRate);	// pixelAspect=1, duration=60sec, frameRate=60fps
 
         // set the comp background color to the artboard background color
         thisComp.bgColor = [layer.bgColor[0],

@@ -60,7 +60,8 @@ var AEUX = (function () {
         compScale: 3,
         newComp: true,
         precompGroups: true,
-        frameRate: 60
+        frameRate: 60,
+        duration: 5
     };
     if (!Folder(ffxFolder).exists) {
         Folder(ffxFolder).create();
@@ -776,7 +777,8 @@ var AEUX = (function () {
     function aeArtboard(layer) {
         if (prefs.newComp) {
             compMult = prefs.compScale;
-            frameRate = prefs.frameRate;
+            var frameRate = prefs.frameRate;
+            var duration = prefs.duration;
             if (layer.size[0] * compMult > 30000) {
                 returnMessage.push(3);
                 return false;
@@ -785,7 +787,7 @@ var AEUX = (function () {
                 returnMessage.push(4);
                 return false;
             }
-            thisComp = app.project.items.addComp(nameInc(layer.name, app.project.items), Math.max(Math.round(layer.size[0] * compMult), 4), Math.max(Math.round(layer.size[1] * compMult), 4), 1, 60, frameRate);
+            thisComp = app.project.items.addComp(nameInc(layer.name, app.project.items), Math.max(Math.round(layer.size[0] * compMult), 4), Math.max(Math.round(layer.size[1] * compMult), 4), 1, duration, frameRate);
             thisComp.bgColor = [layer.bgColor[0],
                 layer.bgColor[1],
                 layer.bgColor[2]];

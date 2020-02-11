@@ -1,31 +1,72 @@
 <template>
     <Wrapper v-if="prefsLoaded">
-        <Dropzone />
-        <!-- <Button-Group :active="prefs.newComp" exclusive> -->
-        <Button-Group :active="(prefs.newComp) ? 0: 1" exclusive @update="val => setPref('newComp', val == 0)">
-			<Button prefix-icon="plus" label="New Comp" tall margin="0px" />
-			<Button
-				prefix-icon="arrow-down"
-				label="Current"
-				tall
-				margin="0px"
-			/>
-		</Button-Group>
-        <Dropdown
-			v-show="prefs.newComp"
-			:items="compScaleOptions"
-			:active="prefs.compScale - 1"
-			label="Comp size multiplier"
-			label-to-right
-			@update="val => setPref('compScale', parseInt(compScaleOptions[val].value) + 1)"
-		/>
+        <Menus 
+            debug refresh
+            :context="[
+				{
+					label: `Learn stuff`,
+					callback: openBetaDoc
+				},
+			]"
+			:flyout="[
+				{
+					label: `Learn stuff`,
+					callback: openBetaDoc
+				}
+			]"
+        />
+        <!-- <Dropzone /> -->
+        <Row margin="0 auto 8px auto">
+            <Button-Group 
+                :active="(prefs.newComp) ? 0: 1" exclusive 
+                @update="val => setPref('newComp', val == 0)">
+                <Button 
+                    prefix-icon="plus" 
+                    label="New Comp" 
+                    tooltip="Add layers to new comp"
+                    tall 
+                    margin="0px" />
+                <Button
+                    prefix-icon="arrow-down"
+                    label="Current"
+                    tooltip="Add layers to open comp"
+                    tall
+                    margin="0px" />
+            </Button-Group>
+        </Row>
 
         <Fold
 			label="Options"
 			:open="prefs.expand.options"
-            @clicked="fold('options')"
-            :margin-top="!prefs.newComp ? '6px' : ''"
-		>
+            @clicked="fold('options')">
+            <Dropdown
+                v-show="prefs.newComp"
+                :items="compScaleOptions"
+                :active="prefs.compScale - 1"
+                label="Comp size multiplier"
+                label-to-right
+                @update="val => setPref('compScale', parseInt(compScaleOptions[val].value) + 1)"
+            />
+            <Input-Scroll 
+                v-show="prefs.newComp"
+                label='Frame rate:' 
+                lazy
+                suffix="fps" 
+                @change="val => setPref('frameRate', val)"
+                :value="prefs.frameRate"
+                :reset-value="prefs.frameRate"
+                :min="1" 
+                :max="99" />
+            <Input-Scroll 
+                v-show="prefs.newComp"
+                label='Comp duration:' 
+                lazy
+                suffix="seconds" 
+                @change="val => setPref('duration', val)"
+                :value="prefs.duration"
+                :reset-value="prefs.duration"
+                :min="1" 
+                :max="1000" />
 			<Toggle
 				label="Detect parametric shapes"
 				:state="prefs.parametrics"
@@ -36,13 +77,6 @@
 				:state="prefs.precompGroups"
 				@update="val => setPref('precompGroups', val)"
 			/>
-            <Input-Scroll 
-                label='Frame Rate:' 
-                suffix="fps" 
-                :value="prefs.frameRate"
-                :reset-value="prefs.frameRate"
-                :min="1" 
-                :max="99" />
 		</Fold>
 
         <Fold label="Groups" 
@@ -54,6 +88,7 @@
 					tall
 					icon-size="20px"
 					prefix-icon="image-filter-center-focus-weak"
+                    tooltip="Group selected layers"
 					label="Precomp"
                     @click="aeCall('groupToPrecomp')"
 				/>
@@ -62,6 +97,7 @@
 					tall
 					icon-size="20px"
 					prefix-icon="arrow-expand-all"
+                    tooltip="Expand layers from selected precomps"
 					label="Un-Precomp"
                     @click="aeCall('precompToLayers')"
 				/>
@@ -70,6 +106,7 @@
 					tall
 					icon-size="20px"
 					prefix-icon="eye-off"
+                    tooltip="Show/hide all guide layers"
 					label="Toggle guide layer visibility"
                     @click="aeCall('toggleGroupVisibility')"
 				/>
@@ -78,6 +115,7 @@
 					tall
 					icon-size="20px"
 					prefix-icon="delete"
+                    tooltip="Remove all AEUX created guide layers"
 					label="Delete group layers"
                     @click="aeCall('deleteGroupLayers')"
 				/>
@@ -85,96 +123,18 @@
 		</Fold>
 
         <Fold label="System" :open="prefs.expand.system" @clicked="fold('system')">
-            <Button block goto="https://aeux.io" @altClick="openConfig">Learn stuff</Button>
+            <Button 
+                block 
+                goto="https://aeux.io" 
+                tooltip="aeux.io"
+                @click.alt.native="openConfig">
+                Learn stuff
+            </Button>
             <Panel-Info name uppercase version>
                 <i>Brought to you by your friends at Google motion design</i>
             </Panel-Info>
         </Fold>
     </Wrapper>
-  <!-- <div class="content" v-if="prefsLoaded">
-            <div class="build-source">
-                    <div class="button-group">
-                        <div class="button" v-bind:class="{selected: prefs.newComp}" @click="setPref('newComp', true)"><span class="icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/><path fill="none" d="M0 0h24v24H0z"/></svg>
-                            </span>New Comp
-                        </div><div class="button" v-bind:class="{selected: !prefs.newComp}" @click="setPref('newComp', false)"><span class="icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0V0z"/><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></svg>
-                            </span>Current
-                        </div>
-                    </div>
-
-                    <div v-show="prefs.newComp">
-                        <dropdown
-                            class="comp-scale"
-                            label=""
-                            :items="compScaleOptions"
-                            :active="prefs.compScale - 1"
-                            @update="val => setPref('compScale', parseInt(compScaleOptions[val].value) + 1)"
-                        />
-                        <div class="comp-scale-label">
-                            Comp size multiplier
-                        </div>
-                        
-                    </div>
-            </div>
-
-            <section-toggle label="options" :open="prefs.expand.options" @clicked="fold('options')">
-                <checkbox
-                    :checked="prefs.parametrics"
-                    @clicked="val => setPref('parametrics', val)"
-                    label="Detect parametric shapes"
-                />
-                <checkbox
-                    :checked="prefs.precompGroups"
-                    @clicked="val => setPref('precompGroups', val)"
-                    label="Precomp groups"
-                />
-                <div class="option">
-                    <input type="number" class="number-input" id="frameRate" v-model="prefs.frameRate" @change="savePrefs()">
-                    <label for="frameRate">New comp fps</label>
-                </div>
-            </section-toggle>
-
-
-            <section-toggle label="groups" :open="prefs.expand.groups" @clicked="fold('groups')">
-                <div class="func-button full-width" @click="aeCall('groupToPrecomp')"><span class="icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M5 15H3v4c0 1.1.9 2 2 2h4v-2H5v-4zM5 5h4V3H5c-1.1 0-2 .9-2 2v4h2V5zm14-2h-4v2h4v4h2V5c0-1.1-.9-2-2-2zm0 16h-4v2h4c1.1 0 2-.9 2-2v-4h-2v4zM12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
-                    </svg>
-                </span>Precomp
-                </div>
-
-                <div class="func-button full-width" @click="aeCall('precompToLayers')"><span class="icon">
-                    <svg viewBox="0 0 24 24" width="24"><clipPath id="a"><path d="m0 0h24v24h-24z"/></clipPath><path clip-path="url(#a)" d="m15 3 2.3 2.3-2.89 2.87 1.42 1.42 2.87-2.89 2.3 2.3v-6zm-12 6 2.3-2.3 2.87 2.89 1.42-1.42-2.89-2.87 2.3-2.3h-6zm6 12-2.3-2.3 2.89-2.87-1.42-1.42-2.87 2.89-2.3-2.3v6zm12-6-2.3 2.3-2.87-2.89-1.42 1.42 2.89 2.87-2.3 2.3h6z"/><path clip-path="url(#a)" d="m0 0h24v24h-24z" fill="none"/></svg>
-                </span>Un-Precomp
-                </div>
-
-                <div class="func-button full-width" @click="aeCall('toggleGroupVisibility')"><span class="icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>
-                    </svg>
-                </span>Toggle guide layer visibility
-                </div>
-
-                <div class="func-button full-width" @click="aeCall('deleteGroupLayers')"><span class="icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                    </svg>
-                    </span>Delete group layers
-                </div>
-            </section-toggle>
-
-            <section-toggle label="system" :open="prefs.expand.system" @clicked="fold('system')">
-                <button 
-                    class="btn-text full"
-                    @click.exact="openDocLink" 
-                    @click.alt="openConfig">
-                    Learn stuff
-                </button>
-                <panel-info :text="`${spy.extName} - ${spy.extVersion}`"><i>Brought to you by your friends at Google motion design</i></panel-info>
-            </section-toggle>
-
-    </div> -->
 </template>
 
 <script>
@@ -218,6 +178,7 @@ let vm =  {
 			},
 			// artboard: null,
 			frameRate: 60,
+			duration: 5,
         },
         prefsLoaded: false,
 		// showHelp: false,
@@ -417,7 +378,9 @@ let vm =  {
         //     // vm.buildLayersFromFile(path);
 
 		// },
-		
+		openBetaDoc () {
+            amulets.webLink('https://docs.google.com/document/d/1weEWK3uJbsnHHO5rlSq95hVi9rGlPd9q1t2bf1glbQk/edit?usp=sharing')
+        }
 	},
 	computed: {
 		// Use as this.app

@@ -157,10 +157,6 @@ let vm =  {
 	// 	msg: String
     // },
     components: {
-        checkbox: require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/checkbox/Checkbox.vue").default,
-        dropdown: require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/dropdown/Dropdown.vue").default,
-        "section-toggle": require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/Section-Toggle.vue").default,
-        "panel-info": require("/Users/adamplouff/Code Projects/Modules/Mimelord/src/components/Mimelord/Panel-Info.vue").default,
     },
 	data: () => ({
     aeuxVersion: 0.7,

@@ -35,7 +35,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         
         if (layer.visible === false) { return; }         // skip layer if hidden
         // console.log(layer.name, layer.type);
-        if (layer.type == "GROUP" || layer.type == "FRAME" || layer.type == "AUTOLAYOUT") {            
+        if (layer.type == "GROUP") {            
             aeuxData.push(getGroup(layer, parentFrame));
         }
         if (layer.fillGeometry && layer.fillGeometry.length > 1) { layer.type = "BOOLEAN_OPERATION" }         // overwrite the layer type
@@ -55,10 +55,10 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
               aeuxData.push(getShape(layer, parentFrame, boolType));
             layerCount++;
         }
-        if (layer.type == "INSTANCE" || layer.type == "COMPONENT") {    // instances and master symbols
+        if (layer.type == "INSTANCE" || layer.type == "COMPONENT" || layer.type == "FRAME" || layer.type == "AUTOLAYOUT") {    // instances and master symbols
             // console.log(layer.name);
             // console.log('SYMBOL');
-            
+            if (layer.type == "FRAME" && parentFrame) { layer.type = "AUTOLAYOUT" }
             aeuxData.push(getComponent(layer, parentFrame));
             layerCount++;
         }
@@ -76,14 +76,21 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
 function getShape(layer, parentFrame, boolType) {
     var layerType = getShapeType(layer);
     var frame = getFrame(layer, parentFrame);
+    // adjust if a compound shape
+    if (boolType) {
+        frame.x = parentFrame.width/2 + (frame.x - layer.width) - (parentFrame.width - layer.width)/2; 
+        frame.y = parentFrame.height/2 + (frame.y - layer.height) - (parentFrame.height - layer.height)/2;
+    }
+    // if (boolType) {
+    //     frame.x = parentFrame.width/2 + (frame.x - layer.width) - (parentFrame.width - layer.width)/2; 
+    //     frame.y = parentFrame.height/2 + (frame.y - layer.height) - (parentFrame.height - layer.height)/2;
+    // }
     var path = getPath(layer, frame);
-    // console.log('parentFrame', layer.name, parentFrame)
-    // console.log('frame', layer.name, frame)
 
     if (path == 'multiPath') {
         console.log('multipath');
         
-        return getBoolean(layer, parentFrame, true);
+        return getBoolean(layer, frame, null, true);
     }
     // console.log(layer.relativeTransform[0][0]);
 
@@ -92,7 +99,6 @@ function getShape(layer, parentFrame, boolType) {
 		name: layer.name,
 		id: layer.id,
 		frame: frame,
-		// absoluteBoundingBox: layer.absoluteBoundingBox,
         fill: getFills(layer),
         stroke: getStrokes(layer),
         isVisible: (layer.visible !== false),
@@ -101,7 +107,7 @@ function getShape(layer, parentFrame, boolType) {
 		// roundness: (layer.type == 'RECTANGLE') ? Math.round(layer.cornerRadius) || 0 : 0,
 		opacity: layer.opacity*100 || 100,
         rotation: getRotation(layer),
-		flip: getFlipMultiplier(layer),
+		flip: (boolType) ? [100, 100] : getFlipMultiplier(layer),
         blendMode: getLayerBlending(layer.blendMode),
         booleanOperation: boolType || getBoolType(layer),
         isMask: layer.isMask,
@@ -243,18 +249,18 @@ function getGroup(layer, parentFrame) {
         flip: getFlipMultiplier(layer),
         // hasClippingMask: false,
         shouldBreakMaskChain: true,
-        layers: [],
-    // layers: filterTypes(layer, frame),
+        // layers: [],
+        layers: filterTypes(layer, frame),
     };
-    if (layer.type == 'AUTOLAYOUT') {
-        layerData.layers = filterTypes(layer)
-        // console.log('background', getShape(layer));
+    // if (layer.type == 'AUTOLAYOUT') {
+    //     layerData.layers = filterTypes(layer)
+    //     // console.log('background', getShape(layer));
         
-        layerData.layers.unshift(getShape(layer, frame))  // add the background of the frame
-        layerData.layers[0].type = 'AutoLayoutBG'
-    } else {
-        layerData.layers = filterTypes(layer, frame)
-    }
+    //     layerData.layers.unshift(getShape(layer, frame))  // add the background of the frame
+    //     layerData.layers[0].type = 'AutoLayoutBG'
+    // } else {
+    //     layerData.layers = filterTypes(layer, frame)
+    // }
   getEffects(layer, layerData);
 //   console.log(layerData)
   return layerData;
@@ -264,7 +270,6 @@ function getComponent(layer, parentFrame) {
     var frame = getFrame(layer);
     var calcFrame = getFrame(layer, parentFrame);
     console.log('DO IT INSTANCE');
-    
 
 	var layerData =  {
         type: 'Component',
@@ -288,16 +293,20 @@ function getComponent(layer, parentFrame) {
         // layers: filterTypes(layer),
         // layers: filterTypes(layer, frame),
     };
-    if (layer.layoutMode !== 'NONE') {
+    console.log(layer.name, layer);
+    
+    // check if an autoLayout
+    // if (layer.layoutMode !== 'NONE' || layer.type == 'AUTOLAYOUT') {
+        
         layerData.layers = filterTypes(layer)
         // console.log('background', getShape(layer));
         
         layerData.layers.unshift(getShape(layer, frame))  // add the background of the frame
         layerData.layers[0].type = 'AutoLayoutBG'
-    } else {
-        layerData.layers = filterTypes(layer, {x: frame.width/2, y: frame.height/2, width: frame.width, height: frame.height})
+    // } else {
+        // layerData.layers = filterTypes(layer, {x: frame.width/2, y: frame.height/2, width: frame.width, height: frame.height})
         // layerData.layers = filterTypes(layer, frame)
-    }
+    // }
 
     getEffects(layer, layerData);
 
@@ -366,9 +375,26 @@ function getComponent(layer, parentFrame) {
     }
 }
 //// get layer data: BOOLEAN_OPERATION
-function getBoolean(layer, parentFrame, isMultipath) {
+function getBoolean(layer, parentFrame, boolType, isMultipath) {
     var frame = getFrame(layer, parentFrame);
-    var boolType = getBoolType(layer);
+    var adjFrame = {x: frame.x, y: frame.y, width: frame.width, height: frame.height};
+    console.log('boolType!!!', boolType);
+    console.log('parentFrame!!!', parentFrame);
+    if (boolType != null) {
+        console.log('adjust things');
+        // adjFrame.x = (frame.x - layer.width) + (parentFrame.width + layer.width)/2 + parentFrame.x - layer.width; 
+        // adjFrame.x = frame.x + parentFrame.x; 
+        // adjFrame.y = (frame.y - layer.height) + (parentFrame.height + layer.height/2);
+        // adjFrame.x = parentFrame.width/2 + (frame.x - layer.width) - (parentFrame.width - layer.width)/2; 
+        // adjFrame.y = parentFrame.height/2 + (frame.y - layer.height) - (parentFrame.height - layer.height)/2;
+        adjFrame.x =  frame.width/2; 
+        adjFrame.y =  frame.height/2;
+        // adjFrame.x = parentFrame.x + frame.width/2; 
+        // adjFrame.y = parentFrame.y + frame.height/2;
+    }
+    
+    
+    var boolType = boolType || getBoolType(layer);
     
 	var layerData =  {
         type: 'CompoundShape',
@@ -400,10 +426,12 @@ function getBoolean(layer, parentFrame, isMultipath) {
         }
         
     } else {
-        // console.log('run getCompoundShapes' )
+        console.log('run getCompoundShapes' )
         // layerData.layers = getCompoundShapes(layer.children, boolType);            /// test if paths.lenght > 1
         // try {
-            layerData.layers = filterTypes(layer, frame, boolType);
+            layerData.layers = filterTypes(layer, adjFrame, null);
+            // layerData.layers = filterTypes(layer, {x: frame.width*2-frame.width/2, y: frame.height*2-frame.height/2, width: frame.width, height: frame.height}, boolType);
+            // layerData.layers = filterTypes(layer, {x: -frame.x, y: -frame.y, width: frame.width, height: frame.height}, boolType);
         // } catch (error) {
         //     layerData.layers = getBoolean(layer, frame, boolType)
         // }
@@ -464,58 +492,58 @@ function getBoolean(layer, parentFrame, isMultipath) {
 //     return layerData;
 // }
 //// get layer data: COMPOUND SHAPE
-function getCompoundShapes(layers, boolType, isMultipath) {
-    var layerList = [];
-    var layerCount = 0;
+// function getCompoundShapes(layers, boolType, isMultipath) {
+//     var layerList = [];
+//     var layerCount = 0;
 
-    try {
-        layerCount = layers.length;
-    } catch (e) {
-        // console.log('catch')
-    }
+//     try {
+//         layerCount = layers.length;
+//     } catch (e) {
+//         // console.log('catch')
+//     }
 
-    /// loop through all nested shapes
-    for (var i = 0; i < layerCount; i++) {
-        var layer = layers[i];
-        var frame = getFrame(layer);
-        var path = getPath(layer, frame);
-        // console.log(path)
-        // if (path == 'multiPath') {
-        //     return getBoolean(layer, null, true);
-        // }
+//     /// loop through all nested shapes
+//     for (var i = 0; i < layerCount; i++) {
+//         var layer = layers[i];
+//         var frame = getFrame(layer);
+//         var path = getPath(layer, frame);
+//         // console.log(path)
+//         // if (path == 'multiPath') {
+//         //     return getBoolean(layer, null, true);
+//         // }
 
-        // var flip = getFlipMultiplier(layer);
-        layerList.push({
-            type: 'CompoundShape',
-            name: layer.name,
-    		id: layer.id,
-    		frame: getFrame(layer),
-            isVisible: (layer.visible !== false),
-            // path: path,
-            roundness: Math.round(layer.cornerRadius) || 0,
-            flip: getFlipMultiplier(layer),
-            rotation: getRotation(layer),
-            booleanOperation: getBoolType,
-            // layers: filterTypes(layer, frame),
-        });
+//         // var flip = getFlipMultiplier(layer);
+//         layerList.push({
+//             type: 'CompoundShape',
+//             name: layer.name,
+//     		id: layer.id,
+//     		frame: getFrame(layer),
+//             isVisible: (layer.visible !== false),
+//             // path: path,
+//             roundness: Math.round(layer.cornerRadius) || 0,
+//             flip: getFlipMultiplier(layer),
+//             rotation: getRotation(layer),
+//             booleanOperation: getBoolType,
+//             // layers: filterTypes(layer, frame),
+//         });
 
 
 
-        if (layer.type == 'BOOLEAN_OPERATION') {
-            if (isMultipath) {
-                console.log('multipath smarts')
-                layerList[layerList.length-1].layers = getCompoundPaths(layer.fillGeometry[0].path, layer);
-            } else {
-                layerList[layerList.length-1].layers = getCompoundShapes(layer.children, boolType);            /// test if paths.lenght > 1
-            }
-        } else {
-            console.log(layer)
-            layerList[layerList.length-1].layers = filterTypes(layer, frame, boolType);
-        }
-    }
-    // console.log(layerList)
-    return layerList;
-}
+//         if (layer.type == 'BOOLEAN_OPERATION') {
+//             if (isMultipath) {
+//                 console.log('multipath smarts')
+//                 layerList[layerList.length-1].layers = getCompoundPaths(layer.fillGeometry[0].path, layer);
+//             } else {
+//                 layerList[layerList.length-1].layers = getCompoundShapes(layer.children, boolType);            /// test if paths.lenght > 1
+//             }
+//         } else {
+//             console.log(layer)
+//             layerList[layerList.length-1].layers = filterTypes(layer, frame, boolType);
+//         }
+//     }
+//     // console.log(layerList)
+//     return layerList;
+// }
 function getCompoundPaths(paths, layer) {
     console.log(paths);
     
@@ -618,7 +646,7 @@ function getBoolType (layer) {
             return 2;
 
         default:
-            return 3;
+            return 0;
     }
 }
 function getFrame(layer, parentFrame) {  
@@ -984,10 +1012,14 @@ function getPolyscale(layer) {
 
 //// convert color obj to array
 function colorObjToArray(colorObj) {
-    console.log('colorObj', colorObj);
+    // console.log('colorObj', colorObj);
     try {
         var c = (colorObj.length > 0) ? colorObj[0] : colorObj;
-        var alpha = c.opacity || c.color.a || 1;
+        // console.log('c.color.a', c.color.a);
+        
+        var alpha = 1;
+        if (c.opacity !== undefined) { alpha = c.opacity }
+        else if (c.color.a !== undefined) { alpha = c.color.a }
 
         if (c.color.r === undefined) { return null }
         
@@ -1144,19 +1176,19 @@ function getPath(layer, bounding, type) {
               
               // console.log(layer);
               
-              return {
-                points: [
-                  [0, 0],
-                  [bounding.width, 0],
-                  [bounding.width, bounding.height],
-                  [0, bounding.height],
-                ],
-                inTangents: [],
-                outTangents: [],
-                closed: true
-              }
+                return {
+                    points: [
+                    [0, 0],
+                    [bounding.width, 0],
+                    [bounding.width, bounding.height],
+                    [0, bounding.height],
+                    ],
+                    inTangents: [],
+                    outTangents: [],
+                    closed: true
+                }
             } else if (layer.type == 'ELLIPSE') {
-                // console.log('get that ellipse');
+                console.log('get that ellipse');
                 
                 return {
                     points: [
@@ -1443,6 +1475,7 @@ function getFlipMultiplier(layer) {
     var matrix = layer.relativeTransform;
     var x = (matrix[0][0] < 0) ? -100 : 100;     // horizontal flip
     var y = (matrix[1][1] < 0) ? -100 : 100;     // vertical flip
+// console.log(layer.name, layer.relativeTransform);
 
     // return [100, 100];
     return [x, y];

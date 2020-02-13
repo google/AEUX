@@ -2,6 +2,7 @@
   <div id="app">
     <Panel>
         <AEUX />
+        hsdjfkhsdj
     </Panel>
   </div>
 </template>

@@ -17,7 +17,11 @@ var vm = new Vue({
 	},
 	methods: {  
 		exportSelection () {
-			parent.postMessage({ pluginMessage: { type: 'exportSelection' } }, '*')
+            this.thinking = 'fetchAEUX'
+            setTimeout(() => {
+                parent.postMessage({ pluginMessage: { type: 'exportSelection' } }, '*')
+            }, 500);
+			
         },
         detachComponents () {
             parent.postMessage({ pluginMessage: { type: 'detachComponents' } }, '*')
@@ -35,7 +39,7 @@ onmessage = (event) => {
   
 	if (msg && msg.type === 'fetchAEUX') {
         // console.log(msg.imageBytesList);
-        vm.thinking = 'fetchAEUX'
+        
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
         console.log(aeuxData);
 

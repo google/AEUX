@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<ExtensionManifest ExtensionBundleId="com.aeux" ExtensionBundleVersion="0.7.0" ExtensionBundleName="aeux" Version="8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ExtensionManifest ExtensionBundleId="com.aeux" ExtensionBundleVersion="0.7.1" ExtensionBundleName="aeux" Version="8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
     <Extension Id="com.aeux.panel" Version="1.0.0" />
   </ExtensionList>

@@ -126,7 +126,8 @@ function nodeToObj (nodes) {
         console.log('node:', node);
         console.log('node.type:', node.type);
         if ((node.type !== 'FRAME' && !(node.type === 'COMPONENT' && node.parent.type === 'PAGE' )) 
-            || (node.type === 'FRAME' && node.layoutMode !== 'NONE')) {
+            || (node.type === 'FRAME' && node.layoutMode !== 'NONE')
+            || (node.type === 'FRAME' && node.parent.type === 'FRAME')) {
         // if (node.type !== 'FRAME' && node.type !== 'COMPONENT') {
             return findFrame(node.parent);
         } else {

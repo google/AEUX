@@ -57,13 +57,18 @@ onmessage = (event) => {
             })
         })
         .then(response => {
-            vm.thinking = false
-            console.log(response);
-            setfooterMsg(aeuxData[0].layerCount, 'sent to Ae');
-            return response.json()}
-        )
+            if (response.ok) {
+                vm.thinking = false
+                console.log(response);
+                setfooterMsg(aeuxData[0].layerCount, 'sent to Ae')
+                return response.json()
+            } else {
+                throw Error('failed to connect')
+            }
+        })
         .catch(e => {
             console.error(e)
+            setfooterMsg(null, 'Failed to connect to Ae');
             vm.thinking = false
         });
     }
@@ -105,7 +110,13 @@ onmessage = (event) => {
                 images: imageList
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            // if (response.ok) {
+                return response.json()
+            // } else {
+            //     throw Error('failed to connect')
+            // }
+        })
         .then(res => {
             // Ae image export canceled
             if (res.errno == -2) {
@@ -132,6 +143,7 @@ onmessage = (event) => {
         .then( () => vm.thinking = false )
         .catch(e => {
             console.error(e)
+            setfooterMsg(null, 'Failed to connect to Ae')
             vm.thinking = false
         });
     }

@@ -1053,7 +1053,8 @@ function aeImage(layer, opt_parent) {
                 if (fileFound) { 
                   bmpImage = app.project.importFile(bmpFile); 
                 } else {
-                  /// add placeholder
+                    returnMessage.push(6); 					//'Can't locate image file'
+                    bmpImage = app.project.importPlaceholder(layer.id + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
                 }
             } catch (e) {
                 returnMessage.push(6); 					//'Can't locate image file'

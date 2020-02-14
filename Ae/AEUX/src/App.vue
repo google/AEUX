@@ -2,7 +2,7 @@
   <div id="app">
     <menus />
     <Panel>
-        <AEUX />
+      <AEUX />
     </Panel>
   </div>
 </template>

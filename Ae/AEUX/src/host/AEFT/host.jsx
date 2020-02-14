@@ -683,6 +683,8 @@ var AEUX = (function () {
                     bmpImage = app.project.importFile(bmpFile);
                 }
                 else {
+                    returnMessage.push(6);
+                    bmpImage = app.project.importPlaceholder(layer.id + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
                 }
             }
             catch (e) {

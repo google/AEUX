@@ -13,82 +13,90 @@ var document, selection, folderPath, imageList = [], aveName, layerCount, aeShar
 
 
 const webviewIdentifier = 'aeux.webview'
+let existingWebview = null
 
 export default function () {
-  const options = {
-    identifier: webviewIdentifier,
-    width: 180,
-    height: 208,
-    titleBarStyle: 'hiddenInset',
-    remembersWindowFrame: true,
-    // hidesOnDeactivate: false,
-    resizable: false,
-    // movable: false,
-    // minimizable: false,
-    alwaysOnTop: true,
-    show: false,
-    webPreferences: {
-        devTools: true,
+    existingWebview = getWebview(webviewIdentifier)
+    let theme = UI.getTheme()
+    let darkMode = (theme === 'dark')
+
+    const options = {
+        identifier: webviewIdentifier,
+        width: 180,
+        height: 208,
+        titleBarStyle: 'hiddenInset',
+        remembersWindowFrame: true,
+        // hidesOnDeactivate: false,
+        resizable: false,
+        // movable: false,
+        // minimizable: false,
+        alwaysOnTop: true,
+        show: false,
+        webPreferences: {
+            devTools: true,
+        }
     }
-  }
 
-  const browserWindow = new BrowserWindow(options)
+    const browserWindow = new BrowserWindow(options)
 
-  // only show the window when the page has loaded to avoid a white flash
-  browserWindow.once('ready-to-show', () => {
-    browserWindow.show()
-  })
+    if (existingWebview) {
+        existingWebview.webContents.executeJavaScript(`flashUI(${darkMode})`)
+    } else {
+        // load url
+        browserWindow.loadURL(require('../resources/webview.html'))
+    }
 
-  const webContents = browserWindow.webContents
+    // only show the window when the page has loaded to avoid a white flash
+    browserWindow.once('ready-to-show', () => {
+        browserWindow.show()
+    })
+    
+    
+    const webContents = browserWindow.webContents;
 
-  // print a message when the page loads
-  webContents.on('did-finish-load', () => {
-    UI.message('UI loaded!')
-  })
+    // print a message when the page loads
+    webContents.on('did-finish-load', () => {
+        // UI.message('UI loaded!')
+    })
 
-  // add a handler for a call from web content's javascript
-  webContents.on('nativeLog', s => {
-    UI.message(s)
-    webContents
-      .executeJavaScript(`setRandomNumber(${Math.random()})`)
-      .catch(console.error)
-  })
-
-
-  // open a link
-  webContents.on('externalLinkClicked', url => {
-    NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url))
-  })
-  // send layer data to Ae
-  webContents.on('fetchAEUX', () => {
-    fetchAEUX()
-  })
-  // send layer data to Ae
-  webContents.on('detachSymbols', () => {
-    detachSymbols()
-  })
-  // send layer data to Ae
-  webContents.on('flattenCompounds', () => {
-    flattenCompounds()
-  })
+    // add a handler for a call from web content's javascript
+    webContents.on('nativeLog', s => {
+        UI.message(s)
+        webContents
+        .executeJavaScript(`setRandomNumber(${Math.random()})`)
+        .catch(console.error)
+    })
 
 
-  // set darkmode on launch
-  let theme = UI.getTheme()
-  let darkMode = (theme === 'dark')
-  webContents.executeJavaScript(`setDarkMode(${darkMode})`)
+    // open a link
+    webContents.on('externalLinkClicked', url => {
+        NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url))
+    })
+    // send layer data to Ae
+    webContents.on('fetchAEUX', () => {
+        fetchAEUX()
+    })
+    // send layer data to Ae
+    webContents.on('detachSymbols', () => {
+        detachSymbols()
+    })
+    // send layer data to Ae
+    webContents.on('flattenCompounds', () => {
+        flattenCompounds()
+    })
 
-  // load url
-  browserWindow.loadURL(require('../resources/webview.html'))
+
+    // set darkmode on launch
+    webContents.executeJavaScript(`setDarkMode(${darkMode})`)
 }
 
 // When the plugin is shutdown by Sketch (for example when the user disable the plugin)
 // we need to close the webview if it's open
 export function onShutdown() {
-  const existingWebview = getWebview(webviewIdentifier)
-  if (existingWebview) {
-    existingWebview.close()
-  }
+    existingWebview = getWebview(webviewIdentifier)
+    if (existingWebview) {
+        existingWebview.close()
+    }
 }
 
 export function fetchAEUX () {

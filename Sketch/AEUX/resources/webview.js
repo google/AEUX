@@ -14,10 +14,18 @@ document.getElementById('button').addEventListener('click', () => {
 window.setDarkMode = (darkMode) => {
     vm.darkMode = darkMode
 }
+window.flashUI = (darkMode) => {
+    vm.darkMode = !vm.darkMode
+    setTimeout(() => {
+        vm.darkMode = !vm.darkMode
+    }, 100);
+    setTimeout(() => {
+        vm.darkMode = darkMode
+    }, 200);
+}
 window.setFooterMsg = (msg) => {
     vm.setFooterMsg(msg)
     vm.thinking = false;
-    // vm.darkMode = !vm.darkMode
 }
 import Vue from 'vue/dist/vue.min.js'
 

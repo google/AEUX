@@ -5,13 +5,13 @@
             :context="[
 				{
 					label: `Learn stuff`,
-					callback: openBetaDoc
+					callback: openDocLink
 				},
 			]"
 			:flyout="[
 				{
 					label: `Learn stuff`,
-					callback: openBetaDoc
+					callback: openDocLink
 				}
 			]"
         />
@@ -134,6 +134,7 @@
                 <i>Brought to you by your friends at Google motion design</i>
             </Panel-Info>
         </Fold>
+        <Footer :footerMessage.sync="footerMessage" />
     </Wrapper>
 </template>
 
@@ -159,10 +160,8 @@ let vm =  {
     components: {
     },
 	data: () => ({
-    aeuxVersion: 0.7,
+        aeuxVersion: 0.7,
 		prefs: {
-			// updateTime: 0,
-			// autoBuild: false,
 			newComp: true,
 			precompGroups: false,
 			parametrics: true,
@@ -172,12 +171,10 @@ let vm =  {
 				groups: false,
 				system: false,
 			},
-			// artboard: null,
 			frameRate: 60,
 			duration: 5,
         },
         prefsLoaded: false,
-		// showHelp: false,
 		compScaleOptions: [
 			{label: '1x', value: '0'},
 			{label: '2x', value: '1'},
@@ -186,17 +183,16 @@ let vm =  {
 			{label: '5x', value: '4'},
             {label: '6x', value: '5'},
 		],
-		// userPath: this.cs.getSystemPath(SystemPath.USER_DATA) + '/sumUX/AEUX/',
-		// newLayers: false,
-		// dropHighlight: false,
-		footerMessage: null,
+        footerMessage: null,
+        docLink: 'https://docs.google.com/document/d/1weEWK3uJbsnHHO5rlSq95hVi9rGlPd9q1t2bf1glbQk/edit?usp=sharing',
+        // docLink: 'http://aeux.io',
 	}),
 	methods: {
     aeCall (msg) {
         amulets.evalScript(msg)
     },
     openDocLink () {
-        amulets.webLink('http://aeux.io')
+        amulets.webLink(this.docLink)
     },
     openConfig () {
         amulets.openUserFolder('config')
@@ -204,16 +200,16 @@ let vm =  {
     //// read the prefs file outside of the signed extension at intitialization
     getPrefs() {
         this.prefs = amulets.getPrefs(this.prefs)
-        console.log(this.prefs);
+        console.log('prefs', this.prefs);
         this.prefsLoaded = true
     },
-    getPrefsSync() {
-        /// read the layer data file
-        let prefs = fs.readFileSync(this.userPath + 'config/prefs.json')
-        console.log(prefs);
+    // getPrefsSync() {
+    //     /// read the layer data file
+    //     let prefs = fs.readFileSync(this.userPath + 'config/prefs.json')
+    //     console.log(prefs);
         
-        return JSON.parse(prefs) || this.prefs
-    },
+    //     return JSON.parse(prefs) || this.prefs
+    // },
     //// save prefs to disk
     savePrefs() {
         amulets.savePrefs(this.prefs)
@@ -225,59 +221,55 @@ let vm =  {
     },
     //// set pref and save to prefs file
     setPref (pref, value) {
-            this.prefs[pref] = value
-            console.log(pref, this.prefs[pref]);
-            this.savePrefs()      
+        this.prefs[pref] = value
+        console.log(pref, this.prefs[pref]);
+        this.savePrefs()      
     },
     //// message to AE to start building layers from JSON
-    buildLayers(data) {
-      // console.log('data');
-      // alert(JSON.stringify(data, false, 2))
-      let prefs = amulets.getPrefs()
-    //   let prefs = this.getPrefsSync()
-      /// compare Ae panel version with Sketch panel version
-      // if (data[0].aeuxVersion > this.aeuxVersion) {
-      //     var msgData = {
-      //         text: data[0].hostApp + ' is using a newer version of AEUX. Please download the updated Ae extension.',
-      //         url: toolDocUrl,
-      //     }
-      //     evalScript('updateAePanel', msgData);
-      //     return;
-      // }
+    // buildLayers(data) {
+    //   // console.log('data');
+    //   // alert(JSON.stringify(data, false, 2))
+    //   let prefs = amulets.getPrefs()
+    // //   let prefs = this.getPrefsSync()
+    //   /// compare Ae panel version with Sketch panel version
+    //   // if (data[0].aeuxVersion > this.aeuxVersion) {
+    //   //     var msgData = {
+    //   //         text: data[0].hostApp + ' is using a newer version of AEUX. Please download the updated Ae extension.',
+    //   //         url: toolDocUrl,
+    //   //     }
+    //   //     evalScript('updateAePanel', msgData);
+    //   //     return;
+    //   // }
 
-      /// obj to stringify and send to AE
-      var compObj = {
-          prefs: {
-            newComp: prefs.newComp,
-            parametrics: prefs.parametrics,
-            compScale: prefs.compScale,
-            precompGroups: prefs.precompGroups,
-            frameRate: prefs.frameRate || 60,
-          },
-          layerData: data,
-          // sourcePath: path.split('/').slice(0,-1).join('/'),
-      }        
+    //   /// obj to stringify and send to AE
+    //   var compObj = {
+    //       prefs: {
+    //         newComp: prefs.newComp,
+    //         parametrics: prefs.parametrics,
+    //         compScale: prefs.compScale,
+    //         precompGroups: prefs.precompGroups,
+    //         frameRate: prefs.frameRate || 60,
+    //       },
+    //       layerData: data,
+    //       // sourcePath: path.split('/').slice(0,-1).join('/'),
+    //   }        
 
 
-      amulets.evalScript( 'buildLayers', compObj ).then((results) => {
-          /// error msg because the json returned nothing
-          if (!JSON.parse(results)) {
-              this.footerMessage = 'Open an existing comp first';
-              setTimeout(function () {
-                  this.footerMessage = null;
-              }, 2000);
-              return;
-          }
+    //   amulets.evalScript( 'buildLayers', compObj ).then((results) => {
+    //       /// error msg because the json returned nothing
+    //       console.log(JSON.parse(results));
+          
+    //       if (!JSON.parse(results)) {
+    //           this.footerMessage = 'Open an existing comp first';
+    //           return;
+    //       }
 
-          /// show footer message
-          var msg = JSON.parse(results).msg;
-          this.footerMessage = this.parseFooterMessages(msg);
-          setTimeout(function () {
-              this.footerMessage = null;
-          }, 2500);
-      });
-      this.newLayers = false;
-    },
+    //       /// show footer message
+    //       var msg = JSON.parse(results).msg;
+    //       this.footerMessage = this.parseFooterMessages(msg);
+    //   });
+    //   this.newLayers = false;
+    // },
         
 //// read a file from disk then send json data to AE to build layers
     // buildLayersFromFile (path, updateBgFiles) {

@@ -1,17 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<ExtensionManifest ExtensionBundleId="com.aeux" ExtensionBundleVersion="0.7.1" ExtensionBundleName="aeux" Version="8.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ExtensionManifest 
+  Version="5.0" 
+  ExtensionBundleId="AEUX" 
+  ExtensionBundleVersion="0.7.2" 
+  ExtensionBundleName="AEUX" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
     <Extension Id="com.aeux.panel" Version="1.0.0" />
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
-      <Host Name="AEFT" Version="13.0" />
+      <Host Name="AEFT" Version="15.0" />
     </HostList>
     <LocaleList>
       <Locale Code="All" />
     </LocaleList>
     <RequiredRuntimeList>
-      <RequiredRuntime Name="CSXS" Version="8.0" />
+      <RequiredRuntime Name="CSXS" Version="5.0" />
     </RequiredRuntimeList>
   </ExecutionEnvironment>
   <DispatchInfoList>
@@ -45,7 +50,12 @@
               <Width>260</Width>
             </MinSize>
           </Geometry>
-          <Icons />
+          <Icons>
+            <Icon Type="Normal">./img/Icon.png</Icon>
+            <Icon Type="RollOver">./img/Icon.png</Icon>
+            <Icon Type="DarkNormal">./img/Icon.png</Icon>
+            <Icon Type="DarkRollOver">./img/Icon.png</Icon>
+          </Icons>
         </UI>
       </DispatchInfo>
     </Extension>

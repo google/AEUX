@@ -1,6 +1,6 @@
 {
   "name": "aeux",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -18,7 +18,7 @@
     "cep-spy": "^1.1.1",
     "core-js": "^3.1.2",
     "hammerjs": "^2.0.8",
-    "starlette": "^0.4.4",
+    "starlette": "^1.0.2",
     "vue": "^2.6.10"
   },
   "devDependencies": {

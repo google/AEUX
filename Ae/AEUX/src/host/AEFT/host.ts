@@ -1134,9 +1134,6 @@ function aeImage(layer, opt_parent) {
 
 
 ///////// create/import project elements /////////
-/** create a symbol layer as precomp and add it to the comp
-        @param {layer} obj - json layers from Sketch
-*/
 
 //// check if symbol exists, create if doesn't exist, return the symbol
 function createSymbol(layer) {

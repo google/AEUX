@@ -1,24 +1,10 @@
 <template>
     <Wrapper v-if="prefsLoaded">
-        <Menus 
-            debug refresh
-            :context="[
-				{
-					label: `Learn stuff`,
-					callback: openDocLink
-				},
-			]"
-			:flyout="[
-				{
-					label: `Learn stuff`,
-					callback: openDocLink
-				}
-			]"
-        />
         <!-- <Dropzone /> -->
         <Row margin="0 auto 8px auto">
             <Button-Group 
-                :active="(prefs.newComp) ? 0: 1" exclusive 
+                :active="(prefs.newComp) ? 0 : 1" 
+                exclusive 
                 @update="val => setPref('newComp', val == 0)">
                 <Button 
                     prefix-icon="plus" 
@@ -37,8 +23,8 @@
 
         <Fold
 			label="Options"
-			:open="prefs.expand.options"
-            @clicked="fold('options')">
+			:open="true"
+            prefs-id="foldOptions">
             <Dropdown
                 v-show="prefs.newComp"
                 :items="compScaleOptions"
@@ -80,8 +66,8 @@
 		</Fold>
 
         <Fold label="Groups" 
-            :open="prefs.expand.groups"
-            @clicked="fold('groups')">
+            :open="false"
+            prefs-id="foldGroups">
 			<Button-Group grid column>
 				<Button
 					left
@@ -122,7 +108,9 @@
 			</Button-Group>
 		</Fold>
 
-        <Fold label="System" :open="prefs.expand.system" @clicked="fold('system')">
+        <Fold label="System" 
+            :open="false" 
+            prefs-id="foldSystem">
             <Button 
                 block 
                 goto="https://aeux.io" 
@@ -146,19 +134,14 @@
 import fs from 'fs'
 import amulets from 'amulets'
 
-amulets.options({
-    devName: 'sumUX'
+amulets.configure({
+    devName: 'sumUX',
+    scriptName: 'AEUX'
 })
 
-const port_ae = 7240
-
-let vm =  {
-	name: "AEUX",
-	// props: {
-	// 	msg: String
+export default {
+    // components: {
     // },
-    components: {
-    },
 	data: () => ({
         aeuxVersion: 0.7,
 		prefs: {
@@ -166,11 +149,6 @@ let vm =  {
 			precompGroups: false,
 			parametrics: true,
 			compScale: 3,
-			expand: {
-                options: true,
-				groups: false,
-				system: false,
-			},
 			frameRate: 60,
 			duration: 5,
         },
@@ -198,11 +176,11 @@ let vm =  {
         amulets.openUserFolder('config')
     },
     //// read the prefs file outside of the signed extension at intitialization
-    getPrefs() {
-        this.prefs = amulets.getPrefs(this.prefs)
-        console.log('prefs', this.prefs);
-        this.prefsLoaded = true
-    },
+    // getPrefs() {
+    //     this.prefs = amulets.getPrefs(this.prefs)
+    //     console.log('prefs', this.prefs);
+    //     this.prefsLoaded = true
+    // },
     // getPrefsSync() {
     //     /// read the layer data file
     //     let prefs = fs.readFileSync(this.userPath + 'config/prefs.json')
@@ -211,19 +189,20 @@ let vm =  {
     //     return JSON.parse(prefs) || this.prefs
     // },
     //// save prefs to disk
-    savePrefs() {
-        amulets.savePrefs(this.prefs)
-    },
+    // savePrefs() {
+    //     amulets.savePrefs(this.prefs)
+    // },
     //// collapse/expand panel groups
-    fold(name) {
-        this.prefs.expand[name] = !this.prefs.expand[name]
-        this.savePrefs()
-    },
+    // fold(name) {
+    //     this.prefs.expand[name] = !this.prefs.expand[name]
+    //     this.savePrefs()
+    // },
     //// set pref and save to prefs file
     setPref (pref, value) {
         this.prefs[pref] = value
         console.log(pref, this.prefs[pref]);
-        this.savePrefs()      
+        amulets.savePrefs(this.prefs)
+        // this.savePrefs()      
     },
     //// message to AE to start building layers from JSON
     // buildLayers(data) {
@@ -372,37 +351,34 @@ let vm =  {
 	},
 	computed: {
 		// Use as this.app
-		app() {
-			return this.$root.$children[0];
-		},
+		// app() {
+		// 	return this.$root.$children[0];
+		// },
 		// Use as this.cs
-		cs() {
-			return this.app.csInterface;
-        },
-        userPath() {
-            return this.cs.getSystemPath(SystemPath.USER_DATA) + '/sumUX/AEUX/'
-        },
-        spy() {
-            return require("cep-spy").default;
-        },
+		// cs() {
+		// 	return this.app.csInterface;
+        // },
+        // userPath() {
+        //     return this.cs.getSystemPath(SystemPath.USER_DATA) + '/sumUX/AEUX/'
+        // },
+        // spy() {
+        //     return require("cep-spy").default;
+        // },
 	},
-	mounted() {
-		console.log("Top-level root instance (App.vue):");
-		console.log(this.app);
-		console.log("CSInteface:");
-        console.log(this.cs);
-        
-        this.getPrefs()					// reads available prefs json file that is outside of the signed extensions
-
-        amulets.newServer(port_ae)
+	mounted() {      
+        amulets.getPrefs(this.prefs)
+        .then(prefs => { 
+            console.log(prefs);
+            
+            this.prefs = prefs 
+            this.prefsLoaded = true
+        })
+        // amulets.newServer(port_ae)
 	}
 }
 
-export default vm
-
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
 
 </style>

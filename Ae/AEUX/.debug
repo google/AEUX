@@ -5,4 +5,9 @@
             <Host Name="AEFT" Port="7220" />
         </HostList>
     </Extension>
+    <Extension Id="com.aeux.server">
+        <HostList>
+            <Host Name="AEFT" Port="7320" />
+        </HostList>
+    </Extension>
 </ExtensionList>

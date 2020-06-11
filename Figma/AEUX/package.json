@@ -18,7 +18,7 @@
     "typescript": "^3.5.3",
     "url-loader": "^2.1.0",
     "webpack": "^4.39.1",
-    "webpack-cli": "^3.3.6"
+    "webpack-cli": "^3.3.11"
   },
   "dependencies": {
     "file-saver": "^2.0.2",

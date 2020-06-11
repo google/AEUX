@@ -57,7 +57,7 @@ var AEUX = (function () {
     var ffxFolder = Folder.userData.toString() + '/' + devName + '/' + scriptName + '/ffx/';
     var prefs = {
         parametrics: false,
-        compScale: 3,
+        compScale: 1,
         newComp: true,
         precompGroups: true,
         frameRate: 60,
@@ -87,7 +87,9 @@ var AEUX = (function () {
     function buildLayers(compObj) {
         try {
             returnMessage = [];
-            prefs = compObj.prefs;
+            if (compObj.prefs) {
+                prefs = compObj.prefs;
+            }
             folderPath = compObj.layerData[0].folderPath;
             var importedLayerCode = compObj.layerData;
             hostApp = importedLayerCode[0].hostApp;
@@ -97,6 +99,7 @@ var AEUX = (function () {
             if (!prefs.newComp) {
                 progressDialog.hide();
                 if (!setComp()) {
+                    alert('AEUX: Open a comp first');
                     return 'false';
                 }
             }
@@ -294,7 +297,7 @@ var AEUX = (function () {
         function setTextStroke() {
             if (layer.stroke !== null && layer.stroke.length > 0) {
                 var stroke = layer.stroke[0];
-                textDoc.applyStroke = (stroke.enabled === 1);
+                textDoc.applyStroke = (stroke.enabled == 1);
                 textDoc.strokeColor = [stroke.color[0], stroke.color[1], stroke.color[2]];
                 textDoc.strokeWidth = (stroke.width > 0) ? stroke.width : 0;
                 if (stroke.opacity < 100) {
@@ -697,6 +700,9 @@ var AEUX = (function () {
         var r = thisComp.layers.add(bmpImage);
         r.selected = false;
         r.name = layer.name;
+        if (layer.guide) {
+            r.guideLayer = true;
+        }
         addDropShadow(r, layer);
         addInnerShadow(r, layer);
         setLayerBlendMode(r, layer);

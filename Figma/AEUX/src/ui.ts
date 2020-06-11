@@ -2,26 +2,22 @@ import * as fileType from 'file-type'
 import Vue from 'vue/dist/vue.esm.js'
 import * as aeux from './aeux.js'
 import './ui.css'
-
 var vm = new Vue({
 	el: '#app',
 	data: {
 		count: null,
 		thinking: false,
-		footerMsg: null,
-		// showfooterMsg: false,
-		// prefs: {
-		// 	flatten: true,
-		// 	detatchFixed: true,
-		// }
+        footerMsg: null,
+        prefs: {
+            exportRefImage: false,
+        }
 	},
 	methods: {  
 		exportSelection () {
             this.thinking = 'fetchAEUX'
-            setTimeout(() => {
-                parent.postMessage({ pluginMessage: { type: 'exportSelection' } }, '*')
-            }, 500);
-			
+            // setTimeout(() => {
+            parent.postMessage({ pluginMessage: { type: 'exportSelection' } }, '*')
+            // }, 500);
         },
         detachComponents () {
             parent.postMessage({ pluginMessage: { type: 'detachComponents' } }, '*')
@@ -29,16 +25,40 @@ var vm = new Vue({
         flattenLayers () {
             parent.postMessage({ pluginMessage: { type: 'flattenLayers' } }, '*')
         },
+        rasterizeSelection () {
+            parent.postMessage({ pluginMessage: { type: 'rasterizeSelection' } }, '*')
+        },
+        imageRefToAe () {
+            parent.postMessage({ pluginMessage: { type: 'imageRefToAe' } }, '*')
+        },
+        setPrefs () {
+            setTimeout(() => {
+                parent.postMessage({ pluginMessage: { type: 'setPrefs', prefs: this.prefs } }, '*')
+            }, 50);
+            
+        },
     },
-		
+	mounted() {
+        parent.postMessage({ pluginMessage: { type: 'getPrefs', defaultPrefs: this.prefs } }, '*')      // get the prefs
+    }
 })
 
+// receiving messages back from code.ts
 onmessage = (event) => {
     let msg = event.data.pluginMessage;
     console.log(msg);
   
+    if (msg && msg.type === 'retPrefs') {
+        vm.prefs = msg.prefs 
+    }
+
 	if (msg && msg.type === 'fetchAEUX') {
         // console.log(msg.imageBytesList);
+        if (!msg.data) {
+            vm.thinking = false
+            setfooterMsg(null, 'Select layers first');
+            return
+        }
         
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
         console.log(aeuxData);
@@ -73,13 +93,13 @@ onmessage = (event) => {
         });
     }
     if (msg && msg.type === 'footerMsg') {
-        console.log('LayerCount', msg.layerCount);
+        // console.log('LayerCount', msg.layerCount);
         setfooterMsg(msg.layerCount, msg.action);
     }
 	if (msg && msg.type === 'fetchImagesAndAEUX') {
         vm.thinking = 'fetchAEUX'
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
-        console.log(aeuxData);
+        // console.log(aeuxData);
         let imageList = [];
 
         msg.images.forEach(img => {
@@ -93,6 +113,10 @@ onmessage = (event) => {
             })
             // folder.file(name, blob);
         })
+
+        if (msg.refImg) {
+            aeuxData.push(msg.refImg)
+        }
 
         console.log(aeuxData);
 

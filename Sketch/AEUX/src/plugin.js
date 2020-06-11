@@ -122,7 +122,7 @@ export function fetchAEUX () {
     console.log(aeuxData);
 
     if (imageList.length < 1) {
-        fetch(`http://127.0.0.1:7240/evalscript`, {
+        fetch(`http://127.0.0.1:7240/evalScript`, {
         method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -177,7 +177,7 @@ export function fetchAEUX () {
             console.log(res);
             aeuxData[0].folderPath = res.path
             
-            fetch(`http://127.0.0.1:7240/evalscript`, {
+            fetch(`http://127.0.0.1:7240/evalScript`, {
             method: "POST",
                 headers: {
                     'Accept': 'application/json',

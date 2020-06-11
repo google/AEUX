@@ -20,7 +20,7 @@ var inputFile, labelColor, progressInc;
 var ffxFolder = Folder.userData.toString() + '/'+ devName +'/'+ scriptName +'/ffx/';
 var prefs = {
     parametrics: false,
-    compScale: 3,
+    compScale: 1,
     newComp: true,
     precompGroups: true,
     frameRate: 60,
@@ -73,7 +73,8 @@ function buildLayers(compObj) {
     // downloadDialog.hide();
 
     returnMessage = [];
-    prefs = compObj.prefs;
+    if (compObj.prefs) { prefs = compObj.prefs }
+
     folderPath = compObj.layerData[0].folderPath;
     // var importedLayerCode = compObj;
     var importedLayerCode = compObj.layerData;
@@ -88,7 +89,10 @@ function buildLayers(compObj) {
     if (!prefs.newComp) {
         // check if theres a comp selected, stop if not
         progressDialog.hide();
-        if (!setComp()) { return 'false'; }
+        if (!setComp()) { 
+            alert('AEUX: Open a comp first')
+            return 'false'; 
+        }
     }
 
     // var startTime = new Date();		// start timer for clocking
@@ -401,7 +405,7 @@ function aeText(layer, opt_parent) {
             /// get the top stroke in the list
             var stroke = layer.stroke[0];
             /// add stroke if enabled in Sketch
-            textDoc.applyStroke = (stroke.enabled === 1);
+            textDoc.applyStroke = (stroke.enabled == 1);
             /// set stroke color
             textDoc.strokeColor = [stroke.color[0], stroke.color[1], stroke.color[2]];
             /// set stroke width
@@ -1071,6 +1075,9 @@ function aeImage(layer, opt_parent) {
     var r = thisComp.layers.add(bmpImage);
     r.selected = false;
     r.name = layer.name;
+    if (layer.guide) {
+        r.guideLayer = true
+    }
 
     /// add layer elements
     addDropShadow(r, layer);

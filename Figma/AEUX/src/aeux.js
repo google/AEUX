@@ -9,7 +9,7 @@ export function convert (data) {
     // console.log('tester', vm.imageUrlList);
     var layerData = filterTypes(data);
     layerData[0].layerCount = layerCount;
-console.log('layerData', layerData);
+// console.log('layerData', layerData);
 
     return layerData;
 }
@@ -155,7 +155,7 @@ function getText(layer, parentFrame) {
         frame: frame,
         isVisible: (layer.visible !== false),
         opacity: layer.opacity*100 || 100,
-        textColor: getFills(layer)[0].color || getFills(layer)[0].gradient.points[0].color,
+        textColor: getTextFill(layer),
         fill: null,
         stroke: getStrokes(layer),
         blendMode: getLayerBlending(layer.blendMode),
@@ -171,13 +171,28 @@ function getText(layer, parentFrame) {
         rotation: getRotation(layer),
         isMask: layer.isMask,
     };
+    console.log('hasMissingFont', layer);
+    
+    console.log('layerData', layerData);
 
     getEffects(layer, layerData);
 
     return layerData;
 
-
-
+    function getTextFill (layer) {
+        var fills = getFills(layer)
+        console.log(fills);
+        
+        if (fills.length > 0) {
+            var fillColor = fills[0].color
+            if (fills[0].gradient != undefined) {
+                fillColor = fills[0].gradient.points[0].color
+            }
+            return fillColor
+        } else {
+            return [0,0,0,0]
+        }
+    }
     function getTextProps(layer) {        
         var text = layer.characters.replace(/[\u2028]/g, '\n');        
         // var transformVal = 0;

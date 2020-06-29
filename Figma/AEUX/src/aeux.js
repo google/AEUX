@@ -1,9 +1,10 @@
 /*jshint esversion: 6, asi: true*/
-var versionNumber = 0.6;
-var frameData, layers, hasArtboard, layerCount, layerData;
+var versionNumber = 0.74;
+var frameData, layers, hasArtboard, layerCount, layerData, boolOffset;
 export function convert (data) {
     hasArtboard = false;
     layerCount = 0;
+    boolOffset = null
     // var vm.imageIdList = [];
 
     // console.log('tester', vm.imageUrlList);
@@ -32,6 +33,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
 
     layers.forEach(layer => {
         // console.log(layer.type);
+        if (!opt_parentFrame) { boolOffset = null }
         
         if (layer.visible === false) { return; }         // skip layer if hidden
         // console.log(layer.name, layer.type);
@@ -89,8 +91,9 @@ function getShape(layer, parentFrame, boolType) {
 
     if (path == 'multiPath') {
         console.log('multipath');
-        
-        return getBoolean(layer, frame, null, true);
+
+        // boolOffset = null
+        return getBoolean(layer, parentFrame, null, true);
     }
     // console.log(layer.relativeTransform[0][0]);
 
@@ -393,19 +396,14 @@ function getComponent(layer, parentFrame) {
 function getBoolean(layer, parentFrame, boolType, isMultipath) {
     var frame = getFrame(layer, parentFrame);
     var adjFrame = {x: frame.x, y: frame.y, width: frame.width, height: frame.height};
-    console.log('boolType!!!', boolType);
-    console.log('parentFrame!!!', parentFrame);
+    // console.log('boolType!!!', boolType);
+    // console.log('parentFrame!!!', parentFrame);
     if (boolType != null) {
-        console.log('adjust things');
-        // adjFrame.x = (frame.x - layer.width) + (parentFrame.width + layer.width)/2 + parentFrame.x - layer.width; 
-        // adjFrame.x = frame.x + parentFrame.x; 
-        // adjFrame.y = (frame.y - layer.height) + (parentFrame.height + layer.height/2);
-        // adjFrame.x = parentFrame.width/2 + (frame.x - layer.width) - (parentFrame.width - layer.width)/2; 
-        // adjFrame.y = parentFrame.height/2 + (frame.y - layer.height) - (parentFrame.height - layer.height)/2;
-        adjFrame.x =  frame.width/2; 
-        adjFrame.y =  frame.height/2;
-        // adjFrame.x = parentFrame.x + frame.width/2; 
-        // adjFrame.y = parentFrame.y + frame.height/2;
+        // console.log('adjust things');
+        adjFrame.x =  frame.width/2
+        adjFrame.y =  frame.height/2
+    } else {
+
     }
     
     
@@ -429,6 +427,8 @@ function getBoolean(layer, parentFrame, boolType, isMultipath) {
         // shouldBreakMaskChain: true,
         // layers: filterTypes(layer, frame, boolType),
     };
+    // console.log(layer.name, layerData.booleanOperation);
+    
 
     if (isMultipath) {
         console.log('get that multipath');        
@@ -440,125 +440,31 @@ function getBoolean(layer, parentFrame, boolType, isMultipath) {
             // xxx
         }
         
-    } else {
+    } else {        
         console.log('run getCompoundShapes' )
-        // layerData.layers = getCompoundShapes(layer.children, boolType);            /// test if paths.lenght > 1
-        // try {
-            layerData.layers = filterTypes(layer, adjFrame, null);
-            // layerData.layers = filterTypes(layer, {x: frame.width*2-frame.width/2, y: frame.height*2-frame.height/2, width: frame.width, height: frame.height}, boolType);
-            // layerData.layers = filterTypes(layer, {x: -frame.x, y: -frame.y, width: frame.width, height: frame.height}, boolType);
-        // } catch (error) {
-        //     layerData.layers = getBoolean(layer, frame, boolType)
-        // }
+        // alert(frame.y + ' : ' + adjFrame.y)
+        // layerData.layers = filterTypes(layer, { x: frame.x, y: frame.y - 40, width: frame.width, height: frame.height}, null);
+        layerData.layers = filterTypes(layer, adjFrame, null);
+
+        // realign sub layers
+        layerData.layers.forEach(layer => {
+            boolOffset = (!boolOffset) ? { x: layerData.layers[0].frame.x, y: layerData.layers[0].frame.y } : boolOffset
+            if (!layer.layers) {    // lowest level nested shape
+                layer.frame.x -= layer.frame.width/2
+                layer.frame.y -= layer.frame.height/2
+            } else {    // calc offset
+                // offset = { x: 0, y: 0 }
+                // console.log('OFFSET apply', layer.name, boolOffset);
+                layer.frame.x -= boolOffset.x
+                layer.frame.y -= boolOffset.y
+            }
+            layer.booleanOperation = boolType
+        })
     }
     getEffects(layer, layerData);
     // console.log(layerData)
   return layerData;
 }
-// depreceiated
-// function getBooleanOLD(layer, parentFrame, isMultipath) {
-//     // console.log('getBoolean');
-//     // var flip = getFlipMultiplier(layer);
-//     var frame = getFrame(layer, parentFrame);
-//     // console.log(layer.name, getBoolType(layer))
-//     var boolType = getBoolType(layer);
-//     var path = getPath(layer, frame);
-//     console.log(path);
-    
-//     if (path == 'multiPath') {
-//         // console.log('bool multipath');
-//         isMultipath = true;
-//     }
-
-
-// 	var layerData =  {
-//         type: 'CompoundShape',
-// 		name: layer.name,
-// 		id: layer.id,
-//         frame: frame,
-//         fill: getFills(layer),
-//         stroke: getStrokes(layer),
-//         isVisible: (layer.visible !== false),
-// 		opacity: Math.round(layer.opacity*100) || 100,
-// 		rotation: getRotation(layer),
-// 		blendMode: getLayerBlending(layer.blendMode),
-//         flip: [100,100],
-//         booleanOperation: boolType,
-//         // flip: getFlipMultiplier(layer),
-//         isMask: layer.isMask,
-//     };
-
-//     getEffects(layer, layerData);
-
-//     if (isMultipath) {        
-//         layerData.layers = getCompoundPaths(layer.fillGeometry[0].path, layer);
-//     } else {
-//         // console.log('run getCompoundShapes' )
-//         // layerData.layers = getCompoundShapes(layer.children, boolType);            /// test if paths.lenght > 1
-//         try {
-//             layerData.layers = filterTypes(layer, frame, boolType);
-//         } catch (error) {
-//             layerData.layers = getBoolean(layer, frame, boolType)
-//         }
-//     }
-
-//     // console.log('bool', layerData);
-//     if (layerData.layers.length < 1) { return null }
-//     return layerData;
-// }
-//// get layer data: COMPOUND SHAPE
-// function getCompoundShapes(layers, boolType, isMultipath) {
-//     var layerList = [];
-//     var layerCount = 0;
-
-//     try {
-//         layerCount = layers.length;
-//     } catch (e) {
-//         // console.log('catch')
-//     }
-
-//     /// loop through all nested shapes
-//     for (var i = 0; i < layerCount; i++) {
-//         var layer = layers[i];
-//         var frame = getFrame(layer);
-//         var path = getPath(layer, frame);
-//         // console.log(path)
-//         // if (path == 'multiPath') {
-//         //     return getBoolean(layer, null, true);
-//         // }
-
-//         // var flip = getFlipMultiplier(layer);
-//         layerList.push({
-//             type: 'CompoundShape',
-//             name: layer.name,
-//     		id: layer.id,
-//     		frame: getFrame(layer),
-//             isVisible: (layer.visible !== false),
-//             // path: path,
-//             roundness: Math.round(layer.cornerRadius) || 0,
-//             flip: getFlipMultiplier(layer),
-//             rotation: getRotation(layer),
-//             booleanOperation: getBoolType,
-//             // layers: filterTypes(layer, frame),
-//         });
-
-
-
-//         if (layer.type == 'BOOLEAN_OPERATION') {
-//             if (isMultipath) {
-//                 console.log('multipath smarts')
-//                 layerList[layerList.length-1].layers = getCompoundPaths(layer.fillGeometry[0].path, layer);
-//             } else {
-//                 layerList[layerList.length-1].layers = getCompoundShapes(layer.children, boolType);            /// test if paths.lenght > 1
-//             }
-//         } else {
-//             console.log(layer)
-//             layerList[layerList.length-1].layers = filterTypes(layer, frame, boolType);
-//         }
-//     }
-//     // console.log(layerList)
-//     return layerList;
-// }
 function getCompoundPaths(paths, layer) {
     console.log(paths);
     
@@ -661,7 +567,7 @@ function getBoolType (layer) {
             return 2;
 
         default:
-            return 0;
+            return -1;
     }
 }
 function getFrame(layer, parentFrame) {  
@@ -815,9 +721,13 @@ function getFills(layer) {
                     
                     fillObj = {
                         type: 'gradient',
-                        startPoint: [-0.5 * layer.width, -0.5 * layer.height],
-                        endPoint: [0.5 * layer.width, 0.5 * layer.height],
-                        // startPoint: [-fill.gradientTransform[1][2] * layer.width,
+                        // startPoint: [-0.5 * layer.width, -0.5 * layer.height],
+                        startPoint: [0,
+                            (-0.5 - fill.gradientTransform[0][2]) * layer.height],
+                        endPoint: [0, 0.5 * layer.height],
+                        // endPoint: [0.5 * layer.width, 0.5 * layer.height],
+                        
+                        // startPoint: [fill.gradientTransform[1][2] * layer.width,
                         //         (-0.5-fill.gradientTransform[0][2]) * layer.height],
                         // endPoint:   [0,0],
                         // endPoint:   [fill.gradientTransform[1][0],
@@ -985,6 +895,8 @@ function getGradient(grad) {
             rampPoint: grad[i].position,
         });
     }
+    console.log('gradObj', gradObj);
+    
     return gradObj;
 }
 
@@ -1203,7 +1115,7 @@ function getPath(layer, bounding, type) {
                     closed: true
                 }
             } else if (layer.type == 'ELLIPSE') {
-                console.log('get that ellipse');
+                // console.log('get that ellipse');
                 
                 return {
                     points: [

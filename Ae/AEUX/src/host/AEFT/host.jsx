@@ -45,6 +45,7 @@ var AEUX = (function () {
             return d = eval("(" + a + ")"), typeof e === "function" ? c({ "": d }, "") : d; throw new SyntaxError("JSON.parse"); }; })();
     var scriptName = 'AEUX';
     var devName = 'sumUX';
+    var aeuxVersion = 0.74;
     var hostApp, sourcePath;
     var clippingMask = null;
     var thisComp = null;
@@ -86,6 +87,11 @@ var AEUX = (function () {
     }
     function buildLayers(compObj) {
         try {
+            var importVersion = compObj.layerData[0].aeuxVersion;
+            if (aeuxVersion < importVersion) {
+                downloadUpdateDialog();
+                return JSON.stringify(null);
+            }
             returnMessage = [];
             if (compObj.prefs) {
                 prefs = compObj.prefs;
@@ -94,7 +100,7 @@ var AEUX = (function () {
             var importedLayerCode = compObj.layerData;
             hostApp = importedLayerCode[0].hostApp;
             sourcePath = compObj.sourcePath;
-            resetProgressDialog('Reading data from Sketch');
+            resetProgressDialog('Reading layer data');
             labelColor = 0;
             if (!prefs.newComp) {
                 progressDialog.hide();
@@ -106,9 +112,12 @@ var AEUX = (function () {
             app.beginUndoGroup(scriptName + ' build layers');
             var layerCount = importedLayerCode[0].layerCount.toString();
             progressInc = 1 / layerCount;
-            progressText.remove(0);
-            progressText.add('statictext', undefined, 'Building ' + layerCount + ' layers. Thanks for your patience.');
-            progressDialog.layout.layout(true);
+            try {
+                progressText.remove(0);
+                progressText.add('statictext', undefined, 'Building ' + layerCount + ' layers. Thanks for your patience.');
+                progressDialog.layout.layout(true);
+            }
+            catch (error) { }
             var tempComp = app.project.items.addComp('LOADING...', 500, 500, 1, 1, 1);
             tempComp.openInViewer();
             filterTypes(importedLayerCode);
@@ -697,6 +706,12 @@ var AEUX = (function () {
             bmpImage.parentFolder = imageFolder;
             bmpImage.selected = false;
         }
+        else {
+            try {
+                bmpImage.mainSource.reload();
+            }
+            catch (error) { }
+        }
         var r = thisComp.layers.add(bmpImage);
         r.selected = false;
         r.name = layer.name;
@@ -891,6 +906,7 @@ var AEUX = (function () {
                     stroke.selected = true;
                     applyGradientFfx('stroke', false, layer.stroke[i]);
                 }
+                stroke("ADBE Vector Blend Mode").setValue(layer.stroke[i].blendMode);
                 if (layer.stroke[i].strokeDashes.length > 0) {
                     var strokeDashes = layer.stroke[i].strokeDashes;
                     for (var j = 1; j <= strokeDashes.length; j++) {
@@ -1459,6 +1475,19 @@ var AEUX = (function () {
         catch (e) {
             alert(e.toString() + "\nError on line: " + e.line.toString());
         }
+    }
+    function downloadUpdateDialog() {
+        var w = new Window('dialog', 'AEUX update required');
+        var messageText = w.add('statictext', undefined, "Download a new version of the Ae panel (" + importVersion + ") from aeux.io", { multiline: true });
+        messageText.preferredSize.width = 300;
+        var buttonGroup = w.add('group {alignment: "right"}');
+        buttonGroup.add('button', undefined, 'Close', { name: 'cancel' });
+        var savePath = buttonGroup.add('button', undefined, 'Download', { name: 'ok' });
+        savePath.onClick = function () {
+            visitURL('http://aeux.io');
+            w.close();
+        };
+        w.show();
     }
     var progressDialog = new Window('palette', 'Hold on. One sec.');
     progressDialog.alignChildren = 'fill';

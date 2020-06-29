@@ -14,6 +14,11 @@ document.getElementById('button').addEventListener('click', () => {
 window.setDarkMode = (darkMode) => {
     vm.darkMode = darkMode
 }
+window.setPrefs = (prefs) => {
+    if (prefs) {
+        vm.prefs = prefs
+    }
+}
 window.flashUI = (darkMode) => {
     vm.darkMode = !vm.darkMode
     setTimeout(() => {
@@ -35,6 +40,9 @@ var vm = new Vue({
         darkMode: false,
         thinking: false,
         footerMsg: null,
+        prefs: {
+            exportRefImage: false,
+        }
     },
     methods: {
         helpLink() {
@@ -53,12 +61,21 @@ var vm = new Vue({
             window.postMessage('flattenCompounds')
             this.thinking = 'flattenCompounds'
         },
+        rasterizeGroups() {
+            window.postMessage('rasterizeGroups')
+            this.thinking = 'rasterizeGroups'
+        },
         setFooterMsg(msg) {
             this.footerMsg = msg
 
             setTimeout(() => {
                 this.footerMsg = null
             }, 5000);
-        }
+        },
+        setPrefs() {
+            setTimeout(() => {
+                window.postMessage('setPrefs', JSON.stringify(this.prefs))
+            }, 50);
+        },
     }
 })

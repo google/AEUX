@@ -1,207 +1,218 @@
 @font-face {
-    font-family: 'Roboto';
-    src: url('file:Roboto-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Roboto';
-    src: url('file:Roboto-Light.ttf') format('truetype');
-    font-weight: 300;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Roboto';
-    src: url('file:Roboto-LightItalic.ttf') format('truetype');
-    font-weight: normal;
-    font-style: italic;
-  }
-  body {
-    font-family: 'Roboto', sans-serif;
-    font-size: 11px;
-    /* font-weight: 300; */
-    color: #919191;
-    overflow: hidden;
-    -webkit-user-select: none;
-    cursor: default;
-  }
-  .wrapper {
-    background-color: #fefefe;
-    width: auto;
-    height: 100vh;
-    padding: 12px;
-    padding-top: 38px;
-  }
-  .dark-mode {
-    background-color: #2E2F30;
-  }
-  [v-cloak] {
-    display: none;
-  }
-  .row {
-    clear: both;
-    display: block;
-    padding-bottom: 8px;
-    /* margin-bottom: 8px; */
-    height: auto;
-    /* border-bottom: 1px solid #ececec; */
-    overflow: auto;
-  }
-  .group-heading {
-    /* text-transform: capitalize; */
-    position: relative;
-    color: #bbb;
-    text-transform: uppercase;
-    font-size: 10px;
-    vertical-align: middle;
-    padding: 4px 0;
-    display: inline;
+  font-family: 'Roboto';
+  src: url('file:Roboto-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('file:Roboto-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto';
+  src: url('file:Roboto-LightItalic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+}
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11px;
+  /* font-weight: 300; */
+  color: #aaa;
+  overflow: hidden;
+  -webkit-user-select: none;
+  cursor: default;
+}
+.wrapper {
+  background-color: #fefefe;
+  width: auto;
+  height: 100vh;
+  padding: 12px;
+  padding-top: 38px;
+}
+.dark-mode {
+  background-color: #2E2F30;
+}
+[v-cloak] {
+  display: none;
+}
+.row {
+  clear: both;
+  display: block;
+  padding-bottom: 8px;
+  /* margin-bottom: 8px; */
+  height: auto;
+  /* border-bottom: 1px solid #ececec; */
+  overflow: auto;
+}
+.group-heading {
+  /* text-transform: capitalize; */
+  position: relative;
+  color: #bbb;
+  text-transform: uppercase;
+  font-size: 10px;
+  vertical-align: middle;
+  padding: 4px 0;
+  display: inline;
+  height: 12px;
+  overflow: hidden;
+  letter-spacing: 0.1em;
+}
+.help {
+  float: right;
+  /* right: 0; */
+  position: relative;
+  display: inline;
+  box-sizing: border-box;
+  /* margin: 4px 0; */
+}
+.help .over {
+    width: 12px;
     height: 12px;
-    overflow: hidden;
-    letter-spacing: 0.1em;
-  }
-  .help {
-    float: right;
-    /* right: 0; */
-    position: relative;
-    display: inline;
-    box-sizing: border-box;
-    /* margin: 4px 0; */
-  }
-  .help .over {
-      width: 12px;
-      height: 12px;
-      position: absolute;
-  }
-  .help svg {
-      fill: #bbb;
-      display: inline;
-  }
-  .footer {
-    z-index: 1;
-    bottom: 0;
     position: absolute;
-    background-color: #0377BC;
-    color: #ececec;
-    width: 100vw;
-    /* margin-left: -8px; */
-    text-align: center;
-    padding: 4px 0;
-    line-height: 1.15em;
-  }
-  .lift-enter-active,
-  .lift-leave-active {
-    transition: bottom .5s;
-  }
-  .lift-enter,
-  .lift-leave-to {
-    bottom: -48px;
-  }
-  .button {
-    /* border: 1px solid #dadada; */
-    background-color: rgba(160, 160, 160, 0.03);
-    box-sizing: border-box;
-    display: block;
-    margin: 4px 0;
-    width: 100%;
-    padding-top: 7px;
-    font-size: 12px;
-    text-align: center;
-    align-content: center;
-    font-weight: 300;
-    border-radius: 2px;
-  }
-  .button svg {
-    pointer-events: none;
-    width: 16px;
-    height: 16px;
+}
+.help svg {
+    fill: #bbb;
     display: inline;
-    fill: #0288d1;
-    /* float: left; */
-    margin: 2px;
-    margin-top: -3px;
-  }
-  .button:hover {
-    background-color: rgba(160, 160, 160, 0.15);
-  }
-  .button.big {
-      height: 74px;
-      padding: 16px 0;
-      margin-top: 8px;
-  }
-  .button.big svg {
-      width: 32px;
-      height: 32px;
-  }
-  .button.text {
-      height: 30px;
-      padding: 10px 0;
-  }
-  .button.horiz {
-      color: #aaa;
-      font-size: 10px;
-      display: block;
-      float: left;
-      width: calc(50% - 2px);
-      /* height: 80px; */
-      padding: 16px 0 8px 0;
-      margin-right: 4px;
-  }
-  .button.horiz:last-of-type {
-    margin-right: 0;
-  }
-  .button.horiz svg {
-      width: 14px;
-      height: 14px;
-  }
-  /* .button.horiz {
-      color: #aaa;
-      font-size: 10px;
-      display: block;
-      float: left;
-      width: 32%;
-      /* height: 80px;
-      padding: 16px 0 8px 0;
-      margin-left: 2px;
-  } */
-  /* .button.horiz:not(:first-child) {
-      margin-right: 2px;
-  } */
-  .count {
-    font-size: 18px;
-    margin-bottom: 4px;
-  }
-  hr {
-    border: 0;
-    margin: 10px 0;
-    border-bottom: 1px solid #dadada;
-  }
-  .tooltiptext {
-    visibility: hidden;
-    float: none;
-    pointer-events: none;
-    background-color: #e7e7e7;
-    color: #575757;
-    text-align: center;
-    line-height: 1.15em;
-    border-radius: 1px;
-    font-family: 'Roboto', sans-serif;
-    text-align: left;
-    text-decoration: none;
-    font-size: 11px;
+}
+.footer {
+  z-index: 1;
+  bottom: 0;
+  position: absolute;
+  background-color: #0377BC;
+  color: #ececec;
+  width: 100vw;
+  /* margin-left: -8px; */
+  text-align: center;
+  padding: 4px 0;
+  line-height: 1.15em;
+}
+.lift-enter-active,
+.lift-leave-active {
+  transition: bottom .5s;
+}
+.lift-enter,
+.lift-leave-to {
+  bottom: -48px;
+}
+.button {
+  /* border: 1px solid #dadada; */
+  background-color: rgba(160, 160, 160, 0.03);
+  box-sizing: border-box;
+  display: block;
+  margin: 4px 0;
+  width: 100%;
+  padding-top: 7px;
+  font-size: 12px;
+  text-align: center;
+  align-content: center;
+  font-weight: 300;
+  border-radius: 2px;
+  color: #aaa;
+}
+.button svg {
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+  display: inline;
+  fill: #0288d1;
+  /* float: left; */
+  margin: 2px;
+  margin-top: -3px;
+}
+.button:hover {
+  background-color: rgba(160, 160, 160, 0.15);
+}
+.button.big {
+  height: 74px;
+  padding: 16px 0;
+  margin-top: 8px;
+}
+.button.big svg {
+    width: 32px;
+    height: 32px;
+}
+.button.text {
+    height: 30px;
+    padding: 10px 0;
+}
+.button.horiz {
+    color: #aaa;
+    font-size: 10px;
     display: block;
-    /* Position the tooltip text */
-    position: absolute;
-    padding: 4px 6px;
-    left: 0;
-    opacity: 0;
-    transition: opacity 0.3s;
-    transition-delay: .5s;
-  }
-  .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-  }
+    float: left;
+    width: calc(50% - 2px);
+    /* height: 80px; */
+    padding: 16px 0 8px 0;
+    margin-right: 4px;
+}
+.button.horiz:last-of-type {
+  margin-right: 0;
+}
+.button.horiz svg {
+    width: 14px;
+    height: 14px;
+}
+.checkbox {
+  padding-left: 10px;
+  margin-bottom: 2px;
+}
+.option-checkbox {
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  border: 1px solid #0377BC;
+  padding: 5px;
+  border-radius: 1px;
+  display: inline-block;
+  position: relative;
+  vertical-align: bottom;
+  outline: 0;
+  margin-bottom: 1px;
+}
+.option-checkbox:checked:after {
+  background-color: #0377BC;
+  width: 8px;
+  height: 8px;
+  margin: -4px;
+  content: ' ';
+  position: absolute;
+}
+.count {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+hr {
+  border: 0;
+  margin: 10px 0;
+  border-bottom: 1px solid #dadada;
+}
+/* .tooltiptext {
+  visibility: hidden;
+  float: none;
+  pointer-events: none;
+  background-color: #e7e7e7;
+  color: #575757;
+  text-align: center;
+  line-height: 1.15em;
+  border-radius: 1px;
+  font-family: 'Roboto', sans-serif;
+  text-align: left;
+  text-decoration: none;
+  font-size: 11px;
+  display: block;
+  position: absolute;
+  padding: 4px 6px;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  transition-delay: .5s;
+} */
+/* .tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+} */
 .spinner {
     -webkit-animation: rotator 1.4s linear infinite;
             animation: rotator 1.4s linear infinite;

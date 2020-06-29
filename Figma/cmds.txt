@@ -1,8 +1,3 @@
 npx webpack --mode=development --watch
 
 npx webpack --mode=production
-
-
-Sketch failing after 152 layers
-Check symbols/components
-Check multi work font style names: replace spaces with dashes

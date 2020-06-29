@@ -2,14 +2,13 @@
 import BrowserWindow from 'sketch-module-web-view'
 import { getWebview } from 'sketch-module-web-view/remote'
 import UI from 'sketch/ui'
-// // const commands = require('./commands.js')
 
 
 var devName = 'sumUX';
 var toolName = 'AEUX';
 var docUrl = 'https://aeux.io/';
-var versionNumber = 0.7;
-var document, selection, folderPath, imageList = [], aveName, layerCount, aeSharePath, flatten, hasArtboard, exportCanceled;
+var versionNumber = 0.74;
+var document, selection, folderPath, imageList = [], aveName, layerCount, aeSharePath, flatten, hasArtboard, exportCanceled, imagePath;
 
 
 const webviewIdentifier = 'aeux.webview'
@@ -22,8 +21,8 @@ export default function () {
 
     const options = {
         identifier: webviewIdentifier,
-        width: 180,
-        height: 208,
+        width: 158,
+        height: 212,
         titleBarStyle: 'hiddenInset',
         remembersWindowFrame: true,
         // hidesOnDeactivate: false,
@@ -73,7 +72,8 @@ export default function () {
         NSWorkspace.sharedWorkspace().openURL(NSURL.URLWithString(url))
     })
     // send layer data to Ae
-    webContents.on('fetchAEUX', () => {
+    webContents.on('fetchAEUX', (prefs) => {
+        // UI.alert('prefs', 'got some')
         fetchAEUX()
     })
     // send layer data to Ae
@@ -84,10 +84,27 @@ export default function () {
     webContents.on('flattenCompounds', () => {
         flattenCompounds()
     })
+    // send layer data to Ae
+    webContents.on('rasterizeGroups', () => {
+        rasterizeGroups()
+    })
+    // Used to debug
+    webContents.on('alert', (str) => {
+        UI.alert('Debug:', str)
+    })
 
 
     // set darkmode on launch
     webContents.executeJavaScript(`setDarkMode(${darkMode})`)
+
+    // panel prefs
+    var Settings = require('sketch/settings')
+    var aeuxPrefs = Settings.settingForKey('aeuxPrefs')
+    webContents.executeJavaScript(`setPrefs(${aeuxPrefs})`)
+
+    webContents.on('setPrefs', (prefs) => {
+        Settings.setSettingForKey('aeuxPrefs', prefs)
+    })
 }
 
 // When the plugin is shutdown by Sketch (for example when the user disable the plugin)
@@ -135,7 +152,13 @@ export function fetchAEUX () {
                 getPrefs: true,
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                throw Error('failed to connect')
+            }
+        })
         .then(json => {
             // get back a message from Ae and display it at the bottom of Sketch
             console.log(json)
@@ -160,7 +183,8 @@ export function fetchAEUX () {
             }
         });
     } else {        // save images
-        console.log('images need to be built');
+        console.log('Build images');
+        
         fetch(`http://127.0.0.1:7240/writeFiles`, {
         method: "POST",
             headers: {
@@ -169,12 +193,32 @@ export function fetchAEUX () {
             },
             body: JSON.stringify({
                 switch: 'aftereffects',
-                images: imageList
+                images: imageList,
+                path: imagePath, 
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                throw Error('failed to connect')
+            }
+        })
         .then(res => {
-            console.log(res);
+            console.log('res');
+            if (res.errno == -2) {
+                let msgToWebview = 'Image creation canceled'
+                if (!existingWebview) {     // webview is closed
+                    UI.message(msgToWebview)
+                } else {
+                    // send something to the webview            
+                    existingWebview.webContents.executeJavaScript(`setFooterMsg('${msgToWebview}')`)
+                }
+                return
+            } else if (res.path) {
+                imagePath = res.path     // store the path per session
+            }
+
             aeuxData[0].folderPath = res.path
             
             fetch(`http://127.0.0.1:7240/evalScript`, {
@@ -190,10 +234,30 @@ export function fetchAEUX () {
                     getPrefs: true,
                 })
             })
+            .then(response => response.json())
+            .then(json => {
+                // get back a message from Ae and display it at the bottom of Sketch
+                console.log(json)
+                let lyrs = json.layerCount
+                let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
+
+                if (!existingWebview) {     // webview is closed
+                    UI.message(msg)
+                } else {
+                    // send something to the webview
+                    existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
+                }
+            })
         })
         .catch(e => {
-            console.error(e)
-        });
+            let msgToWebview = 'Unable to communicate with Ae'
+            if (!existingWebview) {     // webview is closed
+                UI.message(msgToWebview)
+            } else {
+                // send something to the webview            
+                existingWebview.webContents.executeJavaScript(`setFooterMsg('${msgToWebview}')`)
+            }
+        })
     }
 }
 
@@ -246,7 +310,7 @@ export function detachSymbols() {
 }
 
 //// simplify complex layers by recursivly flattening compound shapes
-export function flattenCompounds(skipHostNotification) {
+export function flattenCompounds() {
     document = require('sketch/dom').getSelectedDocument();
     selection = document.selectedLayers;
 
@@ -289,7 +353,57 @@ export function flattenCompounds(skipHostNotification) {
         }
     }
 }
+//// recursivly detach symbols from masters
+export function rasterizeGroups() {
+    document = require('sketch/dom').getSelectedDocument();
+    selection = document.selectedLayers;
 
+    // reset vars
+    layerCount = 0;
+    var layers = selection.layers;
+
+    // /// if an artboard is selected, process all layers inside of it
+    // if (layers.length > 0 && (layers[0].type == 'Artboard' || layers[0].type == 'SymbolMaster')) {
+    //     layers = layers[0].layers;
+    // }
+    console.log(layers);
+    layers.forEach(layer => {
+        layer.frame
+    })
+    
+
+    // /// run process
+    // detachChildren(layers);
+
+    /// completion message
+    var existingWebview = getWebview(webviewIdentifier)
+    var lyrs = layerCount
+    var msg = (lyrs == 1) ? lyrs + ' group rasterized' : lyrs + ' groups rasterized'
+    if (!existingWebview) {     // webview is closed
+        UI.message(msg)
+    } else {
+        existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
+    }
+
+    /// recursive func
+    function detachChildren(layers) {
+        for (var i = 0; i < layers.length; i++) {
+            var layer = layers[i];
+
+            if (layer.type == 'Group') {
+                detachChildren(layer.layers)
+            }
+            if (layer.type == 'SymbolInstance') {
+                // detachChildren(layer.master.layers);
+                var detatchedGroup = layer.detach();
+                if (detatchedGroup.layers.length < 2) {
+                    detatchedGroup.sketchObject.ungroup();
+                }
+                layerCount++;
+            }
+        }
+    }
+}
 
 
 //// get all selected layer data
@@ -388,6 +502,7 @@ function getShape(layer) {
         id: layer.id,
         frame: getFrame(layer),
         fill: getFills(layer),
+        // fill: null,
         stroke: getStrokes(layer),
         shadow: getShadows(layer),
         innerShadow: getInnerShadows(layer),
@@ -528,22 +643,23 @@ function getSymbol(layer) {
 function getGroup(layer) {
     var flip = getFlipMultiplier(layer);
 	var layerData =  {
-    type: 'Group',
-    name: '\u25BD ' + layer.name,
-    id: layer.id,
-    frame: getFrame(layer),
-    isVisible: layer.sketchObject.isVisible(),
-		opacity: getOpacity(layer),
-    shadow: getShadows(layer),
-    innerShadow: getInnerShadows(layer),
-    rotation: -layer.sketchObject.rotation() * (flip[0]/100) * (flip[1]/100),
-    blendMode: layer.sketchObject.style().contextSettings().blendMode(),
-    flip: flip,
-    layers: filterTypes(layer),
-    hasClippingMask: layer.sketchObject.hasClippingMask(),
-    shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
-		};
-  return layerData;
+        type: 'Group',
+        name: '\u25BD ' + layer.name,
+        id: layer.id,
+        frame: getFrame(layer),
+        isVisible: layer.sketchObject.isVisible(),
+        opacity: getOpacity(layer),
+        shadow: getShadows(layer),
+        innerShadow: getInnerShadows(layer),
+        rotation: -layer.sketchObject.rotation() * (flip[0]/100) * (flip[1]/100),
+        blendMode: layer.sketchObject.style().contextSettings().blendMode(),
+        flip: flip,
+        layers: filterTypes(layer),
+        hasClippingMask: layer.sketchObject.hasClippingMask(),
+        shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+    }
+
+    return layerData;
 }
 
 
@@ -626,35 +742,49 @@ function getText(layer) {
 
 
 //// get layer data: IMAGE
-function getImage(layer) {
-	var layerData =  {
-        type: 'Image',
-        name: layer.name,
-        id: layer.id,
-        frame: getFrame(layer),
-        isVisible: layer.sketchObject.isVisible(),
-        opacity: getOpacity(layer),
-        blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
-        rotation: -layer.sketchObject.rotation(),
-        hasClippingMask: layer.sketchObject.hasClippingMask(),
-        shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
-    };
+function getImage(layer, filldata) {
+    var layerData = {}
+    
+    if (filldata) {     // image fills 
+        layerData = {
+            type: 'Image',
+            name: filldata.name,
+            id: filldata.id,
+            frame: getFrame(filldata),
+            isVisible: !filldata.hidden,
+            opacity: getOpacity(filldata),
+            blendMode: getLayerBlending(filldata.style.blendMode),
+            rotation: -filldata.transform.rotation,
+            hasClippingMask: filldata.sketchObject.hasClippingMask(),
+            shouldBreakMaskChain: filldata.sketchObject.shouldBreakMaskChain(),
+        }
+    } else {
+        layerData = {
+            type: 'Image',
+            name: layer.name,
+            id: layer.id,
+            frame: getFrame(layer),
+            isVisible: !layer.hidden,
+            opacity: getOpacity(layer),
+            blendMode: getLayerBlending(layer.style.blendMode),
+            rotation: -layer.transform.rotation,
+            hasClippingMask: layer.sketchObject.hasClippingMask(),
+            shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+        }
+    }
+    // UI.alert('layerData', JSON.stringify(layerData, false, 2))
 
-    let imgData = layer.image.nsdata.base64EncodedStringWithOptions(0).toString()
+    let imgData = '' 
+    if (layer.image.nsimage.toString().search('NSBitmapImageRep') != -1) {
+        imgData = layer.image.nsdata.base64EncodedStringWithOptions(0).toString()
+    }
     
     imageList.push({
-        name: layer.id + '.png',
-        // imgData: _arrayBufferToBase64(layer.image.nsdata)
+        name: layerData.id + '.png',
         imgData: `${imgData.replace(/<|>/g, '')}`
-        // imgData: layer.image.nsdata.base64EncodedDataWithOptions(0)
     })
     console.log(imageList)
 
-    // if ( !getFolderPath() ) { return null; }        // canceled
-
-    // var imageFile = exportLayer(layer, folderPath);
-    // layerData.path = imageFile.path;
-    // layerData.scale = imageFile.scale;
     return layerData;
 
 
@@ -665,9 +795,11 @@ function getImage(layer) {
         return {
             path: path,
             scale: 'scale'
-        };
+        }
     }
 }
+
+
 // //// get layer data: IMAGE
 // function getImage(layer) {
 // 	var layerData =  {
@@ -840,7 +972,7 @@ function getPath(layer, frame) {
 
 //// get layer data: OPACITY
 function getOpacity(layer) {
-    return  Math.round(layer.sketchObject.style().contextSettings().opacity() * 100)
+    return  Math.round(layer.style.opacity * 100)
 }
 
 
@@ -874,50 +1006,54 @@ function getFlipMultiplier(layer) {
 //// get layer data: FILL
 function getFills(layer) {
     /// get layer style object
-    var style = layer.sketchObject.style();
+    // var style = layer.sketchObject.style();
+    var style = layer.style;
 
     /// check if the layer has at least one fill
-	var hasFill = ( style.firstEnabledFill() ) ? true : false;
+	var hasFill = ( style.fills.length > 0 ) ? true : false;
 
     if (hasFill) {
 		var fillData = [];
-        var size = [layer.sketchObject.frame().width(), layer.sketchObject.frame().height()];
+        var size = [layer.frame.width, layer.frame.height];
 
         // loop through all fills
-        for (var i = 0; i < style.fills().length; i++) {
-            var fill = style.fills()[i];
+        for (var i = 0; i < style.fills.length; i++) {
+            var fill = style.fills[i];
 
             // add fill to fillProps only if fill is enabled
-            if (fill.isEnabled()) {
+            if (fill.enabled) {
                 // fill is a gradient
-                if (fill.fillType() == 1) {
+                if (fill.fillType == 'Gradient') {
+                    // UI.alert('gradient', JSON.stringify(fill.gradient.gradientType == 'Radial' ))
+                    var color = hexToArray(fill.color)
                     var fillObj = {
                         type: 'gradient',
-                        startPoint: [fill.gradient().from().x * size[0]  - layer.sketchObject.frame().width()/2,
-                                     fill.gradient().from().y * size[1] - layer.sketchObject.frame().height()/2],
-                        endPoint:   [fill.gradient().to().x * size[0] - layer.sketchObject.frame().width()/2,
-                                     fill.gradient().to().y * size[1] - layer.sketchObject.frame().height()/2],
-                        gradType:  fill.gradient().gradientType(),
-                        gradient: getGradient(fill.gradient().stops()),
-                        opacity: Math.round(fill.contextSettings().opacity() * 100),
-                        blendMode: getShapeBlending( fill.contextSettings().blendMode() ),
+                        startPoint: [fill.gradient.from.x * size[0]  - layer.frame.width / 2,
+                                     fill.gradient.from.y * size[1] - layer.frame.height / 2],
+                        endPoint:   [fill.gradient.to.x * size[0] - layer.frame.width / 2,
+                                     fill.gradient.to.y * size[1] - layer.frame.height / 2],
+                        gradType: (fill.gradient.gradientType == 'Radial') ? 1 : 0,
+                        gradient: getGradient(fill.gradient.stops),
+                        opacity: Math.round(color[3] * 100),
+                        blendMode: getShapeBlending(layer.sketchObject.style().fills()[i].contextSettings().blendMode() ),
     				}
                 // fill is an image or texture
-                } else if (fill.fillType() > 3) {
-                    fillData = getImage(layer);
-                    break;
+                // } else if (fill.fillType == 'Pattern') {
+                //     // UI.alert('debug', JSON.stringify(layer, false, 2))
+                //     fillData = getImage(fill.pattern, layer)
+                //     break;
                 // fill is a solid
                 } else {
-                    var color = sketchColorToArray(fill.color());
+                    var color = hexToArray(fill.color)
                     var fillObj = {
     					type: 'fill',
-    					enabled: fill.isEnabled(),
+    					enabled: fill.enabled,
     					color: color,
     					opacity: Math.round(color[3] * 100),
-    					blendMode: getShapeBlending( fill.contextSettings().blendMode() ),
+    					blendMode: getShapeBlending(layer.sketchObject.style().fills()[i].contextSettings().blendMode() ),
     				}
                 }
-
+                // UI.alert('gradient', JSON.stringify(fillObj, false, 2))
                 // add obj string to array
 				fillData.push(fillObj);
 			}
@@ -925,7 +1061,7 @@ function getFills(layer) {
 		return fillData;
 	} else {
 		return null;
-	}
+    }
 }
 
 
@@ -933,49 +1069,50 @@ function getFills(layer) {
 function getStrokes(layer) {
     /// get layer style object
     var style = layer.sketchObject.style();
+    var styleJs = layer.style;
 
     /// check if the layer has at least one stroke
-    var hasStroke = ( style.firstEnabledBorder() ) ? true : false;
+    var hasStroke = ( styleJs.borders.length > 0 ) ? true : false;
 
 	if (hasStroke) {
 		var strokeData = [];
-        var size = [layer.sketchObject.frame().width(), layer.sketchObject.frame().height()];
+        var size = [layer.frame.width, layer.frame.height];
 
         // loop through all strokes
         for (var i = 0; i < style.borders().length; i++) {
             var border = style.borders()[i];
-            if (border.isEnabled()) {
-                var color = sketchColorToArray(border.color());
+            var borderJs = styleJs.borders[i];
+            if (borderJs.enabled) {
+                var color = hexToArray(borderJs.color);
                 // stroke is a gradient
                 if (border.fillType() == 1) {
                     var strokeObj = {
                         type: 'gradient',
-                        startPoint: [border.gradient().from().x * size[0]  - layer.sketchObject.frame().width()/2,
-                                     border.gradient().from().y * size[1] - layer.sketchObject.frame().height()/2],
-                        endPoint:   [border.gradient().to().x * size[0] - layer.sketchObject.frame().width()/2,
-                                     border.gradient().to().y * size[1] - layer.sketchObject.frame().height()/2],
-                        gradType: (border.gradient().gradientType() == 1) ? 2 : 1,
-                        gradient: getGradient(border.gradient().stops()),
+                        startPoint: [borderJs.gradient.from.x * size[0] - layer.frame.width / 2,
+                                     borderJs.gradient.from.y * size[1] - layer.frame.height / 2],
+                        endPoint:   [borderJs.gradient.to.x * size[0] - layer.frame.width / 2,
+                                     borderJs.gradient.to.y * size[1] - layer.frame.height / 2],
+                        gradType: (borderJs.gradient.gradientType == 'Radial') ? 2 : 1,
+                        gradient: getGradient(borderJs.gradient.stops),
         				opacity: color[3] * 100,
-        				width: border.thickness(),
+        				width: borderJs.thickness,
         				cap: style.borderOptions().lineCapStyle(),
         				join: style.borderOptions().lineJoinStyle(),
         				strokeDashes: style.borderOptions().dashPattern(),
-                        opacity: border.contextSettings().opacity() * 100,
-                        blendMode: border.contextSettings().blendMode(),
+                        blendMode: getShapeBlending( border.contextSettings().blendMode() ),
         			}
                 // stroke is a solid
                 } else {
                     var strokeObj = {
                         type: 'fill',
-                        enabled: border.isEnabled(),
+                        enabled: borderJs.enabled,
         				color: color,
         				opacity: color[3] * 100,
-        				width: border.thickness(),
+        				width: borderJs.thickness,
         				cap: style.borderOptions().lineCapStyle(),
         				join: style.borderOptions().lineJoinStyle(),
                         strokeDashes: getDashes( style.borderOptions() ),
-                        blendMode: border.contextSettings().blendMode(),
+                        blendMode: getShapeBlending( border.contextSettings().blendMode() ),
         			}
                 }
 
@@ -1008,17 +1145,18 @@ function getGradient(grad) {
     var gradObj = {
         length: grad.length,
         points: []
-    };
+    }
 
     for (var i = 0; i < gradObj.length; i++) {
-        var colorArr = sketchColorToArray(grad[i].color());
+        var colorArr = hexToArray(grad[i].color)
         gradObj.points.push({
             color: colorArr,
             midPoint: 0.5,
             opacity: colorArr[3],
-            rampPoint: grad[i].position(),
-        });
+            rampPoint: grad[i].position,
+        })
     }
+    
     return gradObj;
 }
 
@@ -1306,11 +1444,13 @@ function sketchColorToArray(c) {
 }
 
 
+
 //// convert hex color to array
 function hexToArray(hexString) {
 	var hexColor = hexString.replace('#', '');
 	var r = parseInt(hexColor.slice(0, 2), 16) / 255,
 		g = parseInt(hexColor.slice(2, 4), 16) / 255,
-		b = parseInt(hexColor.slice(4, 6), 16) / 255;
-	return [r, g, b, 1];
+        b = parseInt(hexColor.slice(4, 6), 16) / 255,
+        a = parseInt(hexColor.slice(6, 8), 16) / 255 || 1
+	return [r, g, b, a];
 }

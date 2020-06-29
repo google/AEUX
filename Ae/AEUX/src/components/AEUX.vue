@@ -1,7 +1,7 @@
 <template>
     <Wrapper v-if="prefsLoaded">
         <!-- <Dropzone /> -->
-        <Row margin="0 auto 8px auto">
+        <Row margin="0 auto 8px auto" style="width: 168px">
             <Button-Group 
                 :active="(prefs.newComp) ? 0 : 1" 
                 exclusive 
@@ -38,6 +38,7 @@
                 label='Frame rate:' 
                 lazy
                 suffix="fps" 
+                size="10"
                 @change="val => setPref('frameRate', val)"
                 :value="prefs.frameRate"
                 :reset-value="prefs.frameRate"
@@ -48,6 +49,7 @@
                 label='Comp duration:' 
                 lazy
                 suffix="seconds" 
+                size="10"
                 @change="val => setPref('duration', val)"
                 :value="prefs.duration"
                 :reset-value="prefs.duration"
@@ -166,143 +168,22 @@ export default {
         // docLink: 'http://aeux.io',
 	}),
 	methods: {
-    aeCall (msg) {
-        amulets.evalScript(msg)
-    },
-    openDocLink () {
-        amulets.webLink(this.docLink)
-    },
-    openConfig () {
-        amulets.openUserFolder('config')
-    },
-    //// read the prefs file outside of the signed extension at intitialization
-    // getPrefs() {
-    //     this.prefs = amulets.getPrefs(this.prefs)
-    //     console.log('prefs', this.prefs);
-    //     this.prefsLoaded = true
-    // },
-    // getPrefsSync() {
-    //     /// read the layer data file
-    //     let prefs = fs.readFileSync(this.userPath + 'config/prefs.json')
-    //     console.log(prefs);
-        
-    //     return JSON.parse(prefs) || this.prefs
-    // },
-    //// save prefs to disk
-    // savePrefs() {
-    //     amulets.savePrefs(this.prefs)
-    // },
-    //// collapse/expand panel groups
-    // fold(name) {
-    //     this.prefs.expand[name] = !this.prefs.expand[name]
-    //     this.savePrefs()
-    // },
-    //// set pref and save to prefs file
-    setPref (pref, value) {
-        this.prefs[pref] = value
-        console.log(pref, this.prefs[pref]);
-        amulets.savePrefs(this.prefs)
-        // this.savePrefs()      
-    },
-    //// message to AE to start building layers from JSON
-    // buildLayers(data) {
-    //   // console.log('data');
-    //   // alert(JSON.stringify(data, false, 2))
-    //   let prefs = amulets.getPrefs()
-    // //   let prefs = this.getPrefsSync()
-    //   /// compare Ae panel version with Sketch panel version
-    //   // if (data[0].aeuxVersion > this.aeuxVersion) {
-    //   //     var msgData = {
-    //   //         text: data[0].hostApp + ' is using a newer version of AEUX. Please download the updated Ae extension.',
-    //   //         url: toolDocUrl,
-    //   //     }
-    //   //     evalScript('updateAePanel', msgData);
-    //   //     return;
-    //   // }
-
-    //   /// obj to stringify and send to AE
-    //   var compObj = {
-    //       prefs: {
-    //         newComp: prefs.newComp,
-    //         parametrics: prefs.parametrics,
-    //         compScale: prefs.compScale,
-    //         precompGroups: prefs.precompGroups,
-    //         frameRate: prefs.frameRate || 60,
-    //       },
-    //       layerData: data,
-    //       // sourcePath: path.split('/').slice(0,-1).join('/'),
-    //   }        
-
-
-    //   amulets.evalScript( 'buildLayers', compObj ).then((results) => {
-    //       /// error msg because the json returned nothing
-    //       console.log(JSON.parse(results));
-          
-    //       if (!JSON.parse(results)) {
-    //           this.footerMessage = 'Open an existing comp first';
-    //           return;
-    //       }
-
-    //       /// show footer message
-    //       var msg = JSON.parse(results).msg;
-    //       this.footerMessage = this.parseFooterMessages(msg);
-    //   });
-    //   this.newLayers = false;
-    // },
-        
-//// read a file from disk then send json data to AE to build layers
-    // buildLayersFromFile (path, updateBgFiles) {
-	// 		fs.readFile(path, 'utf8', (err, layerData) => {
-	// 			var parsedData = JSON.parse(layerData);
-
-	// 			/// compare Ae panel version with Sketch panel version
-	// 			if (parsedData[0].aeuxVersion > versionNumber) {
-	// 				var msgData = {
-	// 					text: parsedData[0].hostApp + ' is using a newer version of AEUX. Please download the updated Ae extension.',
-	// 					url: toolDocUrl,
-	// 				}
-	// 				evalScript('updateAePanel', msgData);
-	// 				return;
-	// 			}
-
-	// 			/// obj to stringify and send to AE
-	// 			var compObj = {
-	// 				prefs: {
-	// 					newComp: this.prefs.newComp,
-	// 					parametrics: this.prefs.parametrics,
-	// 					compScale: this.prefs.compScale,
-	// 					precompGroups: this.prefs.precompGroups,
-	// 					frameRate: this.prefs.frameRate || 60,
-	// 				},
-	// 				layerData: parsedData,
-	// 				sourcePath: path.split('/').slice(0,-1).join('/'),
-	// 			}
-    //             console.log('compObj');
-    //             buildLayers(compObj);
-
-
-    //             /// dropping a file to update the admin files
-    //             if (updateBgFiles) {
-    //                 // console.log(parsedData)
-    //                 var updateTime = new Date().getTime();
-    //                 var manifest = {
-    //                     updateTime: updateTime,
-    //                     artboardName: parsedData[0].name,
-    //                     layerCount: parsedData[0].layerCount,
-    //                   }
-
-    //                 this.prefs.updateTime = updateTime;
-    //                 this.prefs.artboard = {
-    //                     name: parsedData[0].name,
-    //                     layerCount: parsedData[0].layerCount,
-    //                 }
-    //                 this.savePrefs();
-    //                 checkDir(userPath + 'msg/');
-    //                 save_text(userPath + 'msg/manifest.json', JSON.stringify(manifest, false, 2));
-    //                 save_text(userPath + 'msg/aeux.json', layerData);
-    //             }
-	// 		});
-    // },
+        aeCall (msg) {
+            amulets.evalScript(msg)
+        },
+        openDocLink () {
+            amulets.webLink(this.docLink)
+        },
+        openConfig () {
+            amulets.openUserFolder('config')
+        },
+        //// set pref and save to prefs file
+        setPref (pref, value) {
+            this.prefs[pref] = value
+            console.log(pref, this.prefs[pref]);
+            amulets.savePrefs(this.prefs)
+            // this.savePrefs()      
+        },
         parseFooterMessages(msg) {
             /// reset var
             var messagesToPost = [];

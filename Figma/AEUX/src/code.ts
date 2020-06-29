@@ -273,12 +273,16 @@ function findFrame(node) {
 function flattenRecursive(selection, layerCount) {            
     try {
         selection.forEach(shape => {
+            console.log('try flattening', shape);
+            
             if (shape.type == 'BOOLEAN_OPERATION') {
                 figma.flatten( [shape] )
                 layerCount ++
-            }
-
-            if (shape.children) {
+            } else if (shape.cornerRadius == figma.mixed || shape.cornerRadius > 0) {
+                // flatten rounded corners
+                figma.flatten([shape])
+                layerCount++
+            } else if (shape.children) {
                 layerCount = flattenRecursive(shape.children, layerCount)
             } else {
                 let t = shape.relativeTransform;

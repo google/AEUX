@@ -13,8 +13,8 @@
       "identifier": "com.wearesumux.AEUX.panel",
       "script": "./plugin.js",
       "handlers": {
-        "run": "onRun",
         "actions": {
+          "run": "onRun",
           "Shutdown": "onShutdown"
         }
       },
@@ -36,8 +36,7 @@
       "name": "Flatten selected shapes",
       "identifier": "com.wearesumux.AEUX.flatten",
       "script": "./plugin.js",
-      "handler": "flattenCompounds",
-      "shortcut": "ctrl shift x"
+      "handler": "flattenCompounds"
     }
   ],
   "menu": {

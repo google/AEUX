@@ -8,6 +8,7 @@ var JSON;JSON||(JSON={}); (function(){function k(a){return a<10?"0"+a:a}function
 ///////// variables /////////
 var scriptName = 'AEUX';
 var devName = 'sumUX';
+var aeuxVersion = 0.74;
 var hostApp, sourcePath;
 var clippingMask = null;
 var thisComp = null;
@@ -68,9 +69,16 @@ function getCompMultiplier(artboardWidth) {
 function buildLayers(compObj) {
     try {
     // alert(JSON.stringify(compObj, false, 2));
-    // alert(JSON.stringify(compObj.layerData[0], false, 2));
+    // alert(JSON.stringify(compObj.layerData[0].aeuxVersion, false, 2));
+    // alert(JSON.stringify(compObj.layerData[1], false, 2));
+    // alert(JSON.stringify(compObj.layerData[1].layers, false, 2));
     /// reset variables
-    // downloadDialog.hide();
+    let importVersion = compObj.layerData[0].aeuxVersion
+
+    if (aeuxVersion < importVersion) {
+        downloadUpdateDialog()
+        return JSON.stringify(null)
+    }
 
     returnMessage = [];
     if (compObj.prefs) { prefs = compObj.prefs }
@@ -82,7 +90,7 @@ function buildLayers(compObj) {
     // sourcePath = compObj.sourcePath.split('/').slice(0,-1).join('/');		// strip file name from the json file path
     sourcePath = compObj.sourcePath;		// strip file name from the json file path
 // alert(sourcePath)
-    resetProgressDialog('Reading data from Sketch');
+    resetProgressDialog('Reading layer data');
     labelColor = 0;
 
     // if ADD TO CURRENT COMP is enabled
@@ -96,17 +104,18 @@ function buildLayers(compObj) {
     }
 
     // var startTime = new Date();		// start timer for clocking
-
     
     app.beginUndoGroup(scriptName + ' build layers');
 
     /// Progress bar setup ///
     var layerCount = importedLayerCode[0].layerCount.toString();
     progressInc = 1/layerCount;
-    progressText.remove(0);
-    progressText.add('statictext', undefined, 'Building ' + layerCount + ' layers. Thanks for your patience.');
-    progressDialog.layout.layout(true);		// refresh layout
-
+    try {
+        progressText.remove(0);
+        progressText.add('statictext', undefined, 'Building ' + layerCount + ' layers. Thanks for your patience.');
+        progressDialog.layout.layout(true);		// refresh layout
+    } catch (error) {}
+    
 
     // building a temp comp to
     var tempComp = app.project.items.addComp('LOADING...', 500, 500, 1, 1, 1);
@@ -1055,7 +1064,7 @@ function aeImage(layer, opt_parent) {
                 
                 // import
                 if (fileFound) { 
-                  bmpImage = app.project.importFile(bmpFile); 
+                  bmpImage = app.project.importFile(bmpFile);   
                 } else {
                     returnMessage.push(6); 					//'Can't locate image file'
                     bmpImage = app.project.importPlaceholder(layer.id + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
@@ -1070,6 +1079,10 @@ function aeImage(layer, opt_parent) {
             bmpImage.parentFolder = imageFolder;
             // deselect
             bmpImage.selected = false;
+    } else {
+        try {
+            bmpImage.mainSource.reload();  
+        } catch (error) {}
     }
 
     var r = thisComp.layers.add(bmpImage);
@@ -1403,6 +1416,8 @@ function addStroke(r, layer) {
                 stroke.selected = true;
                 applyGradientFfx('stroke', false, layer.stroke[i]);
             }
+            // set blend mode
+            stroke("ADBE Vector Blend Mode").setValue(layer.stroke[i].blendMode);
 
             // apply dashes
             if (layer.stroke[i].strokeDashes.length > 0) {
@@ -2154,19 +2169,23 @@ function setFilePath() {
         alert(e.toString() + "\nError on line: " + e.line.toString());
     }
 }
+function downloadUpdateDialog() {
+    var w = new Window('dialog', 'AEUX update required');
 
-//// Define save location for Figma images
-// function downloadFigmaImages() {
-// 	resetProgressDialog('Downloading Figma images', true);
+    var messageText = w.add('statictext', undefined, `Download a new version of the Ae panel (${importVersion}) from aeux.io`, { multiline: true })
+    messageText.preferredSize.width = 300;
 
-// 	var filePath = Folder.selectDialog(['Download Figma images - Cancel to skip download and just build layers']);
-// 	if (filePath == null) { 	// canceled
-// 		progressDialog.hide();
-// 		return null
-// 	};
+    var buttonGroup = w.add('group {alignment: "right"}');
+    buttonGroup.add('button', undefined, 'Close', { name: 'cancel' })
+    var savePath = buttonGroup.add('button', undefined, 'Download', { name: 'ok' });
 
-// 	return filePath.absoluteURI;
-// }
+    savePath.onClick = function () {
+        visitURL('http://aeux.io')
+        w.close();
+    };
+
+    w.show();
+}
 
 
 //// Progress bar popup as scriptUI

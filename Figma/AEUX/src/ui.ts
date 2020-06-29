@@ -8,6 +8,7 @@ var vm = new Vue({
 		count: null,
 		thinking: false,
         footerMsg: null,
+        imagePath: null,
         prefs: {
             exportRefImage: false,
         }
@@ -131,7 +132,8 @@ onmessage = (event) => {
                 // data: {layerData: aeuxData},
                 switch: 'aftereffects',
                 // getPrefs: true,
-                images: imageList
+                images: imageList,
+                path: vm.imagePath,
             })
         })
         .then(response => {
@@ -146,6 +148,8 @@ onmessage = (event) => {
             if (res.errno == -2) {
                 setfooterMsg(null, 'Image creation canceled')
                 return 
+            } else if (res.path) {
+                vm.imagePath = res.path     // store the path per session
             }
             console.log(res);
             aeuxData[0].folderPath = res.path
@@ -174,7 +178,7 @@ onmessage = (event) => {
 }
 
 function setfooterMsg(layerCount, action) {
-    if (!layerCount) {
+    if (layerCount === null) {
         vm.footerMsg = action
     } else if (layerCount == 1) {
         vm.footerMsg = layerCount + ' layer ' + action

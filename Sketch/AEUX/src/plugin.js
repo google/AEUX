@@ -1032,7 +1032,7 @@ function getFills(layer) {
                                      fill.gradient.from.y * size[1] - layer.frame.height / 2],
                         endPoint:   [fill.gradient.to.x * size[0] - layer.frame.width / 2,
                                      fill.gradient.to.y * size[1] - layer.frame.height / 2],
-                        gradType: (fill.gradient.gradientType == 'Radial') ? 1 : 0,
+                        gradType: (fill.gradient.gradientType == 'Radial') ? 2 : 1,
                         gradient: getGradient(fill.gradient.stops),
                         opacity: Math.round(color[3] * 100),
                         blendMode: getShapeBlending(layer.sketchObject.style().fills()[i].contextSettings().blendMode() ),

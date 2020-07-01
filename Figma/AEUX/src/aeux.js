@@ -914,11 +914,11 @@ function getFillType(type) {
     if (type.search(/gradient/i) > -1) {
         typeList.push(1);       // it's a gradient
         if (type == 'GRADIENT_LINEAR') {
-            typeList.push(0);   // it's a linear gradient
+            typeList.push(1);   // it's a linear gradient
         } else if (type == 'GRADIENT_RADIAL') {
-            typeList.push(1);   // it's a radial gradient
+            typeList.push(2);   // it's a radial gradient
         } else {
-            typeList.push(2);   // it's a linear or anything else
+            typeList.push(1);   // it's a linear or anything else
         }
     } else {
         typeList.push(0);       // it's a solid
@@ -1085,7 +1085,7 @@ function getPath(layer, bounding, type) {
     // console.log(layer);
     
     var pathStr, pathObj;
-    if (layer.vectorPaths) {       // find an individual path
+    if (layer.vectorPaths && layer.vectorPaths.length > 0) {       // find an individual path
         pathStr = layer.vectorPaths || layer;
         pathObj = parseSvg(pathStr[0].data);
         // console.log(pathObj);

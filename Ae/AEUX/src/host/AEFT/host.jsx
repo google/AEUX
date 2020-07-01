@@ -486,6 +486,11 @@ var AEUX = (function () {
         if (polyType == 1) {
             r(2)(1)(2)(1)('ADBE Vector Star Inner Radius').setValue(layer.outerRad * layer.innerRad);
         }
+        if (layer.roundness > 0) {
+            var rounding = Math.min(layer.roundness, Math.min(layer.frame.width, layer.frame.height) / 2);
+            var round = r(2).addProperty('ADBE Vector Filter - RC');
+            round('ADBE Vector RoundCorner Radius').setValue(rounding);
+        }
         addStroke(r, layer);
         addFill(r, layer);
         addDropShadow(r, layer);
@@ -497,7 +502,7 @@ var AEUX = (function () {
             scaleRatio[0] = 100 * layer.frame.width / layer.frame.height;
         }
         else if (layer.frame.height > layer.frame.width) {
-            scaleRatio[1] = 100 * layer.frame.height / layer.frame.frame;
+            scaleRatio[1] = 100 * layer.frame.height / layer.frame.width;
         }
         r(2)(1)('ADBE Vector Transform Group')('ADBE Vector Scale').setValue([scaleRatio[0] * compMult, scaleRatio[1] * compMult]);
         r(2)(1)('ADBE Vector Transform Group')('ADBE Vector Rotation').setValue(layer.rotation);
@@ -863,20 +868,9 @@ var AEUX = (function () {
                     fill("ADBE Vector Fill Opacity").setValue(layer.fill[i].opacity);
                 }
                 if (layer.fill[i].type == 'gradient') {
-                    var gradType;
-                    if (layer.fill[i].gradType == 0) {
-                        gradType = 1;
-                    }
-                    else if (layer.fill[i].gradType == 1) {
-                        gradType = 2;
-                    }
-                    else {
-                        gradType = 1;
-                        returnMessage.push(2);
-                    }
                     fill = r(2)(1)(2).addProperty('ADBE Vector Graphic - G-Fill');
                     fill("ADBE Vector Fill Opacity").setValue(layer.fill[i].opacity);
-                    fill('ADBE Vector Grad Type').setValue(gradType);
+                    fill('ADBE Vector Grad Type').setValue(layer.fill[i].gradType);
                     fill('ADBE Vector Grad Start Pt').setValue(layer.fill[i].startPoint);
                     fill('ADBE Vector Grad End Pt').setValue(layer.fill[i].endPoint);
                     ae_deselectProps();

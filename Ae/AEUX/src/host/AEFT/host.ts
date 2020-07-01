@@ -749,6 +749,13 @@ function aeStar(layer, opt_parent) {
       r(2)(1)(2)(1)('ADBE Vector Star Inner Radius').setValue(layer.outerRad * layer.innerRad);
     }
 
+    /// round corners if roundness greater than 0
+    if (layer.roundness > 0) {
+        var rounding = Math.min(layer.roundness, Math.min(layer.frame.width, layer.frame.height) / 2);
+        var round = r(2).addProperty('ADBE Vector Filter - RC');
+        round('ADBE Vector RoundCorner Radius').setValue(rounding);
+    }
+
     /// add layer elements
     addStroke(r, layer);
     addFill(r, layer);
@@ -763,7 +770,7 @@ function aeStar(layer, opt_parent) {
     if (layer.frame.width > layer.frame.height) {
       scaleRatio[0] = 100 * layer.frame.width / layer.frame.height;
     } else if (layer.frame.height > layer.frame.width) {
-      scaleRatio[1] = 100 * layer.frame.height / layer.frame.frame;
+      scaleRatio[1] = 100 * layer.frame.height / layer.frame.width;
     }
     
     // set transforms
@@ -1352,23 +1359,23 @@ function addFill(r, layer) {
                 fill("ADBE Vector Fill Opacity").setValue(layer.fill[i].opacity);
             }
             if (layer.fill[i].type == 'gradient') {
-                var gradType;
-                // linear
-                if (layer.fill[i].gradType == 0) {
-                    gradType = 1;
-                // radial
-                } else if (layer.fill[i].gradType == 1) {
-                    gradType = 2;
-                // linear as default
-                } else {
-                    gradType = 1;
-                    returnMessage.push(2);		// 'Angular gradients'
-                }
+                // var gradType;
+                // // linear
+                // if (layer.fill[i].gradType == 0) {
+                //     gradType = 1;
+                // // radial
+                // } else if (layer.fill[i].gradType == 1) {
+                //     gradType = 2;
+                // // linear as default
+                // } else {
+                //     gradType = 1;
+                //     returnMessage.push(2);		// 'Angular gradients'
+                // }
                 // add a gradient element
                 fill = r(2)(1)(2).addProperty('ADBE Vector Graphic - G-Fill');
                 // set color and visibility
                 fill("ADBE Vector Fill Opacity").setValue(layer.fill[i].opacity);
-                fill('ADBE Vector Grad Type').setValue(gradType);
+                fill('ADBE Vector Grad Type').setValue(layer.fill[i].gradType);
                 fill('ADBE Vector Grad Start Pt').setValue(layer.fill[i].startPoint);
                 fill('ADBE Vector Grad End Pt').setValue(layer.fill[i].endPoint);
 

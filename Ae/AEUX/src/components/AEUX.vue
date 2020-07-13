@@ -1,6 +1,9 @@
 <template>
     <Wrapper v-if="prefsLoaded">
-        <!-- <Dropzone /> -->
+        <Dropzone 
+            :accepts="[ '.json' ]"
+            auto-read auto-parse @read="buildLayers"
+        />
         <Row margin="0 auto 8px auto" style="width: 168px">
             <Button-Group 
                 :active="(prefs.newComp) ? 0 : 1" 
@@ -168,8 +171,11 @@ export default {
         // docLink: 'http://aeux.io',
 	}),
 	methods: {
-        aeCall (msg) {
-            amulets.evalScript(msg)
+        aeCall (msg, data) {
+            amulets.evalScript(msg, data)
+        },
+        buildLayers (layerData) {
+            amulets.evalScript('buildLayers', {layerData})
         },
         openDocLink () {
             amulets.webLink(this.docLink)

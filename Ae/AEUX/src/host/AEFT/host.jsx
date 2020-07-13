@@ -45,7 +45,7 @@ var AEUX = (function () {
             return d = eval("(" + a + ")"), typeof e === "function" ? c({ "": d }, "") : d; throw new SyntaxError("JSON.parse"); }; })();
     var scriptName = 'AEUX';
     var devName = 'sumUX';
-    var aeuxVersion = 0.74;
+    var aeuxVersion = 0.75;
     var hostApp, sourcePath;
     var clippingMask = null;
     var thisComp = null;

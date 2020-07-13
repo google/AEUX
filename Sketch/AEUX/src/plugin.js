@@ -7,7 +7,7 @@ import UI from 'sketch/ui'
 var devName = 'sumUX';
 var toolName = 'AEUX';
 var docUrl = 'https://aeux.io/';
-var versionNumber = 0.74;
+var versionNumber = 0.75;
 var document, selection, folderPath, imageList = [], aveName, layerCount, aeSharePath, flatten, hasArtboard, exportCanceled, imagePath;
 
 

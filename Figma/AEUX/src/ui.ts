@@ -1,6 +1,7 @@
 import * as fileType from 'file-type'
 import Vue from 'vue/dist/vue.esm.js'
 import * as aeux from './aeux.js'
+import { saveAs } from 'file-saver';
 import './ui.css'
 var vm = new Vue({
 	el: '#app',
@@ -14,10 +15,10 @@ var vm = new Vue({
         }
 	},
 	methods: {  
-		exportSelection () {
+        exportSelection() {
             this.thinking = 'fetchAEUX'
             // setTimeout(() => {
-            parent.postMessage({ pluginMessage: { type: 'exportSelection' } }, '*')
+            parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: event.shiftKey } }, '*')
             // }, 500);
         },
         detachComponents () {
@@ -51,6 +52,26 @@ onmessage = (event) => {
   
     if (msg && msg.type === 'retPrefs') {
         vm.prefs = msg.prefs 
+    }
+
+    if (msg && msg.type === 'exportAEUX') {
+        // console.log(msg.imageBytesList);
+        if (!msg.data) {
+            vm.thinking = false
+            setfooterMsg(null, 'Select layers first');
+            return
+        }
+        let aeuxData = aeux.convert(msg.data[0])		// convert layer data
+        console.log(aeuxData);
+
+        var blob = new Blob([JSON.stringify(aeuxData, false, 2)], {
+            type: "text/plain;charset=ansi"
+        });
+
+        saveAs(blob, "AEUX.json");
+        console.log('save');
+
+        vm.thinking = false
     }
 
 	if (msg && msg.type === 'fetchAEUX') {
@@ -144,6 +165,7 @@ onmessage = (event) => {
             // }
         })
         .then(res => {
+            console.log('res', res);
             // Ae image export canceled
             if (res.errno == -2) {
                 setfooterMsg(null, 'Image creation canceled')
@@ -151,7 +173,7 @@ onmessage = (event) => {
             } else if (res.path) {
                 vm.imagePath = res.path     // store the path per session
             }
-            console.log(res);
+            
             aeuxData[0].folderPath = res.path
             
             fetch(`http://127.0.0.1:7240/evalscript`, {

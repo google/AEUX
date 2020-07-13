@@ -44,6 +44,8 @@ figma.ui.onmessage = message => {
         frameArr = []
         imageHashList = []
         imageBytesList = []
+        let exportJSON = false
+        if (message.exportJSON) { exportJSON = true}
 
         if (figma.currentPage.selection.length < 1) {       // nothing selected
             figma.ui.postMessage({ type: 'fetchAEUX', data: null });
@@ -96,10 +98,12 @@ figma.ui.onmessage = message => {
             })
         } else {
             // check if images need to export then send message to ui.ts
-            if (imageHashList.length > 0) {
-                storeImageData(Array.from(new Set(imageHashList)), frameArr)
-            } else {
+            if (exportJSON) {
+                figma.ui.postMessage({ type: 'exportAEUX', data: frameArr }); 
+            } else if (imageHashList.length < 1) {
                 figma.ui.postMessage({ type: 'fetchAEUX', data: frameArr });
+            } else {
+                storeImageData(Array.from(new Set(imageHashList)), frameArr)
             }
         }
   }

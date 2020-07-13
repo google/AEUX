@@ -1,5 +1,5 @@
 /*jshint esversion: 6, asi: true*/
-var versionNumber = 0.74;
+var versionNumber = 0.75;
 var frameData, layers, hasArtboard, layerCount, layerData, boolOffset;
 export function convert (data) {
     hasArtboard = false;

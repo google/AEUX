@@ -1,0 +1,107 @@
+/**
+ * Custom Styles here.
+ *
+ * ref：https://v1.vuepress.vuejs.org/config/#index-styl
+ */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Mono&family=Fira+Sans&family=Work+Sans&display=swap');
+
+.home .hero img {
+  max-width: 410px !important;
+  max-height: none !important;
+  height: intrinsic;
+  width: 100%;
+}
+
+:root {
+    --accent: #5688B3
+}
+body {
+  //font-family: 'Fira Mono', monospace;
+  font-family: 'Work Sans', sans-serif;
+  font-size: 14px;
+  color: #1C1C1C;
+}
+header {
+  flex-wrap: wrap;
+}
+header .text {
+  display: flex;
+  flex-direction: column;
+  margin: 3rem auto 1.5rem;
+  text-align: left;
+  justify-content: center;
+  max-width: 400px;
+  flex-wrap: wrap;
+}
+header .text>* {
+  margin: 10px 0 !important;
+}
+.guide-img {
+  width: 50%;
+}
+.action-img {
+  width: 90px;
+  float: left;
+}
+.custom-block.tip {
+  border-color: var(--accent);
+}
+li>ul>li {
+  line-break: anywhere;
+}
+
+.action-button {
+  display: inline-block;
+  font-size: 1rem !important;
+  padding: 0.5rem 1.1rem !important;
+  transition: all 0.1s linear;
+  box-sizing: border-box;
+  color: #5688b3 !important;
+  text-transform: uppercase;
+  font-family: 'Fira Mono', monospace;
+  border: 2px solid #5688b3 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  margin: 20px 0 0;
+}
+
+.action-button:hover {
+  background: #5688b3 !important;
+  color: #fff !important;
+}
+
+h1, h2, h3, h4, h5, h6, .site-name {
+    font-weight: 400 !important;
+    font-family: 'Fira Mono', monospace;
+}
+h1 {
+    font-size: 2.6rem;
+}
+h2 {
+    font-size: 1.9rem;
+    margin-bottom: 0.4rem !important;
+}
+
+.home .hero h1 {
+  margin-bottom: 0px !important;
+  color: #3a5169;
+}
+
+@media (max-width: 419px) {
+  .home .hero img {
+    margin: 0;
+  }
+  .home .hero .text {
+    margin-top: 0px;
+  }
+  .guide-img {
+    width: auto;
+  }
+  .home .hero h1 {
+    margin-bottom: 0px !important;
+    font-size: 2.8rem !important;
+  }
+  .description {
+    font-size: 1.6rem !important;
+  }
+}

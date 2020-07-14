@@ -6,6 +6,10 @@
     <description>Transfer layers to After Effects</description>
     <language>en</language>
     <item>
+      <title>Version 0.6.9</title>
+      <description>
+          Catalina support, major speed and stability improvements. Download Ae panel updates at aeux.io.
+      </description>
       <enclosure url="https://github.com/google/sketch2ae/releases/download/v0.7.5/aeux.sketchplugin.zip" sparkle:version="0.7.5"/>
     </item>
     <item>

@@ -6,6 +6,9 @@
     <description>Transfer layers to After Effects</description>
     <language>en</language>
     <item>
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/v3.0.0/aeux.sketchplugin.zip" sparkle:version="3.0.0"/>
+    </item>
+    <item>
       <enclosure url="https://github.com/google/sketch2ae/releases/download/v2.0.0/aeux.sketchplugin.zip" sparkle:version="2.0.0"/>
     </item>
     <item>

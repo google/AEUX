@@ -21,6 +21,7 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
+    "@figma-plugin/helpers": "^0.13.2",
     "file-saver": "^2.0.2",
     "file-type": "^12.4.2",
     "fs": "0.0.1-security",

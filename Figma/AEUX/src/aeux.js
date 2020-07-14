@@ -1,4 +1,6 @@
 /*jshint esversion: 6, asi: true*/
+import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
+
 var versionNumber = 0.75;
 var frameData, layers, hasArtboard, layerCount, layerData, boolOffset;
 export function convert (data) {
@@ -719,38 +721,27 @@ function getFills(layer) {
                 if (fillType[0] > 0) {
                     var gradType = fillType[1];
                     
+                    let points = {}
+                    if (gradType == 2) {
+                        let radialPoints = extractRadialOrDiamondGradientParams(layer.width, layer.height, fill.gradientTransform)
+                        let rad = radialPoints.radius[0]
+                        points.start = radialPoints.center
+                        points.end = [points.start[0] + rad, points.start[1]]
+                    } else {
+                        points = extractLinearGradientParamsFromTransform(layer.width, layer.height, fill.gradientTransform)
+                    }                    
+                    
                     fillObj = {
                         type: 'gradient',
-                        // startPoint: [-0.5 * layer.width, -0.5 * layer.height],
-                        startPoint: [0,
-                            (-0.5 - fill.gradientTransform[0][2]) * layer.height],
-                        endPoint: [0, 0.5 * layer.height],
-                        // endPoint: [0.5 * layer.width, 0.5 * layer.height],
-                        
-                        // startPoint: [fill.gradientTransform[1][2] * layer.width,
-                        //         (-0.5-fill.gradientTransform[0][2]) * layer.height],
-                        // endPoint:   [0,0],
-                        // endPoint:   [fill.gradientTransform[1][0],
-                        //              fill.gradientTransform[1][1]],
+                        // startPoint: [points.start[0], points.start[1] ],
+                        // endPoint: [points.end[0], points.end[1] ],
+                        startPoint: [points.start[0] - layer.width / 2, points.start[1] - layer.height / 2 ],
+                        endPoint: [points.end[0] - layer.width / 2, points.end[1] - layer.height / 2 ],
                         gradType:  gradType,
                         gradient: getGradient(fill.gradientStops),
                         opacity: 100,
                         blendMode: getShapeBlending( fill.blendMode ),
                     }
-                    // console.log(fill.gradientTransform);
-                    
-                    // console.log('FIRST Transform',
-                    //     [fill.gradientTransform[0][0].toFixed(2), fill.gradientTransform[0][1].toFixed(2), -fill.gradientTransform[0][2].toFixed(2)]
-                    // );
-                    // console.log('SECOND Transform',
-                    //     [fill.gradientTransform[1][0].toFixed(2), fill.gradientTransform[1][1].toFixed(2), -fill.gradientTransform[1][2].toFixed(2)]
-                    // );
-                    // console.log('translate',
-                    //     [fillObj.startPoint[0].toFixed(2), fillObj.startPoint[1].toFixed(2)]
-                    // );
-                    // console.log('point 01',
-                    //     [fillObj.endPoint[0].toFixed(2), fillObj.endPoint[1].toFixed(2)]
-                    // );
                     
                 // fill is an image or texture
                 } else if (fill.type == 'IMAGE') {
@@ -822,14 +813,20 @@ function getStrokes(layer) {
                 if (fillType[0] > 0) {
                     var gradType = fillType[1];
 
+                    let points = {}
+                    if (gradType == 2) {
+                        let radialPoints = extractRadialOrDiamondGradientParams(layer.width, layer.height, stroke.gradientTransform)
+                        let rad = radialPoints.radius[0]
+                        points.start = radialPoints.center
+                        points.end = [points.start[0] + rad, points.start[1]]
+                    } else {
+                        points = extractLinearGradientParamsFromTransform(layer.width, layer.height, stroke.gradientTransform)
+                    }  
+
                     strokeObj = {
                         type: 'gradient',
-                        startPoint: [-0.5 * layer.width, -0.5 * layer.height],
-                        endPoint: [0.5 * layer.width, 0.5 * layer.height],
-                        // startPoint: [stroke.gradientTransform[0][0] * size[0] - size[0]/2,
-                        //              stroke.gradientTransform[0][1] * size[1] - size[1]/2],
-                        // endPoint:   [stroke.gradientTransform[1][0] * size[0] - size[0]/2,
-                        //              stroke.gradientTransform[1][1] * size[1] - size[1]/2],
+                        startPoint: [points.start[0] - layer.width / 2, points.start[1] - layer.height / 2],
+                        endPoint: [points.end[0] - layer.width / 2, points.end[1] - layer.height / 2],
                         gradType:  gradType,
                         gradient: getGradient(stroke.gradientStops),
         				opacity: 100,
@@ -895,7 +892,7 @@ function getGradient(grad) {
             rampPoint: grad[i].position,
         });
     }
-    console.log('gradObj', gradObj);
+    // console.log('gradObj', gradObj);
     
     return gradObj;
 }

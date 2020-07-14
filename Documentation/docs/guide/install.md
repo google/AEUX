@@ -1,6 +1,7 @@
 ---
 currentVersion: 0.8.0
 figmaLink: http://aeux.io
+figmaLinkGoogler: https://www.figma.com/community/plugin/864522107465619637/AEUX
 fiftyTwoDownload: /legacy-download/AEUX_0.6.9.zip
 fiftyDownload: /legacy-download/Sketch2AE_0.54.zip
 ---
@@ -10,11 +11,6 @@ fiftyDownload: /legacy-download/Sketch2AE_0.54.zip
 ::: tip Restart your computer
 If transfers don't seem to work after installation, try restarting your machine. This can reset the connection system that handles layer transfer.
 :::
-
-<!-- ## Figma
-- Install in <a :href="$frontmatter.figmaLink">Figma</a>
-- Right-click within a Figma file and navigate to Plugins>AEUX
-- Click to open the panel -->
 
 ## Sketch
 - Double click **AEUX.sketchplugin**
@@ -41,6 +37,13 @@ If you follow all the Ae instructions and AEUX still isn't showing up in the AE 
 :::
 
 ## Figma
+### For Googlers
+- Install in <a :href="$frontmatter.figmaLinkGoogler">Figma</a>
+- Right-click within a Figma file and navigate to Plugins > AEUX
+- Click to open the panel
+
+### For non-Googlers
+
 The plugin is not yet published on [figma.com/plugins](http://figma.com/plugins) so the installation process is a little more involved than it will be.
 
 - Right-click the canvas or the top left hamburger menu and navigate to Plugins>Development>New Plugin…

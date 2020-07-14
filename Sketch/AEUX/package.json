@@ -1,9 +1,10 @@
 {
   "name": "aeux",
-  "version": "0.7.5",
+  "version": "1.0.0",
   "engines": {
     "sketch": ">=3.0"
   },
+  "repository": "https://github.com/google/sketch2ae",
   "skpm": {
     "name": "AEUX",
     "manifest": "src/manifest.json",
@@ -35,6 +36,7 @@
   ],
   "dependencies": {
     "sketch-module-web-view": "^3.1.4",
+    "skpm": "^1.3.1",
     "vue": "^2.6.10"
   },
   "author": "Adam Plouff <adamplouff@gmail.com>"

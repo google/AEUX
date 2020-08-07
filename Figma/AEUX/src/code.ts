@@ -82,10 +82,11 @@ figma.ui.onmessage = message => {
                 // needs to export images then send to ui.ts
             })
             .then(() => {
+                let parentFrameName = parentFrame.name.replace(/\s*(\/|\\)\s*/g, '-')
                 let refImg = {
                     type: 'Image',
-                    name: parentFrame.name + '_reference',
-                    id: parentFrame.name + '_reference',
+                    name: parentFrameName + '_reference',
+                    id: parentFrameName + '_reference',
                     frame: { x: parentFrame.width / 2, y: parentFrame.height / 2, width: parentFrame.width, height: parentFrame.height},
                     isVisible: true,
                     opacity: 50,
@@ -249,7 +250,9 @@ async function storeImageData (imageHashList, layers, refImg) {
     for (const i in imageHashList) {
         // console.log(element[i]);
         const hash = imageHashList[i].hash;
-        const name = imageHashList[i].id.replace(/:/g, '-');
+        const name = imageHashList[i].id
+            .replace(/:/g, '-')     // remove colons
+            .replace(/\s*(\/|\\)\s*/g, '-')    // remove slashes
 
         let image = figma.getImageByHash(hash)
         let bytes = await image.getBytesAsync()

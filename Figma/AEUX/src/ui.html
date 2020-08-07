@@ -1,13 +1,13 @@
 <div id="app">
 
-  <transition name="lift">
-    <div class="footer" v-show="footerMsg">
-        <div class="count">
-            {{ count }}
+    <transition name="lift">
+        <div class="footer" v-show="footerMsg">
+            <div class="count">
+                {{ count }}
+            </div>
+            {{ footerMsg }}
         </div>
-        {{ footerMsg }}
-    </div>
-</transition>
+    </transition>
 
     <div id="export-selection" 
         class="button big" 

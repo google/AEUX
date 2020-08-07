@@ -1,10 +1,11 @@
 {
   "name": "aeux",
-  "version": "0.7.3",
+  "version": "0.7.5",
   "description": "This plugin template uses Typescript. If you are familiar with Javascript, Typescript will look very familiar. In fact, valid Javascript code is already valid Typescript code.",
   "main": "code.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "npx webpack --mode=development --watch",
+    "build": "npx webpack --mode=production"
   },
   "author": "",
   "repository": "",

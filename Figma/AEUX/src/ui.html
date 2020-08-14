@@ -12,7 +12,7 @@
     <div id="export-selection" 
         class="button big" 
         :class="{thinking: thinking}" 
-        @click="exportSelection">
+        @click="exportSelection($event)">
         <svg v-show="thinking !== 'fetchAEUX'" fill="#000000" viewBox="0 0 24 24" width="24">
             <path d="M0 0h24v24H0z" fill="none" />
             <path

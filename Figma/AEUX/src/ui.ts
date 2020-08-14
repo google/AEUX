@@ -15,10 +15,11 @@ var vm = new Vue({
         }
 	},
 	methods: {  
-        exportSelection() {
+        exportSelection(e) {
             this.thinking = 'fetchAEUX'
             // setTimeout(() => {
-            parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: event.shiftKey } }, '*')
+            let shiftKey = e.shiftKey
+            parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: shiftKey } }, '*')
             // }, 500);
         },
         detachComponents () {
@@ -64,7 +65,7 @@ onmessage = (event) => {
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
         console.log(aeuxData);
 
-        var blob = new Blob([JSON.stringify(aeuxData, false, 2)], {
+        var blob = new Blob([JSON.stringify(aeuxData, null, 2)], {
             type: "text/plain;charset=ansi"
         });
 

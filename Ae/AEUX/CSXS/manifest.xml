@@ -11,7 +11,7 @@
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
-      <Host Name="AEFT" Version="15.0" />
+      <Host Name="AEFT" Version="16.0" />
     </HostList>
     <LocaleList>
       <Locale Code="All" />
@@ -24,8 +24,8 @@
     <Extension Id="com.aeux.panel">
       <DispatchInfo>
         <Resources>
-          <MainPath>./dist/index.html</MainPath>
-          <!-- <MainPath>./public/index-dev.html</MainPath> -->
+          <MainPath>./public/index-dev.html</MainPath>
+          <!-- <MainPath>./dist/index.html</MainPath> -->
           <CEFCommandLine>
             <Parameter>--enable-nodejs</Parameter>
             <Parameter>--mixed-context</Parameter>
@@ -64,8 +64,8 @@
     <Extension Id="com.aeux.server">
       <DispatchInfo>
         <Resources>
-          <MainPath>./dist/index.html</MainPath>
-          <!-- <MainPath>./public/index-dev.html</MainPath> -->
+          <MainPath>./public/index-dev.html</MainPath>
+          <!-- <MainPath>./dist/index.html</MainPath> -->
           <CEFCommandLine>
             <Parameter>--enable-nodejs</Parameter>
             <Parameter>--mixed-context</Parameter>

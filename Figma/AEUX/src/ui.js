@@ -71,6 +71,8 @@ onmessage = (event) => {
         console.log(aeuxData);
         let imageList = [];
         msg.images.forEach(img => {
+            console.log('img.bytes', img.bytes);
+            
             const filetype = fileType(img.bytes);
             // const blob = new Blob([img.bytes], { type: filetype.mime })
             const name = img.name + '.' + filetype.ext;

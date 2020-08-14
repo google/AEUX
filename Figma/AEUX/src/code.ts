@@ -3,7 +3,9 @@ let hasFrameData;
 let frameArr = []
 let imageHashList = []
 let imageBytesList = []
-let prefs = {}
+let prefs = {
+    exportRefImage: false,
+}
 
 // receive message from the UI
 figma.ui.onmessage = message => {
@@ -39,7 +41,7 @@ figma.ui.onmessage = message => {
         
     }
 
-	if (message.type === 'exportSelection') {
+	if (message.type === 'exportSelection') {        
         hasFrameData = false;
         frameArr = []
         imageHashList = []
@@ -68,13 +70,14 @@ figma.ui.onmessage = message => {
         // if exportRefImage is enabled
         if (prefs.exportRefImage) {         // include a reference image with transfer
             let parentFrame = findFrame(figma.currentPage.selection[0])
+            console.log('exportRefImage', prefs.exportRefImage);
 
             let options = {
                 format: "PNG",
                 constraint: { type: "SCALE", value: 6 }
             }
             parentFrame.exportAsync(options)
-            .then(img => {                
+            .then(img => {                                
                 imageHashList.push({
                     hash: figma.createImage(img).hash,
                     id: parentFrame.name + '_reference'     /// xxx need an image name
@@ -95,16 +98,16 @@ figma.ui.onmessage = message => {
                     rotation: 0,
                     guide: true,
                 }
-                storeImageData(Array.from(new Set(imageHashList)), frameArr, refImg )
+                storeImageData(Array.from(new Set(imageHashList)), frameArr, refImg)
             })
         } else {
             // check if images need to export then send message to ui.ts
-            if (exportJSON) {
+            if (exportJSON) {                
                 figma.ui.postMessage({ type: 'exportAEUX', data: frameArr }); 
             } else if (imageHashList.length < 1) {
                 figma.ui.postMessage({ type: 'fetchAEUX', data: frameArr });
             } else {
-                storeImageData(Array.from(new Set(imageHashList)), frameArr)
+                storeImageData(Array.from(new Set(imageHashList)), frameArr, null)
             }
         }
   }
@@ -254,14 +257,19 @@ async function storeImageData (imageHashList, layers, refImg) {
             .replace(/:/g, '-')     // remove colons
             .replace(/\s*(\/|\\)\s*/g, '-')    // remove slashes
 
-        let image = figma.getImageByHash(hash)
-        let bytes = await image.getBytesAsync()
+        try {
+            let image = figma.getImageByHash(hash)
+            let bytes = await image.getBytesAsync()
 
-        imageBytesList.push({name, bytes})
-        console.log(bytes);
+            imageBytesList.push({ name, bytes })
+            // console.log(bytes);
+        } catch (error) {}
     }
-    
-    figma.ui.postMessage({type: 'fetchImagesAndAEUX', images: imageBytesList, data: layers, refImg});
+    if (imageBytesList.length > 0) {
+        figma.ui.postMessage({type: 'fetchImagesAndAEUX', images: imageBytesList, data: layers, refImg});
+    } else {
+        figma.ui.postMessage({ type: 'fetchAEUX', data: layers });
+    }
     
 }
 function findFrame(node) {
@@ -343,27 +351,11 @@ function rasterizeSelection(selection, layerCount) {
                     rect.relativeTransform = shapeTransform
                     rect.name = shape.name + '_rasterize'
                     rect.resize( shape.width, shape.height)
-                    
-                    let fillObj = {
-                        blendMode: "NORMAL",
-                        filters:{
-                            contrast: 0,
-                            exposure: 0,
-                            highlights: 0,
-                            saturation: 0,
-                            shadows: 0,
-                            temperature: 0,
-                            tint: 0,
-                        },
-                        imageHash: figma.createImage(img).hash,
-                        imageTransform: [[1, 0, 0], [0, 1, 0]],
-                        opacity: 1,
-                        scaleMode: "CROP",
-                        scalingFactor: 0.5,
-                        type: "IMAGE",
-                        visible: true,
-                    }
-                    rect.fills = [fillObj]                    
+
+                    let fillObj = JSON.parse(JSON.stringify(rect.fills))
+                    fillObj.imageHash = figma.createImage(img).hash
+
+                    rect.fills = fillObj
                     newSelection.push(rect)
 
                     shape.relativeTransform = shapeTransform

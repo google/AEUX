@@ -331,8 +331,6 @@ function rasterizeSelection(selection, layerCount) {
 
         selection.forEach(shape => {
             if (shape.type == 'GROUP') {
-                console.log('got a group');
-
                 let options = {
                     format: "PNG",
                     constraint: { type: "SCALE", value: 6 }
@@ -345,6 +343,7 @@ function rasterizeSelection(selection, layerCount) {
                 .then(img => {
                     // console.log(figma.createImage(img));
                     let rect = figma.createRectangle()
+                    
                     shape.parent.appendChild(rect)
                     rect.x = shape.x
                     rect.y = shape.y
@@ -352,10 +351,25 @@ function rasterizeSelection(selection, layerCount) {
                     rect.name = shape.name + '_rasterize'
                     rect.resize( shape.width, shape.height)
 
-                    let fillObj = JSON.parse(JSON.stringify(rect.fills))
+                    let fillObj = JSON.parse(JSON.stringify(rect.fills[0]))
+                    
+                    fillObj.filters = {
+                        contrast: 0,
+                        exposure: 0,
+                        highlights: 0,
+                        saturation: 0,
+                        shadows: 0,
+                        temperature: 0,
+                        tint: 0,
+                    }
                     fillObj.imageHash = figma.createImage(img).hash
-
-                    rect.fills = fillObj
+                    fillObj.imageTransform = [[1, 0, 0], [0, 1, 0]]
+                    fillObj.scaleMode = "CROP"
+                    fillObj.type = "IMAGE"
+                    fillObj.scalingFactor = 0.5,
+                    delete fillObj.color
+                    
+                    rect.fills = [fillObj]
                     newSelection.push(rect)
 
                     shape.relativeTransform = shapeTransform

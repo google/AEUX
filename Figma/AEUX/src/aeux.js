@@ -569,7 +569,7 @@ function getBoolType (layer) {
             return 2;
 
         default:
-            return -1;
+            return 3;
     }
 }
 function getFrame(layer, parentFrame) {  

@@ -397,7 +397,7 @@ async function generateFrameImage() {
         }
         parentFrame.exportAsync(options)
         .then(img => {
-            console.log('hsadjfhjkahsdf', img);
+            // console.log('hsadjfhjkahsdf', img);
             
             return figma.createImage(img)
         })

@@ -64,7 +64,7 @@ figma.ui.onmessage = message => {
         } catch (error) {
             console.log(error);
             console.log('selected layers need to be inside of a frame');
-            figma.ui.postMessage({type: 'footerMsg', action: 'selected layers need to be inside of a frame', layerCount: null});
+            figma.ui.postMessage({type: 'footerMsg', action: 'Layers must be inside of a frame', layerCount: null});
         }
         
         // if exportRefImage is enabled

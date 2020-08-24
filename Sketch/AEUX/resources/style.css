@@ -30,7 +30,7 @@ body {
   width: auto;
   height: 100vh;
   padding: 12px;
-  padding-top: 38px;
+  padding-top: 38px !important;
 }
 .dark-mode {
   background-color: #2E2F30;

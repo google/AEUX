@@ -5,11 +5,6 @@ document.addEventListener('contextmenu', (e) => {
   e.preventDefault()
 })
 
-// call the plugin from the webview
-document.getElementById('button').addEventListener('click', () => {
-  window.postMessage('nativeLog', 'Called from the webview')
-})
-
 
 window.setDarkMode = (darkMode) => {
     vm.darkMode = darkMode

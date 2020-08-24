@@ -58,7 +58,6 @@ onmessage = (event) => {
     if (msg && msg.type === 'exportAEUX') {
         // console.log(msg.imageBytesList);
         if (!msg.data) {
-            vm.thinking = false
             setfooterMsg(null, 'Select layers first');
             return
         }
@@ -78,7 +77,6 @@ onmessage = (event) => {
 	if (msg && msg.type === 'fetchAEUX') {
         // console.log(msg.imageBytesList);
         if (!msg.data) {
-            vm.thinking = false
             setfooterMsg(null, 'Select layers first');
             return
         }
@@ -86,7 +84,7 @@ onmessage = (event) => {
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
         console.log(aeuxData);
 
-        fetch(`http://127.0.0.1:7240/evalscript`, {
+        fetch(`http://127.0.0.1:7240/evalScript`, {
         method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -101,7 +99,6 @@ onmessage = (event) => {
         })
         .then(response => {
             if (response.ok) {
-                vm.thinking = false
                 console.log(response);
                 setfooterMsg(aeuxData[0].layerCount, 'sent to Ae')
                 return response.json()
@@ -112,7 +109,6 @@ onmessage = (event) => {
         .catch(e => {
             console.error(e)
             setfooterMsg(null, 'Failed to connect to Ae');
-            vm.thinking = false
         });
     }
     if (msg && msg.type === 'footerMsg') {
@@ -177,7 +173,7 @@ onmessage = (event) => {
             
             aeuxData[0].folderPath = res.path
             
-            fetch(`http://127.0.0.1:7240/evalscript`, {
+            fetch(`http://127.0.0.1:7240/evalScript`, {
             method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -195,7 +191,6 @@ onmessage = (event) => {
         .catch(e => {
             console.error(e)
             setfooterMsg(null, 'Failed to connect to Ae')
-            vm.thinking = false
         });
     }
 }
@@ -212,6 +207,8 @@ function setfooterMsg(layerCount, action) {
     setTimeout(() => {
         vm.footerMsg = null
     }, 5000);
+
+    vm.thinking = false
 }
 
 function _arrayBufferToBase64( buffer ) {

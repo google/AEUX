@@ -9,7 +9,7 @@ export function convert (data) {
     boolOffset = null
     // var vm.imageIdList = [];
 
-    // console.log('tester', vm.imageUrlList);
+    // console.log('tester', data);
     var layerData = filterTypes(data);
     layerData[0].layerCount = layerCount;
 // console.log('layerData', layerData);

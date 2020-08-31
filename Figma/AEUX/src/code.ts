@@ -74,7 +74,7 @@ figma.ui.onmessage = message => {
 
             let options = {
                 format: "PNG",
-                constraint: { type: "SCALE", value: 6 }
+                constraint: { type: "SCALE", value: 1 }
             }
             parentFrame.exportAsync(options)
             .then(img => {                                

@@ -17,10 +17,10 @@ var vm = new Vue({
 	methods: {  
         exportSelection(e) {
             this.thinking = 'fetchAEUX'
-            // setTimeout(() => {
+            setTimeout(() => {
             let shiftKey = e.shiftKey
             parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: shiftKey } }, '*')
-            // }, 500);
+            }, 50);
         },
         detachComponents () {
             parent.postMessage({ pluginMessage: { type: 'detachComponents' } }, '*')

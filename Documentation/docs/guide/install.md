@@ -13,12 +13,18 @@ If transfers don't seem to work after installation, try restarting your machine.
 :::
 
 ## Sketch
+Requi
+Requirements: Sketch 52+
+
 - Double click **AEUX.sketchplugin**
 - Sketch will open and tell you the plugin is installed
 - Navigate to the **Plugins** menu up top
 - Click to open the panel
 
 ## After Effects
+
+Requirements: CC2019+
+
 - Download [ZXP Installer](https://aescripts.com/learn/zxp-installer/) from [aescripts + aeplugins](https://aescripts.com/)
 - Drag **AEUX.zxp** into ZXP Installer
 - Close and re-open After Effects

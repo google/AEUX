@@ -16,8 +16,6 @@ If transfers don't seem to work after installation, try restarting your machine.
 
 Requirements: Sketch 52+
 
-Requirements: Sketch 52+
-
 - Double click **AEUX.sketchplugin**
 - Sketch will open and tell you the plugin is installed
 - Navigate to the **Plugins** menu up top

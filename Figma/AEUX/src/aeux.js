@@ -90,7 +90,7 @@ function getShape(layer, parentFrame, boolType) {
     //     frame.y = parentFrame.height/2 + (frame.y - layer.height) - (parentFrame.height - layer.height)/2;
     // }
     var path = getPath(layer, frame);
-
+console.log('path', path);
     if (path == 'multiPath') {
         console.log('multipath');
 
@@ -407,7 +407,7 @@ function getBoolean(layer, parentFrame, boolType, isMultipath) {
     } else {
 
     }
-    
+    console.log('getBoolean');
     
     var boolType = boolType || getBoolType(layer);
     
@@ -434,7 +434,6 @@ function getBoolean(layer, parentFrame, boolType, isMultipath) {
 
     if (isMultipath) {
         console.log('get that multipath');        
-        console.log(layer);
         try {
             layerData.layers = getCompoundPaths(layer.vectorPaths[0].data, layer);
         } catch (error) {
@@ -1079,15 +1078,22 @@ function getShapeBlending(mode) {
 
 //// get shape data: PATH
 function getPath(layer, bounding, type) {    
-    // console.log(layer);
+    // console.log('getPath', layer);
     
     var pathStr, pathObj;
-    if (layer.vectorPaths && layer.vectorPaths.length > 0) {       // find an individual path
+    if (layer.vectorPaths && layer.vectorPaths.length < 2) {       // find an individual path
         pathStr = layer.vectorPaths || layer;
         pathObj = parseSvg(pathStr[0].data);
-        // console.log(pathObj);
+        console.log('pathObj', pathObj);
+    } else if (layer.vectorPaths && layer.vectorPaths.length > 1) {
+        let comboPath = ''
+        layer.vectorPaths.forEach(path => {
+            comboPath += `${path.data} `;
+        })
+        layer.vectorPaths = [{data: comboPath}]
+        return 'multiPath'
     } else if (type == 'multiPath') {
-        // console.log(layer);
+        console.log('multiPath', layer);
         
         pathObj = parseSvg(layer);
     } else {
@@ -1147,18 +1153,8 @@ function getPath(layer, bounding, type) {
                     outTangents: [],
                     closed: false
                 }
-            // } else if (!layer.fillGeometry[0]) {
-            //     // if (layer.children[0].fillGeometry[0]) { return 'multiPath' }
-            //     // console.log('get svg');
-            //     vm.svgIdList.push(layer.id);
-            //     return null
             }
             
-            
-            // pathStr = layer.fillGeometry[0].path;
-            // console.log('pathStr', pathStr);
-            // // pathStr = (layer.fillGeometry[0]) ? layer.fillGeometry[0].path : layer.strokeGeometry[0].path;
-            // pathObj = parseSvg(pathStr);
         } catch (e) {
             console.log(e);
             

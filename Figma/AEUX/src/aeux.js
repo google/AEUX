@@ -268,7 +268,7 @@ function getGroup(layer, parentFrame) {
 		blendMode: getLayerBlending(layer.blendMode),
         flip: getFlipMultiplier(layer),
         // hasClippingMask: false,
-        shouldBreakMaskChain: true,
+        shouldBreakMaskChain: false,
         // layers: [],
         layers: filterTypes(layer, frame),
     };

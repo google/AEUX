@@ -74,6 +74,7 @@ function buildLayers(compObj) {
     // alert(JSON.stringify(compObj.layerData[1].layers, false, 2));
     /// reset variables
     let importVersion = compObj.layerData[0].aeuxVersion
+    maskLayer = {}
 
     if (aeuxVersion < importVersion) {
         downloadUpdateDialog()
@@ -1459,7 +1460,6 @@ function setMask(currentLayer, layerData) {
     var currentCompId = currentLayer.containingComp.id;
     var currentParentName = (currentLayer.parent) ? currentLayer.parent.name : 'comp';
     var layerID = currentCompId + '_' + currentParentName;
-
     // remove the stored maskLayer because the currentLayer doesnt need it
     if (layerData.shouldBreakMaskChain) {
         maskLayer[layerID] = null;

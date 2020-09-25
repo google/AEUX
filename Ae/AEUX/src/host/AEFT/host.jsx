@@ -88,6 +88,7 @@ var AEUX = (function () {
     function buildLayers(compObj) {
         try {
             var importVersion = compObj.layerData[0].aeuxVersion;
+            maskLayer = {};
             if (aeuxVersion < importVersion) {
                 downloadUpdateDialog();
                 return JSON.stringify(null);

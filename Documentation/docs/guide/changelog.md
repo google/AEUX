@@ -1,5 +1,17 @@
 # Change log
 
+## v0.7.5a
+Released: 28 September, 2020
+### Fixed - Figma
+- Masks stability
+- Reference image exporting stability - switched to 1x from 6x
+- Reworked the nested path hierarchy for flattened multi-path shapes
+- Clear spinner on errors with better footer message to avoid getting stuck
+- Rasterize bugs
+- Internal path support (shapes like O)
+- Empty images crashing
+- Sanitizing slashes in layer/symbol names
+
 ## v0.7.5
 Released: 10 July, 2020
 ### Fixed

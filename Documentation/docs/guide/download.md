@@ -1,5 +1,6 @@
 ---
-currentVersion: 0.7.5
+currentVersion: 0.7.6
+releaseDate: "October 30, 2020"
 gitHubLatest: https://github.com/google/sketch2ae/releases/latest/AEUX.zip
 currentDownload: /legacy-download/AEUX_0.7.5a.zip
 fiftyTwoDownload: /legacy-download/AEUX_0.6.9.zip
@@ -9,7 +10,9 @@ fiftyDownload: /legacy-download/Sketch2AE_0.54.zip
 # Download
 
 ## Sketch 71+ / Figma
-<a :href="$frontmatter.currentDownload" class="nav-link action-button">Download {{ $frontmatter.currentVersion }}</a>
+<a :href="$frontmatter.gitHubLatest" class="nav-link action-button">Download {{ $frontmatter.currentVersion }}</a>
+
+Released: {{ $frontmatter.releaseDate }}
 
 <!-- #### Included files
 - AEUX.sketchplugin

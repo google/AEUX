@@ -45,7 +45,7 @@ var AEUX = (function () {
             return d = eval("(" + a + ")"), typeof e === "function" ? c({ "": d }, "") : d; throw new SyntaxError("JSON.parse"); }; })();
     var scriptName = 'AEUX';
     var devName = 'sumUX';
-    var aeuxVersion = 0.75;
+    var aeuxVersion = 0.76;
     var hostApp, sourcePath;
     var clippingMask = null;
     var thisComp = null;
@@ -731,6 +731,16 @@ var AEUX = (function () {
         r('ADBE Transform Group')('ADBE Position').setValue([layer.frame.x * compMult, layer.frame.y * compMult]);
         var w = layer.frame.width / r.width * 100;
         var h = layer.frame.height / r.height * 100;
+        if (hostApp == 'Figma') {
+            if (layer.frame.width > layer.frame.height) {
+                w = layer.frame.width / r.width * 100;
+                h = layer.frame.width / r.height * 100;
+            }
+            else {
+                w = layer.frame.height / r.width * 100;
+                h = layer.frame.height / r.height * 100;
+            }
+        }
         r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]);
         r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
         r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
@@ -946,7 +956,6 @@ var AEUX = (function () {
                     newMask(2).addProperty('ADBE Vector Graphic - Fill');
                 }
                 catch (e) { }
-                newMask.locked = true;
                 if (hostApp == 'Figma') {
                     maskLayer[layerID].remove();
                 }

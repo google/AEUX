@@ -1,7 +1,7 @@
 /*jshint esversion: 6, asi: true*/
 import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
 
-var versionNumber = 0.75;
+var versionNumber = 0.76;
 var frameData, layers, hasArtboard, layerCount, layerData, boolOffset;
 export function convert (data) {
     hasArtboard = false;
@@ -90,7 +90,8 @@ function getShape(layer, parentFrame, boolType) {
     //     frame.y = parentFrame.height/2 + (frame.y - layer.height) - (parentFrame.height - layer.height)/2;
     // }
     var path = getPath(layer, frame);
-console.log('path', path);
+    console.log('path', path);
+
     if (path == 'multiPath') {
         console.log('multipath');
 
@@ -116,6 +117,7 @@ console.log('path', path);
         blendMode: getLayerBlending(layer.blendMode),
         booleanOperation: boolType || getBoolType(layer),
         isMask: layer.isMask,
+        shouldBreakMaskChain: layer.isMask,
         // for polygons and stars
         pointCount: layer.pointCount || null,     
         isStar: (layer.type == 'STAR') ? true : false,
@@ -123,12 +125,47 @@ console.log('path', path);
         innerRad: layer.innerRadius || null,
         polyScale: getPolyscale(layer),
   };
-//   console.log(layerData.roundness);
+//   console.log(layerData);
   
 
-  /// if fill is an image and should return that instead of a shape
+  /// if fill is an image group it and add a solid as a mask
   if (layerData.fill != null && layerData.fill.type == 'Image') {
-      return layerData.fill;
+    //   return layerData.fill;
+    var imageLayer = layerData.fill
+    imageLayer.hasClippingMask = true
+    // imageLayer.frame.x -= layerData.frame.x
+    imageLayer.frame.x = layerData.frame.width / 2
+    imageLayer.frame.y = layerData.frame.height / 2
+
+    layerData.fill = [{
+        type: 'fill',
+        enabled: true,
+        color: [0.5, 0.5, 0.5, 1],
+        opacity: 100,
+        blendMode: 1,
+    }]
+    layerData.frame.x = layerData.frame.width / 2
+    layerData.frame.y = layerData.frame.height / 2
+    layerData.hasClippingMask = true
+
+    let groupData = {
+        type: 'Component',
+        name: layerData.name,
+        // masterId: layer.componentId,
+        id: layerData.id,
+        frame: getFrame(layer, parentFrame),
+        isVisible: layerData.isVisible,
+        opacity: layerData.opacity,
+        blendMode: layerData.blendMode,
+        // symbolFrame: layer.masterComponent,
+        bgColor: [1, 1, 1, 1],
+        rotation: layerData.rotation,
+        flip: layerData.flip,
+        isMask: layer.isMask,
+        layers: [layerData, imageLayer],
+    }
+
+    layerData = groupData
   }
 
   getEffects(layer, layerData);
@@ -282,6 +319,8 @@ function getGroup(layer, parentFrame) {
     //     layerData.layers = filterTypes(layer, frame)
     // }
   getEffects(layer, layerData);
+
+  if (layerData.layers[0].isMask) { layerData.type = 'Component' }
 //   console.log(layerData)
   return layerData;
 }
@@ -295,23 +334,16 @@ function getComponent(layer, parentFrame) {
         type: 'Component',
         name: layer.name,
         masterId: layer.componentId,
-        // masterId: 'override',
         id: layer.id,
         frame: calcFrame,
-        // frame: {x: 0, y: 0, width: 100, height: 100},
         isVisible: (layer.visible !== false),
         opacity: layer.opacity*100 || 100,
         blendMode: getLayerBlending(layer.blendMode),
         symbolFrame: layer.masterComponent,
-        // symbolFrame: getMasterFrame( layer.componentId ),       // this needs to be the frame of the master
-        // bgColor: sketchColorToArray(layer.master.sketchObject.backgroundColor()),
         bgColor: [1,1,1,1],
         rotation: getRotation(layer),
         flip: getFlipMultiplier(layer),
         isMask: layer.isMask,
-        // layers: filterTypes(layer, {x: 0, y: 0, width: frame.width, height: frame.height}),
-        // layers: filterTypes(layer),
-        // layers: filterTypes(layer, frame),
     };
     console.log(layer.name, layer);
     
@@ -566,9 +598,11 @@ function getBoolType (layer) {
             return 1;
         case 'INTERSECT':
             return 2;
+        case 'EXCLUDE':
+            return 3;
 
         default:
-            return 3;
+            return -1;
     }
 }
 function getFrame(layer, parentFrame) {  
@@ -583,33 +617,12 @@ function getFrame(layer, parentFrame) {
   
   var offset = [0,0];
   if (parentFrame) {
-    // if (layer.type !== 'GROUP') {
-      // offset = [layer.width/2, layer.height/2];
-      // offset = [layer.width/2, parentFrame.y - parentFrame.height/2];
       offset = [parentFrame.x - parentFrame.width/2, parentFrame.y - parentFrame.height/2];
-      // console.log('not a group: ', layer.name);
-    // } else {
-    //   console.log('do some math', layer.name );
-    //   // offset = [100, 100]
-      
-    //   // offset = [parentFrame.x - layer.width/2, parentFrame.y - parentFrame.height/2];
-    // }
   }
-  // console.log(offset);
-  
-  // var offset = (parentFrame && layer.type !== 'GROUP') ? [parentFrame.x - parentFrame.width/2, parentFrame.y - parentFrame.height/2] : [0,0];
-  
-  // console.log('parentFrame', layer.name, parentFrame);
-  // console.log('offset', layer.name, offset);
   
 
   var width = layer.width || 0;
   var height = layer.height || 0;
-  // var x = matrix[0][2] - offset[0];
-  // var y = matrix[1][2] - offset[1];
-  // var x = (matrix[0][2] * matrix[0][0]) + (matrix[1][2] * matrix[1][0]);
-  // var y = -( (matrix[0][2] * matrix[1][0]) - (matrix[1][2] * matrix[0][0]) );
-
   // find the center of the shape
   var hypot = Math.sqrt(width/2 * width/2 + height/2 * height/2);
   var angle = layer.rotation * (Math.PI/180);
@@ -617,41 +630,11 @@ function getFrame(layer, parentFrame) {
   var vertOffset = 0;
   // var horizOffset = 0;
   if (flippedHorizontal) { 
-    // if (angle < Math.abs()) {
       offset[1] -= height;
-    // } else {
-      // horizOffset = -width;
-      // angle = - angle;
-    // }
-  // }
-  // if (flippedVertical) { 
-  //   vertOffset = -height;
   }
-  
-  // var x = layer.x;
-  // var y = layer.y;
+
   var x = layer.x + Math.cos(Math.atan2(height, width) - angle) * hypot - offset[0];
   var y = layer.y + Math.sin(Math.atan2(height, width) - angle) * hypot - offset[1];
-  
-
-  // if (isRotated || isFlipped) {
-  //   // console.log(layer, 'calc');
-  //   // console.log('x', x);
-    
-  //   if (matrix[0][0] < 0) { x -= width; } // flipped horizontal
-  //   if (matrix[1][1] < 0) { y -= height; } // flipped vertical
-  //   // x = layer.absoluteTransform[0] - width/2 - offset[0];
-  //   // y = layer.absoluteTransform[1] - height/2 - offset[1];
-  //   // x = layer.absoluteTransform[0] - frameData.absoluteTransform[0] + layer.absoluteTransform.width/2 - width/2 - offset[0];
-  //   // y = layer.absoluteTransform[1] - frameData.absoluteTransform[1] + layer.absoluteTransform.height/2 - height/2 - offset[1];
-  //   // x = layer.absoluteTransform[0][2] - frameData.absoluteTransform[0][2];
-  //   // y = layer.absoluteTransform[1][2] - frameData.absoluteTransform[1][2];
-  //   // console.log(layer.absoluteTransform);
-  //   // console.log(frameData.absoluteTransform);
-    
-  //   // x = layer.absoluteTransform[0][2] - frameData.absoluteTransform[0][2] + layer.width/2 - layer.x - offset[0];
-  //   // y = layer.absoluteTransform[1][2] - frameData.absoluteTransform[1][2] + layer.height/2 - layer.y - offset[1];
-  // }
 
     // console.log(layer.name, offset);
     return {

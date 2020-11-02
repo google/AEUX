@@ -1,5 +1,23 @@
 # Change log
 
+## v0.7.6
+Released: 30 October, 2020
+### Changed - Sketch
+- Reintroduced Image Fills
+- - Previously disabled because of misalignment and image skewing
+- Mask on image layers supported
+
+### Changed - Figma
+- Image layers are unskewed when created in Ae
+- Improved image mask support
+- Boolean shape defaults to Merge for better shape support
+- Rasterize Groups adjusts the new image layer size to fit within the 4096px Figma limit.
+
+### Changed - Ae
+- Masked layers and images are now created as precomps for better alignment
+- New mask layers are now unlocked
+- Smarter shape merge logic
+
 ## v0.7.5a
 Released: 28 September, 2020
 ### Fixed - Figma

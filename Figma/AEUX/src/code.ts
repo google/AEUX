@@ -331,9 +331,11 @@ function rasterizeSelection(selection, layerCount) {
 
         selection.forEach(shape => {
             if (shape.type == 'GROUP') {
+                let imgScale = Math.min(4000 / Math.max(shape.width, shape.height), 6)  // limit it to 4000px
+                alert(imgScale)       
                 let options = {
                     format: "PNG",
-                    constraint: { type: "SCALE", value: 6 }
+                    constraint: { type: "SCALE", value: imgScale }
                 }
                 let shapeTransform = shape.relativeTransform        // store transform
                 let removeTransform = [[1, 0, shape.x], [0, 1, shape.y]]

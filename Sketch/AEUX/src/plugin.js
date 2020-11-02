@@ -7,7 +7,7 @@ import UI from 'sketch/ui'
 var devName = 'sumUX';
 var toolName = 'AEUX';
 var docUrl = 'https://aeux.io/';
-var versionNumber = 0.75;
+var versionNumber = 0.76;
 var document, selection, folderPath, imageList = [], aveName, layerCount, aeSharePath, flatten, hasArtboard, exportCanceled, imagePath;
 
 
@@ -502,7 +502,6 @@ function getShape(layer) {
         id: layer.id,
         frame: getFrame(layer),
         fill: getFills(layer),
-        // fill: null,
         stroke: getStrokes(layer),
         shadow: getShadows(layer),
         innerShadow: getInnerShadows(layer),
@@ -520,7 +519,45 @@ function getShape(layer) {
 
     /// if fill is an image and should return that instead of a shape
     if (layerData.fill != null && layerData.fill.type == 'Image') {
-        return layerData.fill;
+        // layerData = layerData.fill
+        // return layerData.fill;
+
+        var imageLayer = layerData.fill
+            imageLayer.hasClippingMask = true
+            // imageLayer.frame.x -= layerData.frame.x
+            imageLayer.frame.x = layerData.frame.width / 2
+            imageLayer.frame.y = layerData.frame.height / 2
+
+            layerData.fill = [{
+                type: 'fill',
+                enabled: true,
+                color: [0.5, 0.5, 0.5, 1],
+                opacity: 100,
+                blendMode: 1,
+            }]
+            layerData.frame.x = layerData.frame.width / 2
+            layerData.frame.y = layerData.frame.height / 2
+            layerData.hasClippingMask = true
+
+        var groupData = {
+            type: 'Component',
+            name: '\u25BD ' + layer.name,
+            id: layer.id,
+            frame: getFrame(layer),
+            isVisible: layer.sketchObject.isVisible(),
+            opacity: getOpacity(layer),
+            shadow: getShadows(layer),
+            innerShadow: getInnerShadows(layer),
+            rotation: -layer.sketchObject.rotation(),
+            blendMode: getLayerBlending(layer.sketchObject.style().contextSettings().blendMode()),
+            flip: getFlipMultiplier(layer),
+            // layers: [],
+            layers: [layerData, imageLayer],
+            hasClippingMask: layer.sketchObject.hasClippingMask(),
+            shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+        }
+        // UI.alert('groupData', JSON.stringify(groupData, false, 2))
+        layerData = groupData
     }
 
     /// if shape is a compound get the shapes that make up the compound
@@ -654,10 +691,12 @@ function getGroup(layer) {
         rotation: -layer.sketchObject.rotation() * (flip[0]/100) * (flip[1]/100),
         blendMode: layer.sketchObject.style().contextSettings().blendMode(),
         flip: flip,
-        layers: filterTypes(layer),
         hasClippingMask: layer.sketchObject.hasClippingMask(),
         shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
+        layers: filterTypes(layer),
     }
+    // UI.alert('layerData', JSON.stringify(layerData.layers[0].hasClippingMask, false, 2))
+    if (layerData.layers[0].hasClippingMask) { layerData.type = 'Component'}
 
     return layerData;
 }
@@ -743,23 +782,9 @@ function getText(layer) {
 
 //// get layer data: IMAGE
 function getImage(layer, filldata) {
-    var layerData = {}
     
-    if (filldata) {     // image fills 
-        layerData = {
-            type: 'Image',
-            name: filldata.name,
-            id: filldata.id,
-            frame: getFrame(filldata),
-            isVisible: !filldata.hidden,
-            opacity: getOpacity(filldata),
-            blendMode: getLayerBlending(filldata.style.blendMode),
-            rotation: -filldata.transform.rotation,
-            hasClippingMask: filldata.sketchObject.hasClippingMask(),
-            shouldBreakMaskChain: filldata.sketchObject.shouldBreakMaskChain(),
-        }
-    } else {
-        layerData = {
+    try {
+        var layerData = {
             type: 'Image',
             name: layer.name,
             id: layer.id,
@@ -771,75 +796,38 @@ function getImage(layer, filldata) {
             hasClippingMask: layer.sketchObject.hasClippingMask(),
             shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
         }
-    }
-    // UI.alert('layerData', JSON.stringify(layerData, false, 2))
+        // UI.alert('filldata', JSON.stringify(filldata, false, 2))
+        // UI.alert('layerData', JSON.stringify(layerData, false, 2))
+        var imgData = ''
+        
+        if (layer.image) {
+            if (layer.image.nsimage.toString().search('NSBitmapImageRep') != -1) {
+                imgData = layer.image.nsdata.base64EncodedStringWithOptions(0).toString()
+            }
+        } else {
+            var sizeMult = 1
+            if (layerData.frame.width >= layerData.frame.height) {
+                sizeMult = layerData.frame.width / filldata.size.width
+            } else {
+                sizeMult = layerData.frame.height / filldata.size.height
+            }
+            layerData.frame.width = filldata.size.width * sizeMult
+            layerData.frame.height = filldata.size.height * sizeMult
+            imgData = filldata.nsdata.base64EncodedStringWithOptions(0).toString()
+        }
 
-    let imgData = '' 
-    if (layer.image.nsimage.toString().search('NSBitmapImageRep') != -1) {
-        imgData = layer.image.nsdata.base64EncodedStringWithOptions(0).toString()
+        imageList.push({
+            name: layerData.id + '.png',
+            imgData: `${imgData.replace(/<|>/g, '')}`
+        })
+        console.log(imageList)
+
+        return layerData;
+    } catch (error) {
+        UI.alert('error', error)
     }
     
-    imageList.push({
-        name: layerData.id + '.png',
-        imgData: `${imgData.replace(/<|>/g, '')}`
-    })
-    console.log(imageList)
-
-    return layerData;
-
-
-    /// export image
-    function exportLayer(layer, path) {
-        layer.image.nsdata.writeToFile_atomically(path + layer.id + '.png', true);
-
-        return {
-            path: path,
-            scale: 'scale'
-        }
-    }
 }
-
-
-// //// get layer data: IMAGE
-// function getImage(layer) {
-// 	var layerData =  {
-//     type: 'Image',
-// 		name: layer.name,
-// 		id: layer.id,
-// 		frame: getFrame(layer),
-//     isVisible: layer.sketchObject.isVisible(),
-// 		opacity: getOpacity(layer),
-// 		blendMode: getLayerBlending( layer.sketchObject.style().contextSettings().blendMode() ),
-//     hasClippingMask: layer.sketchObject.hasClippingMask(),
-//     shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
-// 	};
-
-//     if ( !getFolderPath() ) { return null; }        // canceled
-
-//     var imageFile = exportLayer(layer, folderPath);
-//     layerData.path = imageFile.path;
-//     layerData.scale = imageFile.scale;
-//     return layerData;
-
-
-//     /// export image
-//     function exportLayer(layer, path) {
-//         sketch.export(layer, {
-//             output: path,
-//             'use-id-for-name': true,
-//             overwriting: true,
-//             // 'save-for-web': true,
-//             'group-contents-only': true,
-//             scales: 4,
-//         });
-
-//         return {
-//           path: path,
-//           scale: 'scale'
-//         };
-//     }
-// }
-
 
 //// get layer data: COMPOUND SHAPE
 function getCompoundShapes(layers) {
@@ -1038,10 +1026,10 @@ function getFills(layer) {
                         blendMode: getShapeBlending(layer.sketchObject.style().fills()[i].contextSettings().blendMode() ),
     				}
                 // fill is an image or texture
-                // } else if (fill.fillType == 'Pattern') {
-                //     // UI.alert('debug', JSON.stringify(layer, false, 2))
-                //     fillData = getImage(fill.pattern, layer)
-                //     break;
+                } else if (fill.fillType == 'Pattern') {
+                    // UI.alert('debug', JSON.stringify(fill, false, 2))
+                    fillData = getImage(layer, fill.pattern.image)
+                    break;
                 // fill is a solid
                 } else {
                     var color = hexToArray(fill.color)

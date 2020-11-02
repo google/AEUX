@@ -1,6 +1,7 @@
 import * as fileType from 'file-type';
 import Vue from 'vue/dist/vue.esm.js';
 import * as aeux from './aeux.js';
+import { saveAs } from 'file-saver';
 import './ui.css';
 var vm = new Vue({
     el: '#app',
@@ -8,13 +9,18 @@ var vm = new Vue({
         count: null,
         thinking: false,
         footerMsg: null,
+        imagePath: null,
+        prefs: {
+            exportRefImage: false,
+        }
     },
     methods: {
-        exportSelection() {
+        exportSelection(e) {
             this.thinking = 'fetchAEUX';
             setTimeout(() => {
-                parent.postMessage({ pluginMessage: { type: 'exportSelection' } }, '*');
-            }, 500);
+                let shiftKey = e.shiftKey;
+                parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: shiftKey } }, '*');
+            }, 50);
         },
         detachComponents() {
             parent.postMessage({ pluginMessage: { type: 'detachComponents' } }, '*');
@@ -22,16 +28,53 @@ var vm = new Vue({
         flattenLayers() {
             parent.postMessage({ pluginMessage: { type: 'flattenLayers' } }, '*');
         },
+        rasterizeSelection() {
+            parent.postMessage({ pluginMessage: { type: 'rasterizeSelection' } }, '*');
+        },
+        imageRefToAe() {
+            parent.postMessage({ pluginMessage: { type: 'imageRefToAe' } }, '*');
+        },
+        setPrefs() {
+            setTimeout(() => {
+                parent.postMessage({ pluginMessage: { type: 'setPrefs', prefs: this.prefs } }, '*');
+            }, 50);
+        },
     },
+    mounted() {
+        parent.postMessage({ pluginMessage: { type: 'getPrefs', defaultPrefs: this.prefs } }, '*'); // get the prefs
+    }
 });
+// receiving messages back from code.ts
 onmessage = (event) => {
     let msg = event.data.pluginMessage;
     console.log(msg);
-    if (msg && msg.type === 'fetchAEUX') {
+    if (msg && msg.type === 'retPrefs') {
+        vm.prefs = msg.prefs;
+    }
+    if (msg && msg.type === 'exportAEUX') {
         // console.log(msg.imageBytesList);
+        if (!msg.data) {
+            setfooterMsg(null, 'Select layers first');
+            return;
+        }
         let aeuxData = aeux.convert(msg.data[0]); // convert layer data
         console.log(aeuxData);
-        fetch(`http://127.0.0.1:7240/evalscript`, {
+        var blob = new Blob([JSON.stringify(aeuxData, null, 2)], {
+            type: "text/plain;charset=ansi"
+        });
+        saveAs(blob, "AEUX.json");
+        console.log('save');
+        vm.thinking = false;
+    }
+    if (msg && msg.type === 'fetchAEUX') {
+        // console.log(msg.imageBytesList);
+        if (!msg.data) {
+            setfooterMsg(null, 'Select layers first');
+            return;
+        }
+        let aeuxData = aeux.convert(msg.data[0]); // convert layer data
+        console.log(aeuxData);
+        fetch(`http://127.0.0.1:7240/evalScript`, {
             method: "POST",
             headers: {
                 'Accept': 'application/json',
@@ -46,7 +89,6 @@ onmessage = (event) => {
         })
             .then(response => {
             if (response.ok) {
-                vm.thinking = false;
                 console.log(response);
                 setfooterMsg(aeuxData[0].layerCount, 'sent to Ae');
                 return response.json();
@@ -58,21 +100,18 @@ onmessage = (event) => {
             .catch(e => {
             console.error(e);
             setfooterMsg(null, 'Failed to connect to Ae');
-            vm.thinking = false;
         });
     }
     if (msg && msg.type === 'footerMsg') {
-        console.log('LayerCount', msg.layerCount);
+        // console.log('LayerCount', msg.layerCount);
         setfooterMsg(msg.layerCount, msg.action);
     }
     if (msg && msg.type === 'fetchImagesAndAEUX') {
         vm.thinking = 'fetchAEUX';
         let aeuxData = aeux.convert(msg.data[0]); // convert layer data
-        console.log(aeuxData);
+        // console.log(aeuxData);
         let imageList = [];
         msg.images.forEach(img => {
-            console.log('img.bytes', img.bytes);
-            
             const filetype = fileType(img.bytes);
             // const blob = new Blob([img.bytes], { type: filetype.mime })
             const name = img.name + '.' + filetype.ext;
@@ -82,6 +121,9 @@ onmessage = (event) => {
             });
             // folder.file(name, blob);
         });
+        if (msg.refImg) {
+            aeuxData.push(msg.refImg);
+        }
         console.log(aeuxData);
         fetch(`http://127.0.0.1:7240/writeFiles`, {
             method: "POST",
@@ -94,7 +136,8 @@ onmessage = (event) => {
                 // data: {layerData: aeuxData},
                 switch: 'aftereffects',
                 // getPrefs: true,
-                images: imageList
+                images: imageList,
+                path: vm.imagePath,
             })
         })
             .then(response => {
@@ -105,14 +148,17 @@ onmessage = (event) => {
             // }
         })
             .then(res => {
+            console.log('res', res);
             // Ae image export canceled
             if (res.errno == -2) {
                 setfooterMsg(null, 'Image creation canceled');
                 return;
             }
-            console.log(res);
+            else if (res.path) {
+                vm.imagePath = res.path; // store the path per session
+            }
             aeuxData[0].folderPath = res.path;
-            fetch(`http://127.0.0.1:7240/evalscript`, {
+            fetch(`http://127.0.0.1:7240/evalScript`, {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -130,12 +176,11 @@ onmessage = (event) => {
             .catch(e => {
             console.error(e);
             setfooterMsg(null, 'Failed to connect to Ae');
-            vm.thinking = false;
         });
     }
 };
 function setfooterMsg(layerCount, action) {
-    if (!layerCount) {
+    if (layerCount === null) {
         vm.footerMsg = action;
     }
     else if (layerCount == 1) {
@@ -147,6 +192,7 @@ function setfooterMsg(layerCount, action) {
     setTimeout(() => {
         vm.footerMsg = null;
     }, 5000);
+    vm.thinking = false;
 }
 function _arrayBufferToBase64(buffer) {
     var binary = '';

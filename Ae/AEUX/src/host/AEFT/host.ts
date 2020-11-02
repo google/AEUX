@@ -8,7 +8,7 @@ var JSON;JSON||(JSON={}); (function(){function k(a){return a<10?"0"+a:a}function
 ///////// variables /////////
 var scriptName = 'AEUX';
 var devName = 'sumUX';
-var aeuxVersion = 0.75;
+var aeuxVersion = 0.76;
 var hostApp, sourcePath;
 var clippingMask = null;
 var thisComp = null;
@@ -1118,6 +1118,17 @@ function aeImage(layer, opt_parent) {
         // get the scale from the size of the image
         var w = layer.frame.width / r.width * 100;
         var h = layer.frame.height / r.height * 100;
+
+        // un-skew the image
+        if (hostApp == 'Figma') {
+            if (layer.frame.width > layer.frame.height) {
+                w = layer.frame.width / r.width * 100
+                h = layer.frame.width / r.height * 100
+            } else {
+                w = layer.frame.height / r.width * 100
+                h = layer.frame.height / r.height * 100
+            }
+        }
         
         r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]); 
         r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
@@ -1158,8 +1169,6 @@ function aeImage(layer, opt_parent) {
         return null;
     }
 }
-
-
 
 ///////// create/import project elements /////////
 
@@ -1478,7 +1487,7 @@ function setMask(currentLayer, layerData) {
             newMask.shy = true;
             newMask.name = '\u25A8 ' + newMask.name;
             try { newMask(2).addProperty('ADBE Vector Graphic - Fill'); } catch (e) {}		// if not a shape layer
-            newMask.locked = true;
+            // newMask.locked = true;
 
         if (hostApp == 'Figma') { maskLayer[layerID].remove() }     // figma cant have the underlying mask layer visible so delete it
 

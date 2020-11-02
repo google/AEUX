@@ -10,7 +10,7 @@
       <description>
           Image fills supported again with stronger layer mask support. Download Ae panel updates at aeux.io.
       </description>
-      <enclosure url="https://github.com/google/sketch2ae/releases/download/v0.7.6/aeux.sketchplugin.zip" sparkle:version="0.7.5"/>
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/v0.7.6/aeux.sketchplugin.zip" sparkle:version="0.7.6"/>
     </item>
     <item>
       <title>Version 0.7.5</title>

@@ -1,10 +1,36 @@
 # Change log
 
+## v0.7.7
+Released: 3 December, 2020
+### Added - Figma
+- Adding an Asterisk to the beginning of a layer name export that layer as an image
+	- Groups with an Asterisk will generate a PNG for that group and not lower layers
+	- Useful when icons are too complicated to transfer correctly
+
+### Changed 
+- Image fills will be rasterized instead generating a precomp with multi-layer complex masking
+	- Masking and rounded corners will be included as transparancy in the imported PNGs
+
+### Added - Ae
+- New folder structure for better organization
+	- Each import now creates is created within a AEUX > Frame/Artboard folders
+	- Images and precomps associated with a frame will be grouped together
+
+### Fixed - Ae
+- *importVersion* not defined
+- Line 437
+- Line 918
+- Line 892
+- Line 541
+- Unable to call “*addComp*” because of parameter 5
+
+
+
 ## v0.7.6
 Released: 30 October, 2020
 ### Changed - Sketch
 - Reintroduced Image Fills
-- - Previously disabled because of misalignment and image skewing
+	- Previously disabled because of misalignment and image skewing
 - Mask on image layers supported
 
 ### Changed - Figma

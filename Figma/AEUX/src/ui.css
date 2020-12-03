@@ -112,7 +112,7 @@ input:focus {
     margin-right: 0;
 }
 .checkbox {
-    padding-left: 10px;
+    /* padding-left: 10px; */
     margin-bottom: 2px;
 }
 .option-checkbox {
@@ -125,7 +125,7 @@ input:focus {
 	position: relative;
     vertical-align: bottom;
     outline: 0;
-    margin-bottom: 1px;
+    margin-bottom: 0;
 }
 .option-checkbox:checked:after {
     background-color: #0377BC;

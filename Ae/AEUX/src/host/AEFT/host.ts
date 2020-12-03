@@ -8,7 +8,7 @@ var JSON;JSON||(JSON={}); (function(){function k(a){return a<10?"0"+a:a}function
 ///////// variables /////////
 var scriptName = 'AEUX';
 var devName = 'sumUX';
-var aeuxVersion = 0.76;
+var aeuxVersion = 0.77;
 var hostApp, sourcePath;
 var clippingMask = null;
 var thisComp = null;
@@ -16,7 +16,7 @@ var compMult = 1;
 var maskLayer = {};
 var returnMessage = [];
 var maskPosition = [0, 0];
-var folderPath;
+    var folderPath, compName, importVersion;
 var inputFile, labelColor, progressInc;
 var ffxFolder = Folder.userData.toString() + '/'+ devName +'/'+ scriptName +'/ffx/';
 var prefs = {
@@ -69,11 +69,12 @@ function getCompMultiplier(artboardWidth) {
 function buildLayers(compObj) {
     try {
     // alert(JSON.stringify(compObj, false, 2));
+    // alert(JSON.stringify(compObj.layerData[0], false, 2));
     // alert(JSON.stringify(compObj.layerData[0].aeuxVersion, false, 2));
     // alert(JSON.stringify(compObj.layerData[1], false, 2));
     // alert(JSON.stringify(compObj.layerData[1].layers, false, 2));
     /// reset variables
-    let importVersion = compObj.layerData[0].aeuxVersion
+    importVersion = compObj.layerData[0].aeuxVersion
     maskLayer = {}
 
     if (aeuxVersion < importVersion) {
@@ -83,7 +84,7 @@ function buildLayers(compObj) {
 
     returnMessage = [];
     if (compObj.prefs) { prefs = compObj.prefs }
-
+    
     folderPath = compObj.layerData[0].folderPath;
     // var importedLayerCode = compObj;
     var importedLayerCode = compObj.layerData;
@@ -473,13 +474,18 @@ function aeGroup(layer, opt_parent) {
   // alert(JSON.stringify(layer, false, 2))
     /// if auto-precomp is enabled
     if (prefs.precompGroups || layer.type == 'Component') {
-        var frameRate = prefs.frameRate;
+        var frameRate = prefs.frameRate || 60;
         // skip if an empty group
         if (layer.layers.length < 1) { return; }
 
         // find or create Groups folder
-        var folderName = (layer.type == 'Component') ? 'Components' : 'Groups';
-        var groupFolder = createNamedFolder(folderName);
+        // var folderName = (layer.type == 'Component') ? 'Components' : 'Groups';
+        var aeuxFolder = createNamedFolder('AEUX');
+        var frameFolder = createNamedFolder(compName);
+            frameFolder.parentFolder = aeuxFolder
+        var groupFolder = createNamedFolder('Precomps', frameFolder);
+            groupFolder.parentFolder = frameFolder
+        // var groupFolder = createNamedFolder(folderName);
 
         // create new comp in the project
         var groupComp = app.project.items.addComp(	nameInc(layer.name, app.project.items),
@@ -650,7 +656,10 @@ function aeRect(layer, opt_parent) {
     // create a rectangle shape
     r(2)(1)(2).addProperty('ADBE Vector Shape - Rect');
     r(2)(1)(2)(1)('ADBE Vector Rect Size').setValue( [layer.frame.width, layer.frame.height] );
-    r(2)(1)(2)(1)('ADBE Vector Rect Roundness').setValue(layer.roundness);
+
+    if (layer.roundness) {
+        r(2)(1)(2)(1)('ADBE Vector Rect Roundness').setValue(layer.roundness);
+    }
 
     /// add layer elements
     addStroke(r, layer);
@@ -668,7 +677,9 @@ function aeRect(layer, opt_parent) {
     // r('ADBE Transform Group')('ADBE Position').setValue([	(layer.frame.x + layer.frame.width/2)*compMult,
     //                                                         (layer.frame.y + layer.frame.height/2)*compMult]);
     r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
-    r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+    if (layer.flip) {
+        r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+    }
     
     /// if the group layer has a parent
     if (opt_parent !== null) {
@@ -994,7 +1005,12 @@ function aeCompound(layer, opt_parent) {
 
 //// add symbol
 function aeSymbol(layer, opt_parent) {
-    symbolFolder = createNamedFolder('Symbols');
+    // symbolFolder = createNamedFolder('Symbols');
+    var aeuxFolder = createNamedFolder('AEUX');
+    var frameFolder = createNamedFolder(compName);
+        frameFolder.parentFolder = aeuxFolder
+    var symbolFolder = createNamedFolder('Precomps', frameFolder);
+        symbolFolder.parentFolder = frameFolder
 
     // check if symbol exists
     var symbolPrecomp = createSymbol(layer);
@@ -1049,7 +1065,11 @@ function aeSymbol(layer, opt_parent) {
 //// import and add image
 function aeImage(layer, opt_parent) {
 //   alert(JSON.stringify(layer, false, 2))
-    var imageFolder = createNamedFolder('Images');
+    var aeuxFolder = createNamedFolder('AEUX');
+    var frameFolder = createNamedFolder(compName);
+        frameFolder.parentFolder = aeuxFolder
+    var imageFolder = createNamedFolder('Images', frameFolder);
+        imageFolder.parentFolder = frameFolder
     // alert(layer.path + layer.id + '.jpg')
 
     // check if file is already imported
@@ -1121,13 +1141,16 @@ function aeImage(layer, opt_parent) {
 
         // un-skew the image
         if (hostApp == 'Figma') {
-            if (layer.frame.width > layer.frame.height) {
-                w = layer.frame.width / r.width * 100
-                h = layer.frame.width / r.height * 100
-            } else {
-                w = layer.frame.height / r.width * 100
-                h = layer.frame.height / r.height * 100
-            }
+            let figmaMult = 3 
+            w = Math.min(100 / figmaMult, 4000)
+            h = Math.min(100 / figmaMult, 4000)
+        //     if (layer.frame.width > layer.frame.height) {
+        //         w = layer.frame.width / r.width * 100
+        //         h = layer.frame.width / r.height * 100
+        //     } else {
+        //         w = layer.frame.height / r.width * 100
+        //         h = layer.frame.height / r.height * 100
+        //     }
         }
         
         r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]); 
@@ -1139,8 +1162,12 @@ function aeImage(layer, opt_parent) {
     /// if the group layer has a parent
     if (opt_parent !== null) {
         // set the parent
-        r.parent = opt_parent;
-        // r.setParentWithJump(opt_parent);
+        if (hostApp == 'Sketch') {
+            r.parent = opt_parent;
+        } else {
+            r.setParentWithJump(opt_parent);
+        }
+        
         // move the layer after the parent
         r.moveAfter(opt_parent);
         // set layer visibility (eyeball)
@@ -1232,19 +1259,21 @@ function createSymbol(layer) {
 }
 
 //// check if named project folder exists, create if doesn't exist, return the folder
-function createNamedFolder(folderNameStr) {
+function createNamedFolder(folderNameStr, parentFolder?) {
     /// reset variables
-    var hasNamedFolder = false;
+    let hasNamedFolder = false;
+    let namedFolder = null
+    let startFolder = (parentFolder != undefined) ? parentFolder : app.project
     // loop through all project items
-    for (var i = 1; i <= app.project.numItems; i++) {
+    for (var i = 1; i <= startFolder.numItems; i++) {
         // find folders
-        if (app.project.item(i) instanceof FolderItem) {
+        if (startFolder.item(i) instanceof FolderItem) {
             // check if it's name matches folderNameStr
-            if (app.project.item(i).name == folderNameStr) {
+            if (startFolder.item(i).name == folderNameStr) {
                 // set the var to true
                 hasNamedFolder = true;
                 // define the returned folder var to the found folder
-                namedFolder = app.project.item(i);
+                namedFolder = startFolder.item(i);
                 // stop all that looping
                 break;
             }
@@ -1253,7 +1282,7 @@ function createNamedFolder(folderNameStr) {
     // if no symbol folder is found
     if (!hasNamedFolder) {
         // create a new folder
-        namedFolder = app.project.items.addFolder(folderNameStr);
+        namedFolder = startFolder.items.addFolder(folderNameStr);
     }
     return namedFolder;
 }
@@ -1263,8 +1292,8 @@ function aeArtboard(layer) {
     // skip the code if panel check box for new comp disabled
     if (prefs.newComp) {
         compMult = prefs.compScale;
-        var frameRate = prefs.frameRate;
-        var duration = prefs.duration;
+        var frameRate = prefs.frameRate || 60;
+        var duration = prefs.duration || 5;
 
         if (layer.size[0] * compMult > 30000) {
             returnMessage.push(3); 					//'Comp width 30,000+'
@@ -1272,9 +1301,10 @@ function aeArtboard(layer) {
         if (layer.size[1] * compMult > 30000) {
             returnMessage.push(4); 					//'Comp height 30,000+'
             return false; }
-
+        
+        compName = layer.name 
         // create new comp
-        thisComp = app.project.items.addComp(	nameInc(layer.name, app.project.items),
+        thisComp = app.project.items.addComp(	nameInc(compName, app.project.items),
                                                 Math.max(Math.round(layer.size[0] * compMult), 4),
                                                 Math.max(Math.round(layer.size[1] * compMult), 4),
                                                 1, duration, frameRate);	// pixelAspect=1, duration=60sec, frameRate=60fps
@@ -1283,6 +1313,12 @@ function aeArtboard(layer) {
         thisComp.bgColor = [layer.bgColor[0],
                             layer.bgColor[1],
                             layer.bgColor[2]];
+
+        /// create Groups folder if needed
+        var aeuxFolder = createNamedFolder('AEUX');
+        var frameFolder = createNamedFolder(compName);
+            frameFolder.parentFolder = aeuxFolder
+            thisComp.parentFolder = frameFolder
     }
 
     // above code is skipped so it gets the comp multiplier
@@ -1353,7 +1389,7 @@ function createStaticShape(pathObj, layerOffset) {
 //// shape layer fill
 function addFill(r, layer) {
     /// skip if no fills
-    if (layer.fill !== null) {
+    if (layer.fill != null) {
         // loop through multiple fill objects
         for (var i = layer.fill.length-1; i >= 0; i--) {
             // reset variables
@@ -1404,7 +1440,7 @@ function addFill(r, layer) {
 //// shape layer stroke
 function addStroke(r, layer) {
     /// skip if no strokes
-    if (layer.stroke !== null) {
+    if (layer.stroke != null) {
         // loop through multiple stroke objects
         for (var i = layer.stroke.length-1; i >= 0; i--) {
 
@@ -1775,7 +1811,9 @@ function groupToPrecomp() {
     app.beginUndoGroup('Group to precomp');
 
     /// create Groups folder if needed
-    groupFolder = createNamedFolder('Groups');
+    var frameFolder = thisComp.parentFolder
+    var groupFolder = createNamedFolder('Precomps');
+        groupFolder.parentFolder = frameFolder
 
     /// quit if no layers selected MSG
         if (thisComp.selectedLayers.length < 1) { return; }

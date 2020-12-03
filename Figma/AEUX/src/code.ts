@@ -1,10 +1,12 @@
-figma.showUI(__html__, { width: 166, height: 174 });
+figma.showUI(__html__, { width: 166, height: 190 });
 let hasFrameData;
-let frameArr = []
+let shapeTree = []
 let imageHashList = []
 let imageBytesList = []
+let rasterizeList = []
 let prefs = {
     exportRefImage: false,
+    imgSaveDialog: false,
 }
 
 // receive message from the UI
@@ -43,30 +45,34 @@ figma.ui.onmessage = message => {
 
 	if (message.type === 'exportSelection') {        
         hasFrameData = false;
-        frameArr = []
+        shapeTree = []
         imageHashList = []
         imageBytesList = []
+        rasterizeList = []
         let exportJSON = false
         if (message.exportJSON) { exportJSON = true}
 
-        if (figma.currentPage.selection.length < 1) {       // nothing selected
+        // nothing selected
+        if (figma.currentPage.selection.length < 1) {
             figma.ui.postMessage({ type: 'fetchAEUX', data: null });
             return
         }
 
         try {
+            // pre-process the selected shapes hierarchy
             let selection = nodeToObj(figma.currentPage.selection);                
 
-            if (frameArr[0].children.length < 1) {
-                frameArr[0].children = selection;
+            if (shapeTree[0].children.length < 1) {
+                shapeTree[0].children = selection;
             }
-            console.log('frameArr: ', frameArr);
+            console.log('shapeTree: ', shapeTree);
         } catch (error) {
             console.log(error);
             console.log('selected layers need to be inside of a frame');
             figma.ui.postMessage({type: 'footerMsg', action: 'Layers must be inside of a frame', layerCount: null});
         }
-        
+        // console.log('rasterizeList', rasterizeList);
+
         // if exportRefImage is enabled
         if (prefs.exportRefImage) {         // include a reference image with transfer
             let parentFrame = findFrame(figma.currentPage.selection[0])
@@ -98,19 +104,57 @@ figma.ui.onmessage = message => {
                     rotation: 0,
                     guide: true,
                 }
-                storeImageData(Array.from(new Set(imageHashList)), frameArr, refImg)
+                storeImageData(Array.from(new Set(imageHashList)), shapeTree, refImg)
             })
+        } else if (rasterizeList.length > 0) {
+            
+            function asyncCollectHashes(id, cb) {
+                setTimeout(() => {
+                    // console.log('done with', item);
+                    let shape = (figma.getNodeById(id) as SceneNode)
+                    let compMult = 3
+                    let imgScale = Math.min(4000 / Math.max(shape.width, shape.height), compMult)  // limit it to 4000px
+
+                    // let options = {
+                    //     format: "PNG",
+                    //     constraint: { type: "SCALE", value: imgScale }
+                    // }
+
+                    shape.exportAsync({
+                        format: "PNG",
+                        constraint: { type: "SCALE", value: imgScale }
+                    })
+                    .then(img => {
+                        imageHashList.push({
+                            hash: figma.createImage(img).hash,
+                            id
+                        })
+                    })
+                    cb();
+                }, 100);
+            }
+
+            let requests = rasterizeList.map((item) => {
+                return new Promise((resolve) => {
+                    asyncCollectHashes(item, resolve);
+                });
+            })
+
+            Promise.all(requests).then(() => storeImageData(Array.from(new Set(imageHashList)), shapeTree, null))
+
         } else {
             // check if images need to export then send message to ui.ts
             if (exportJSON) {                
-                figma.ui.postMessage({ type: 'exportAEUX', data: frameArr }); 
+                figma.ui.postMessage({ type: 'exportAEUX', data: shapeTree }); 
             } else if (imageHashList.length < 1) {
-                figma.ui.postMessage({ type: 'fetchAEUX', data: frameArr });
+                figma.ui.postMessage({ type: 'fetchAEUX', data: shapeTree });
             } else {
-                storeImageData(Array.from(new Set(imageHashList)), frameArr, null)
+                storeImageData(Array.from(new Set(imageHashList)), shapeTree, null)
             }
         }
-  }
+        console.log('imageHashList', imageHashList);
+
+    }
   
     if (message.type === 'flattenLayers') {
         if (figma.currentPage.selection.length < 1) { return }      // nothing selected
@@ -163,7 +207,7 @@ function nodeToObj (nodes) {
             console.log('GOT A FRAME');
         // console.log(nodes[0].children);
         hasFrameData = true     // dont need to get the frame data
-        frameArr.push( getElement(nodes[0], false) );
+        shapeTree.push( getElement(nodes[0], false) );
         nodes = nodes[0].children
     }
 
@@ -182,7 +226,7 @@ function nodeToObj (nodes) {
             let frameData = getElement(frame, true);    // skip gathering children data
             frameData.children = [];                    // clear the children of the frame to push them later
 
-            frameArr.push(frameData);
+            shapeTree.push(frameData);
         }
 
         let obj = getElement(node, false)
@@ -195,19 +239,39 @@ function nodeToObj (nodes) {
 
     
     function getElement(node, skipChildren) {
-        // console.log('node', node);
+        // console.log('node', node.name);
+        
+        let rasterize = false
         let obj = {
             children: [],
             type: null,
-        };
+        };        
+
+        if (node.name && node.name.charAt(0) == '*') {
+            console.log('rasterize', node);
+            rasterizeList.push(node.id)
+            rasterize = true
+        }        
 
         for (const key in node) {
             let element = node[key];
             // console.log(element);
             
-            if (key === 'children' && !skipChildren) { element = nodeToObj(element) }
+            if (key === 'children' && !skipChildren && !rasterize) { element = nodeToObj(element) }
             if (key === 'backgrounds') { element = nodeToObj(element) }
-            if (key === 'fills' && element.length > 0) { collectImageHashes(element, node.id) }
+            // if (key === 'fills' && element.length > 0) { collectImageHashes(element, node.id) }
+            // if (key === 'fills' && element.length > 0) { rasterizeList.push(node.id) }
+            if (key === 'fills' && element.length > 0) {
+                let hasImageFill = false
+                for (const i in element) {
+                    const fill = element[i];
+                    if (fill.type == 'IMAGE') {
+                        hasImageFill = true
+                        // return
+                    }
+                }
+                if (hasImageFill) { rasterizeList.push(node.id) }
+            }
 
             // corner radius
             if (element == figma.mixed && key === 'cornerRadius') {
@@ -332,7 +396,7 @@ function rasterizeSelection(selection, layerCount) {
         selection.forEach(shape => {
             if (shape.type == 'GROUP') {
                 let imgScale = Math.min(4000 / Math.max(shape.width, shape.height), 6)  // limit it to 4000px
-                alert(imgScale)       
+                // alert(imgScale)       
                 let options = {
                     format: "PNG",
                     constraint: { type: "SCALE", value: imgScale }

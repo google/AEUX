@@ -12,6 +12,7 @@ var vm = new Vue({
         imagePath: null,
         prefs: {
             exportRefImage: false,
+            imgSaveDialog: false,
         }
 	},
 	methods: {  
@@ -138,7 +139,7 @@ onmessage = (event) => {
         }
 
         console.log(aeuxData);
-
+        let imagePath = (vm.prefs.imgSaveDialog) ? null : vm.imagePath 
         fetch(`http://127.0.0.1:7240/writeFiles`, {
         method: "POST",
             headers: {
@@ -151,7 +152,7 @@ onmessage = (event) => {
                 switch: 'aftereffects',
                 // getPrefs: true,
                 images: imageList,
-                path: vm.imagePath,
+                path: imagePath,
             })
         })
         .then(response => {

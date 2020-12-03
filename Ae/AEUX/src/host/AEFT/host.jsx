@@ -45,7 +45,7 @@ var AEUX = (function () {
             return d = eval("(" + a + ")"), typeof e === "function" ? c({ "": d }, "") : d; throw new SyntaxError("JSON.parse"); }; })();
     var scriptName = 'AEUX';
     var devName = 'sumUX';
-    var aeuxVersion = 0.76;
+    var aeuxVersion = 0.77;
     var hostApp, sourcePath;
     var clippingMask = null;
     var thisComp = null;
@@ -53,7 +53,7 @@ var AEUX = (function () {
     var maskLayer = {};
     var returnMessage = [];
     var maskPosition = [0, 0];
-    var folderPath;
+    var folderPath, compName, importVersion;
     var inputFile, labelColor, progressInc;
     var ffxFolder = Folder.userData.toString() + '/' + devName + '/' + scriptName + '/ffx/';
     var prefs = {
@@ -87,7 +87,7 @@ var AEUX = (function () {
     }
     function buildLayers(compObj) {
         try {
-            var importVersion = compObj.layerData[0].aeuxVersion;
+            importVersion = compObj.layerData[0].aeuxVersion;
             maskLayer = {};
             if (aeuxVersion < importVersion) {
                 downloadUpdateDialog();
@@ -351,12 +351,15 @@ var AEUX = (function () {
     }
     function aeGroup(layer, opt_parent) {
         if (prefs.precompGroups || layer.type == 'Component') {
-            var frameRate = prefs.frameRate;
+            var frameRate = prefs.frameRate || 60;
             if (layer.layers.length < 1) {
                 return;
             }
-            var folderName = (layer.type == 'Component') ? 'Components' : 'Groups';
-            var groupFolder = createNamedFolder(folderName);
+            var aeuxFolder = createNamedFolder('AEUX');
+            var frameFolder = createNamedFolder(compName);
+            frameFolder.parentFolder = aeuxFolder;
+            var groupFolder = createNamedFolder('Precomps', frameFolder);
+            groupFolder.parentFolder = frameFolder;
             var groupComp = app.project.items.addComp(nameInc(layer.name, app.project.items), Math.max(Math.round(layer.frame.width * compMult), 4), Math.max(Math.round(layer.frame.height * compMult), 4), 1, thisComp.duration, frameRate);
             groupComp.bgColor = thisComp.bgColor;
             groupComp.parentFolder = groupFolder;
@@ -431,7 +434,9 @@ var AEUX = (function () {
         r(2)(1).name = layer.name;
         r(2)(1)(2).addProperty('ADBE Vector Shape - Rect');
         r(2)(1)(2)(1)('ADBE Vector Rect Size').setValue([layer.frame.width, layer.frame.height]);
-        r(2)(1)(2)(1)('ADBE Vector Rect Roundness').setValue(layer.roundness);
+        if (layer.roundness) {
+            r(2)(1)(2)(1)('ADBE Vector Rect Roundness').setValue(layer.roundness);
+        }
         addStroke(r, layer);
         addFill(r, layer);
         addDropShadow(r, layer);
@@ -443,7 +448,9 @@ var AEUX = (function () {
         r('ADBE Transform Group')('ADBE Position').setValue([(layer.frame.x) * compMult,
             (layer.frame.y) * compMult]);
         r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
-        r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+        if (layer.flip) {
+            r('ADBE Transform Group')('ADBE Scale').setValue(layer.flip);
+        }
         if (opt_parent !== null) {
             r.setParentWithJump(opt_parent);
             r.moveAfter(opt_parent);
@@ -655,7 +662,11 @@ var AEUX = (function () {
         }
     }
     function aeSymbol(layer, opt_parent) {
-        symbolFolder = createNamedFolder('Symbols');
+        var aeuxFolder = createNamedFolder('AEUX');
+        var frameFolder = createNamedFolder(compName);
+        frameFolder.parentFolder = aeuxFolder;
+        var symbolFolder = createNamedFolder('Precomps', frameFolder);
+        symbolFolder.parentFolder = frameFolder;
         var symbolPrecomp = createSymbol(layer);
         var r = thisComp.layers.add(symbolPrecomp, symbolPrecomp.duration);
         r.name = '\u21BB ' + layer.name;
@@ -683,7 +694,11 @@ var AEUX = (function () {
         setMask(r, layer);
     }
     function aeImage(layer, opt_parent) {
-        var imageFolder = createNamedFolder('Images');
+        var aeuxFolder = createNamedFolder('AEUX');
+        var frameFolder = createNamedFolder(compName);
+        frameFolder.parentFolder = aeuxFolder;
+        var imageFolder = createNamedFolder('Images', frameFolder);
+        imageFolder.parentFolder = frameFolder;
         var bmpImage = getItem(layer.id, FileSource, imageFolder);
         if (bmpImage === null) {
             var fileFound = false;
@@ -732,20 +747,20 @@ var AEUX = (function () {
         var w = layer.frame.width / r.width * 100;
         var h = layer.frame.height / r.height * 100;
         if (hostApp == 'Figma') {
-            if (layer.frame.width > layer.frame.height) {
-                w = layer.frame.width / r.width * 100;
-                h = layer.frame.width / r.height * 100;
-            }
-            else {
-                w = layer.frame.height / r.width * 100;
-                h = layer.frame.height / r.height * 100;
-            }
+            var figmaMult = 3;
+            w = Math.min(100 / figmaMult, 4000);
+            h = Math.min(100 / figmaMult, 4000);
         }
         r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]);
         r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
         r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
         if (opt_parent !== null) {
-            r.parent = opt_parent;
+            if (hostApp == 'Sketch') {
+                r.parent = opt_parent;
+            }
+            else {
+                r.setParentWithJump(opt_parent);
+            }
             r.moveAfter(opt_parent);
             r.enabled = (layer.isVisible && opt_parent.enabled);
         }
@@ -797,27 +812,29 @@ var AEUX = (function () {
         }
         return symbol;
     }
-    function createNamedFolder(folderNameStr) {
+    function createNamedFolder(folderNameStr, parentFolder) {
         var hasNamedFolder = false;
-        for (var i = 1; i <= app.project.numItems; i++) {
-            if (app.project.item(i) instanceof FolderItem) {
-                if (app.project.item(i).name == folderNameStr) {
+        var namedFolder = null;
+        var startFolder = (parentFolder != undefined) ? parentFolder : app.project;
+        for (var i = 1; i <= startFolder.numItems; i++) {
+            if (startFolder.item(i) instanceof FolderItem) {
+                if (startFolder.item(i).name == folderNameStr) {
                     hasNamedFolder = true;
-                    namedFolder = app.project.item(i);
+                    namedFolder = startFolder.item(i);
                     break;
                 }
             }
         }
         if (!hasNamedFolder) {
-            namedFolder = app.project.items.addFolder(folderNameStr);
+            namedFolder = startFolder.items.addFolder(folderNameStr);
         }
         return namedFolder;
     }
     function aeArtboard(layer) {
         if (prefs.newComp) {
             compMult = prefs.compScale;
-            var frameRate = prefs.frameRate;
-            var duration = prefs.duration;
+            var frameRate = prefs.frameRate || 60;
+            var duration = prefs.duration || 5;
             if (layer.size[0] * compMult > 30000) {
                 returnMessage.push(3);
                 return false;
@@ -826,10 +843,15 @@ var AEUX = (function () {
                 returnMessage.push(4);
                 return false;
             }
-            thisComp = app.project.items.addComp(nameInc(layer.name, app.project.items), Math.max(Math.round(layer.size[0] * compMult), 4), Math.max(Math.round(layer.size[1] * compMult), 4), 1, duration, frameRate);
+            compName = layer.name;
+            thisComp = app.project.items.addComp(nameInc(compName, app.project.items), Math.max(Math.round(layer.size[0] * compMult), 4), Math.max(Math.round(layer.size[1] * compMult), 4), 1, duration, frameRate);
             thisComp.bgColor = [layer.bgColor[0],
                 layer.bgColor[1],
                 layer.bgColor[2]];
+            var aeuxFolder = createNamedFolder('AEUX');
+            var frameFolder = createNamedFolder(compName);
+            frameFolder.parentFolder = aeuxFolder;
+            thisComp.parentFolder = frameFolder;
         }
         compMult = getCompMultiplier(layer.size[0]);
         return true;
@@ -868,7 +890,7 @@ var AEUX = (function () {
         }
     }
     function addFill(r, layer) {
-        if (layer.fill !== null) {
+        if (layer.fill != null) {
             for (var i = layer.fill.length - 1; i >= 0; i--) {
                 var aeBlendMode = 1;
                 var fill;
@@ -893,7 +915,7 @@ var AEUX = (function () {
         }
     }
     function addStroke(r, layer) {
-        if (layer.stroke !== null) {
+        if (layer.stroke != null) {
             for (var i = layer.stroke.length - 1; i >= 0; i--) {
                 if (layer.stroke[i].type == 'fill') {
                     stroke = r(2)(1)(2).addProperty("ADBE Vector Graphic - Stroke");
@@ -1166,7 +1188,9 @@ var AEUX = (function () {
         }
         ;
         app.beginUndoGroup('Group to precomp');
-        groupFolder = createNamedFolder('Groups');
+        var frameFolder = thisComp.parentFolder;
+        var groupFolder = createNamedFolder('Precomps');
+        groupFolder.parentFolder = frameFolder;
         if (thisComp.selectedLayers.length < 1) {
             return;
         }

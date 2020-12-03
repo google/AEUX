@@ -1,17 +1,19 @@
 /*jshint esversion: 6, asi: true*/
 import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
 
-var versionNumber = 0.76;
-var frameData, layers, hasArtboard, layerCount, layerData, boolOffset;
+var versionNumber = 0.77;
+var frameData, layers, hasArtboard, layerCount, layerData, boolOffset, rasterizeList;
 export function convert (data) {
     hasArtboard = false;
     layerCount = 0;
     boolOffset = null
+    rasterizeList = []
     // var vm.imageIdList = [];
 
     // console.log('tester', data);
     var layerData = filterTypes(data);
     layerData[0].layerCount = layerCount;
+    layerData[0].rasterizeList = rasterizeList;
 // console.log('layerData', layerData);
 
     return layerData;
@@ -19,13 +21,13 @@ export function convert (data) {
 
 
 function filterTypes(figmaData, opt_parentFrame, boolType) {
-    var aeuxData = [];
+    let aeuxData = [];
     // var parentFrame = opt_parentFrame || {};
     var parentFrame = opt_parentFrame || null;
     
 
     if (!hasArtboard) {
-        // console.log('artboard');
+        // console.log('artboard', storeArtboard(figmaData));
         
         aeuxData.push(storeArtboard(figmaData));
         frameData = figmaData;      // store the whole frame data
@@ -36,9 +38,19 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
     layers.forEach(layer => {
         // console.log(layer.type);
         if (!opt_parentFrame) { boolOffset = null }
-        
+
         if (layer.visible === false) { return; }         // skip layer if hidden
         // console.log(layer.name, layer.type);
+
+        // detect * in layer names
+        if (layer.name.charAt(0) == '*') {
+            let rasterizedLayer = getImageFill(layer, parentFrame)
+            rasterizedLayer.name = layer.name.replace(/^\*\s/, '').replace(/^\*/, '') // remove astrix
+            aeuxData.push(rasterizedLayer)
+            rasterizeList.push(layer.id)
+            return
+        }
+
         if (layer.type == "GROUP") {            
             aeuxData.push(getGroup(layer, parentFrame));
         }
@@ -71,7 +83,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
             layerCount++;
         }
     });
-    // console.log(aeuxData);
+    console.log('aeuxData done', aeuxData);
     
   return aeuxData;
 }
@@ -80,6 +92,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
 function getShape(layer, parentFrame, boolType) {
     var layerType = getShapeType(layer);
     var frame = getFrame(layer, parentFrame);
+
     // adjust if a compound shape
     if (boolType) {
         frame.x = parentFrame.width/2 + (frame.x - layer.width) - (parentFrame.width - layer.width)/2; 
@@ -90,7 +103,7 @@ function getShape(layer, parentFrame, boolType) {
     //     frame.y = parentFrame.height/2 + (frame.y - layer.height) - (parentFrame.height - layer.height)/2;
     // }
     var path = getPath(layer, frame);
-    console.log('path', path);
+    // console.log('path', path);
 
     if (path == 'multiPath') {
         console.log('multipath');
@@ -105,7 +118,7 @@ function getShape(layer, parentFrame, boolType) {
 		name: layer.name,
 		id: layer.id,
 		frame: frame,
-        fill: getFills(layer),
+        fill: getFills(layer, parentFrame),
         stroke: getStrokes(layer),
         isVisible: (layer.visible !== false),
 		path: path,
@@ -124,49 +137,72 @@ function getShape(layer, parentFrame, boolType) {
         outerRad: Math.max(frame.width, frame.height) / 2,
         innerRad: layer.innerRadius || null,
         polyScale: getPolyscale(layer),
-  };
+    };
 //   console.log(layerData);
   
 
-  /// if fill is an image group it and add a solid as a mask
-  if (layerData.fill != null && layerData.fill.type == 'Image') {
+    /// if fill is an image group it and add a solid as a mask
+    if (layerData.fill != null && layerData.fill.type == 'Image') {
+        console.log('do it');
     //   return layerData.fill;
-    var imageLayer = layerData.fill
-    imageLayer.hasClippingMask = true
+    // var imageLayer = layerData.fill
+    // imageLayer.hasClippingMask = true
     // imageLayer.frame.x -= layerData.frame.x
-    imageLayer.frame.x = layerData.frame.width / 2
-    imageLayer.frame.y = layerData.frame.height / 2
+    // imageLayer.frame.x = layerData.frame.width / 2
+    // imageLayer.frame.y = layerData.frame.height / 2
 
-    layerData.fill = [{
-        type: 'fill',
-        enabled: true,
-        color: [0.5, 0.5, 0.5, 1],
-        opacity: 100,
-        blendMode: 1,
-    }]
-    layerData.frame.x = layerData.frame.width / 2
-    layerData.frame.y = layerData.frame.height / 2
-    layerData.hasClippingMask = true
+    // layerData.fill = [{
+    //     type: 'fill',
+    //     enabled: true,
+    //     color: [0.5, 0.5, 0.5, 1],
+    //     opacity: 100,
+    //     blendMode: 1,
+    // }]
+    // layerData.frame.x = layerData.frame.width / 2
+    // layerData.frame.y = layerData.frame.height / 2
+    // layerData.hasClippingMask = true
 
-    let groupData = {
-        type: 'Component',
-        name: layerData.name,
-        // masterId: layer.componentId,
-        id: layerData.id,
-        frame: getFrame(layer, parentFrame),
-        isVisible: layerData.isVisible,
-        opacity: layerData.opacity,
-        blendMode: layerData.blendMode,
-        // symbolFrame: layer.masterComponent,
-        bgColor: [1, 1, 1, 1],
-        rotation: layerData.rotation,
-        flip: layerData.flip,
-        isMask: layer.isMask,
-        layers: [layerData, imageLayer],
+    // let groupData = {
+    //     type: 'Component',
+    //     name: layerData.name,
+    //     // masterId: layer.componentId,
+    //     id: layerData.id,
+    //     frame: getFrame(layer, parentFrame),
+    //     isVisible: layerData.isVisible,
+    //     opacity: layerData.opacity,
+    //     blendMode: layerData.blendMode,
+    //     // symbolFrame: layer.masterComponent,
+    //     bgColor: [1, 1, 1, 1],
+    //     rotation: layerData.rotation,
+    //     flip: layerData.flip,
+    //     isMask: layer.isMask,
+    //     layers: [layerData, imageLayer],
+    // }
+
+        // layerData = groupData
+        layerData = layerData.fill
+
+        // if layer is off the left edge
+        if (layer.relativeTransform[0][2] < 0) {
+            layerData.frame.width += layer.relativeTransform[0][2]
+            layerData.frame.x = layerData.frame.width / 2
+        }
+        // if layer is off the top edge
+        if (layer.relativeTransform[1][2] < 0) {
+            layerData.frame.height -= Math.abs(layer.relativeTransform[1][2])
+            layerData.frame.y = layerData.frame.height / 2
+        }
+        // if layer is off the right edge
+        if (layer.relativeTransform[0][2] + layerData.frame.width > frameData.width) {
+            layerData.frame.width = frameData.width - layer.relativeTransform[0][2]
+            layerData.frame.x = frameData.width - layerData.frame.width / 2
+        }
+        // if layer is off the bottom edge
+        if (layer.relativeTransform[1][2] + layerData.frame.height > frameData.height) {
+            layerData.frame.height = frameData.height - layer.relativeTransform[1][2]
+            layerData.frame.y = frameData.height - layerData.frame.height / 2
+        }
     }
-
-    layerData = groupData
-  }
 
   getEffects(layer, layerData);
 
@@ -222,7 +258,7 @@ function getText(layer, parentFrame) {
     return layerData;
 
     function getTextFill (layer) {
-        var fills = getFills(layer)
+        var fills = getFills(layer, null)
         console.log(fills);
         
         if (fills.length > 0) {
@@ -309,6 +345,7 @@ function getGroup(layer, parentFrame) {
         // layers: [],
         layers: filterTypes(layer, frame),
     };
+    console.log('group', layerData);
     // if (layer.type == 'AUTOLAYOUT') {
     //     layerData.layers = filterTypes(layer)
     //     // console.log('background', getShape(layer));
@@ -344,6 +381,7 @@ function getComponent(layer, parentFrame) {
         rotation: getRotation(layer),
         flip: getFlipMultiplier(layer),
         isMask: layer.isMask,
+        roundness: Math.round(layer.cornerRadius) || 0,
     };
     console.log(layer.name, layer);
     
@@ -448,7 +486,7 @@ function getBoolean(layer, parentFrame, boolType, isMultipath) {
 		name: layer.name,
 		id: layer.id,
         frame: frame,
-        fill: getFills(layer),
+        fill: getFills(layer, parentFrame),
         stroke: getStrokes(layer),
         isVisible: (layer.visible !== false),
 		opacity: Math.round(layer.opacity*100) || 100,
@@ -677,7 +715,7 @@ function storeArtboard(data) {
 }
 
 //// get layer data: FILL
-function getFills(layer) {
+function getFills(layer, parentFrame) {
     // console.log('getFills');
     
     // /// get layer style object
@@ -727,7 +765,7 @@ function getFills(layer) {
                     
                 // fill is an image or texture
                 } else if (fill.type == 'IMAGE') {
-                    fillData = getImageFill(layer, fill);
+                    fillData = getImageFill(layer, parentFrame);
                     break;
                 // fill is a solid
                 } else {                    
@@ -753,23 +791,23 @@ function getFills(layer) {
 	// }
 }
 //// get layer data: IMAGE
-function getImageFill(layer) {
+function getImageFill(layer, parentFrame) {
 
-  console.log('getImageFill');
+//   console.log('getImageFill');
 	var layerData =  {
     type: 'Image',
     name: layer.name,
     id: layer.id.replace(/:/g, '-'),
-    frame: getFrame(layer),
+    frame: getFrame(layer, parentFrame),
     isVisible: (layer.visible !== false),
     opacity: layer.opacity*100 || 100,
     blendMode: getLayerBlending(layer.blendMode),
     isMask: layer.isMask,
-    rotation: getRotation(layer),
+    rotation: 0,
+    // rotation: getRotation(layer),
   };
 
-    // vm.imageIdList.push(layer.id);
-
+    // console.log('getImageFill', layerData);
     return layerData;
 }
 //// get layer data: STROKE
@@ -1067,7 +1105,7 @@ function getPath(layer, bounding, type) {
     if (layer.vectorPaths && layer.vectorPaths.length < 2) {       // find an individual path
         pathStr = layer.vectorPaths || layer;
         pathObj = parseSvg(pathStr[0].data);
-        console.log('pathObj', pathObj);
+        // console.log('pathObj', pathObj);
     } else if (layer.vectorPaths && layer.vectorPaths.length > 1) {
         let comboPath = ''
         layer.vectorPaths.forEach(path => {

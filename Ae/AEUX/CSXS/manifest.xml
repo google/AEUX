@@ -2,7 +2,7 @@
 <ExtensionManifest 
   Version="5.0" 
   ExtensionBundleId="AEUX" 
-  ExtensionBundleVersion="0.7.6" 
+  ExtensionBundleVersion="0.7.7" 
   ExtensionBundleName="AEUX" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>

@@ -1,7 +1,7 @@
 /*jshint esversion: 6, asi: true*/
 import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
 
-var versionNumber = 0.77;
+var versionNumber = 0.78;
 var frameData, layers, hasArtboard, layerCount, layerData, boolOffset, rasterizeList;
 export function convert (data) {
     hasArtboard = false;
@@ -72,8 +72,15 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
             layerCount++;
         }
         if (layer.type == "INSTANCE" || layer.type == "COMPONENT" || layer.type == "FRAME" || layer.type == "AUTOLAYOUT") {    // instances and master symbols
-            // console.log(layer.name);
             // console.log('SYMBOL');
+            if (layer.rasterize) {     // 
+                let rasterizedLayer = getImageFill(layer, parentFrame)
+                rasterizedLayer.name = layer.name.replace(/^\*\s/, '').replace(/^\*/, '') // remove astrix
+                aeuxData.push(rasterizedLayer)
+                rasterizeList.push(layer.id)
+                return
+            }
+            
             if (layer.type == "FRAME" && parentFrame) { layer.type = "AUTOLAYOUT" }
             aeuxData.push(getComponent(layer, parentFrame));
             layerCount++;
@@ -365,7 +372,8 @@ function getGroup(layer, parentFrame) {
 function getComponent(layer, parentFrame) {
     var frame = getFrame(layer);
     var calcFrame = getFrame(layer, parentFrame);
-    console.log('DO IT INSTANCE');
+    console.log('DO IT INSTANCE', layer);
+    // console.log('loooking for background', layer.masterComponent)
 
 	var layerData =  {
         type: 'Component',
@@ -383,7 +391,7 @@ function getComponent(layer, parentFrame) {
         isMask: layer.isMask,
         roundness: Math.round(layer.cornerRadius) || 0,
     };
-    console.log(layer.name, layer);
+    console.log('layer.name', layer);
     
     // check if an autoLayout
     // if (layer.layoutMode !== 'NONE' || layer.type == 'AUTOLAYOUT') {

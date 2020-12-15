@@ -107,6 +107,7 @@ figma.ui.onmessage = message => {
                 storeImageData(Array.from(new Set(imageHashList)), shapeTree, refImg)
             })
         } else if (rasterizeList.length > 0) {
+            // console.log('RASTERIZELIST', rasterizeList);
             
             function asyncCollectHashes(id, cb) {
                 setTimeout(() => {
@@ -267,6 +268,9 @@ function nodeToObj (nodes) {
                     const fill = element[i];
                     if (fill.type == 'IMAGE') {
                         hasImageFill = true
+                        obj['rasterize'] = true
+                        // console.log('image', element);
+                        // obj.type = 'RECTANGLE'
                         // return
                     }
                 }
@@ -291,7 +295,7 @@ function nodeToObj (nodes) {
             // layer.fontName !== (figma.mixed)) ? layer.fontName.family : layer.getRangeFontName(0,1).family
             // if (key === 'parent') { console.log(element); }
             
-            obj[key] = element;
+            obj[key] = element;            
         }
         // keep track of Auto-layout frames for alignment of children
         if (node.type === 'FRAME' && node.layoutMode !== 'NONE') { obj.type = 'AUTOLAYOUT'}

@@ -231,6 +231,7 @@ function nodeToObj (nodes) {
         }
 
         let obj = getElement(node, false)
+        
         arr.push(obj);
     });
     // console.log('arr: ', arr);
@@ -247,7 +248,6 @@ function nodeToObj (nodes) {
             children: [],
             type: null,
         };        
-
         if (node.name && node.name.charAt(0) == '*') {
             console.log('rasterize', node);
             rasterizeList.push(node.id)
@@ -255,6 +255,9 @@ function nodeToObj (nodes) {
         }        
 
         for (const key in node) {
+            try {
+                
+            
             let element = node[key];
             // console.log(element);
             
@@ -278,7 +281,11 @@ function nodeToObj (nodes) {
             }
 
             // corner radius
-            if (element == figma.mixed && key === 'cornerRadius') {
+            // if (key === 'cornerRadius') {
+            //     console.log(key,  element);
+
+            // }
+            if (element == figma.mixed && key === 'cornerRadius') {                
                 element = Math.min(node.topLeftRadius, node.topRightRadius, node.bottomLeftRadius, node.bottomRightRadius);
             } 
 
@@ -295,7 +302,12 @@ function nodeToObj (nodes) {
             // layer.fontName !== (figma.mixed)) ? layer.fontName.family : layer.getRangeFontName(0,1).family
             // if (key === 'parent') { console.log(element); }
             
-            obj[key] = element;            
+            obj[key] = element;  
+
+            } catch (error) {
+                console.log('ERROR', error);
+                
+            }          
         }
         // keep track of Auto-layout frames for alignment of children
         if (node.type === 'FRAME' && node.layoutMode !== 'NONE') { obj.type = 'AUTOLAYOUT'}

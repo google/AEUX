@@ -1,7 +1,20 @@
 # Change log
 
+## v0.7.8
+Released: December 15, 2020
+
+### Changed
+- Figma: rasterize instances with image background
+
+### Fixes
+- Sketch: Image export crashing
+- Sketch: Image importing skew
+- Sketch: Line 790 *"symbolFolder is undefined"*
+- Figma: Adding to comp *"groupFolder is undefined"*
+- Figma: Skip complex/errored props for less crashing on export
+
 ## v0.7.7
-Released: 3 December, 2020
+Released: December 03, 2020
 ### Added - Figma
 - Adding an Asterisk to the beginning of a layer name export that layer as an image
 	- Groups with an Asterisk will generate a PNG for that group and not lower layers
@@ -27,7 +40,7 @@ Released: 3 December, 2020
 
 
 ## v0.7.6
-Released: 30 October, 2020
+Released: October 30, 2020
 ### Changed - Sketch
 - Reintroduced Image Fills
 	- Previously disabled because of misalignment and image skewing
@@ -45,7 +58,7 @@ Released: 30 October, 2020
 - Smarter shape merge logic
 
 ## v0.7.5a
-Released: 28 September, 2020
+Released: September 28, 2020
 ### Fixed - Figma
 - Masks stability
 - Reference image exporting stability - switched to 1x from 6x
@@ -57,7 +70,7 @@ Released: 28 September, 2020
 - Sanitizing slashes in layer/symbol names
 
 ## v0.7.5
-Released: 10 July, 2020
+Released: July 10, 2020
 ### Fixed
 - Figma/Sketch: Gradient strokes
 - Figma: Skewed parametric shapes (line 502)
@@ -71,7 +84,7 @@ Released: 10 July, 2020
 
 
 ## v0.7.4
-Released: 29 June, 2020
+Released: June 29, 2020
 ### Added
 - Ae panel now checks the version of Sketch/Figma’s AEUX and points to download an update
 
@@ -87,7 +100,7 @@ Released: 29 June, 2020
 
 
 ## v0.7.3
-Released: 18 June, 2020
+Released: June 18, 2020
 ### Added
 - Figma checkbox to export an image reference for manual alignment 
 - Figma button to rasterize groups to images. Different from the native Rasterize action in that it creates a 4x image (not actual pixels) and adds image on top (does not remove the original art).
@@ -98,12 +111,12 @@ Released: 18 June, 2020
 - Figma boolean shape on multi-path compound layers (icons)
 - Figma nested boolean shape alignment –more than 2 levels of nesting will become misaligned and should be flattened
 - Figma stroked text without fills
-- Flatten is smarter – will outline text layers and find rounded rectanges
+- Flatten is smarter – will outline text layers and find rounded rectangles
 - Sketch image export spinner didn’t clear
 
 
 ## v0.7.2
-Released: 19 Febuary, 2020
+Released: February 19, 2020
 ### Added
 - Figma plugin is now available to Googlers under Plugins>Google
 - Image transfer limit upgraded to 200mb
@@ -118,7 +131,7 @@ Released: 19 Febuary, 2020
 
 
 ## v0.7.1
-Released: 06 Febuary, 2020
+Released: February 06, 2020
 ### Added
 - Ae new comp duration entry
 - Ae new comp frame-rate entry 
@@ -131,7 +144,7 @@ Released: 06 Febuary, 2020
 
 
 ## v0.7.0
-Released: 28 January, 2020
+Released: January 28, 2020
 ### Changes
 - Rewrite of the Sketch UI system to support Catalina
 - Figma in-app plugin
@@ -142,7 +155,7 @@ Released: 28 January, 2020
 - Ae panel file drop
 
 ## v0.6.9
-Released: 03 June, 2019
+Released: June 03, 2019
 ### Added
 - New logo
 
@@ -165,25 +178,25 @@ Released: 03 June, 2019
 - Smarter check before removing a precomp from the project if it exists multiple times in the current comp
 
 ## v0.6.8
-Released: 15 April, 2019
+Released: April 15, 2019
 ### Fixed
 - Sketch 54 support
 - Catch for missing symbols in Sketch
 - Catch for bug on line 1193
 
 ## v0.6.7
-Released: 25 February, 2019
+Released: February 25, 2019
 ### Added
 - Ae backward compatibility to CC2014. Note: the Figma converter requires CC2018+ to download images through Ae.
 
 ## v0.6.6
-Released: 15 February, 2019
+Released: February 15, 2019
 ### Added
 - Ae panel image downloading for Figma. The online <a href="https://aeux-55e58.firebaseapp.com" target="_blank">Figma converter</a> generates images (if needed) and these image URLs are downloaded in the JSON file. Once imported into Ae, the panel downloads these images directly to a directory you specify. This process allows direct access to your images without granting the converter app or Google any access to your data.
 - While still lacking support for vertical text alignment and open paths (like horizontal rules, simple stroked lines and other open shapes without fills), the Figma converter is available for testing.
 
 ## v0.6.5
-Released: 15 January, 2019
+Released: January 15, 2019
 ### Added
 - Group dropshadows - only visible if you Precomp Groups
 - Sketch menu items which allow shortcuts to be added if that's how you like to work
@@ -207,21 +220,21 @@ Released: 15 January, 2019
  - Bug with overrides that stalled the process
 
 ## v0.6.4
-Released: 19 November, 2018
+Released: November 19, 2018
 ### Fixed
 - Rounding error on new comps not on a pixel
 - Introduced bug where the Sketch panel didn't open
 
 
 ## v0.6.3
-Released: 15 November, 2018
+Released: November 15, 2018
 
 ### Fixed
 - Error on text with multiple line breaks
 
 
 ## v0.6.2
-Released: 08 October, 2018
+Released: October 08, 2018
 
 ### Added
 - Support for Sketch 52
@@ -231,7 +244,7 @@ Released: 08 October, 2018
 
 
 ## v0.6.1
-Released: 01 October, 2018
+Released: October 01, 2018
 
 ### Added
 - Un-precompose button. Now groups in AE may be converted to precomps, and also converted back to regular layers in the main comp with a single click.
@@ -251,7 +264,7 @@ Released: 01 October, 2018
 
 
 ## v0.6.0
-Released: 04 September, 2018
+Released: September 04, 2018
 ### Added
 - In-panel messaging to explain errors and inaccurate layer representation (Sketch and AE)
 - Ability to rename the exported .json file for multiple outputs without overwriting
@@ -270,7 +283,7 @@ Released: 04 September, 2018
 
 
 ## v0.5.8
-Released: 18 June, 2018
+Released: June 18, 2018
 ### Added
 - Auto-precomp of groups
 - Text transform to upper/lower case
@@ -287,7 +300,7 @@ Released: 18 June, 2018
 
 
 ## v0.5.7
-Released: 04 June, 2018
+Released: June 04, 2018
 ### Added
 - In-panel messaging system
 - New layer masking system
@@ -300,7 +313,7 @@ Released: 04 June, 2018
 - OS X system commands used to simplify plugin initialization (folders and files)
 
 ## v0.5.6
-Released: 30 April, 2018
+Released: April 30, 2018
 ### Added
 - Sketch panel UI
 - AE layer build speed increase by hiding build comp

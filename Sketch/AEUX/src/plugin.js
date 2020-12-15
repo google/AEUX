@@ -7,7 +7,7 @@ import UI from 'sketch/ui'
 var devName = 'sumUX';
 var toolName = 'AEUX';
 var docUrl = 'https://aeux.io/';
-var versionNumber = 0.76;
+var versionNumber = 0.78;
 var document, selection, folderPath, imageList = [], aveName, layerCount, aeSharePath, flatten, hasArtboard, exportCanceled, imagePath;
 
 
@@ -556,7 +556,6 @@ function getShape(layer) {
             hasClippingMask: layer.sketchObject.hasClippingMask(),
             shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
         }
-        // UI.alert('groupData', JSON.stringify(groupData, false, 2))
         layerData = groupData
     }
 
@@ -805,14 +804,15 @@ function getImage(layer, filldata) {
                 imgData = layer.image.nsdata.base64EncodedStringWithOptions(0).toString()
             }
         } else {
-            var sizeMult = 1
-            if (layerData.frame.width >= layerData.frame.height) {
-                sizeMult = layerData.frame.width / filldata.size.width
-            } else {
-                sizeMult = layerData.frame.height / filldata.size.height
-            }
-            layerData.frame.width = filldata.size.width * sizeMult
-            layerData.frame.height = filldata.size.height * sizeMult
+            // var sizeMult = 1
+            // UI.message(filldata.size.width)
+            // if (layerData.frame.width >= layerData.frame.height) {
+            //     sizeMult = layerData.frame.width / filldata.size.width
+            // } else {
+            //     sizeMult = layerData.frame.height / filldata.size.height
+            // }
+            // layerData.frame.width = filldata.size.width * sizeMult
+            // layerData.frame.height = filldata.size.height * sizeMult
             imgData = filldata.nsdata.base64EncodedStringWithOptions(0).toString()
         }
 

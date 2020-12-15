@@ -8,7 +8,7 @@ var JSON;JSON||(JSON={}); (function(){function k(a){return a<10?"0"+a:a}function
 ///////// variables /////////
 var scriptName = 'AEUX';
 var devName = 'sumUX';
-var aeuxVersion = 0.77;
+var aeuxVersion = 0.78;
 var hostApp, sourcePath;
 var clippingMask = null;
 var thisComp = null;
@@ -1064,7 +1064,7 @@ function aeSymbol(layer, opt_parent) {
 
 //// import and add image
 function aeImage(layer, opt_parent) {
-//   alert(JSON.stringify(layer, false, 2))
+    // alert(JSON.stringify(layer, false, 2))
     var aeuxFolder = createNamedFolder('AEUX');
     var frameFolder = createNamedFolder(compName);
         frameFolder.parentFolder = aeuxFolder
@@ -1131,31 +1131,30 @@ function aeImage(layer, opt_parent) {
     // var centeredPos = [(layer.frame.x + layer.frame.width/2) * compMult, (layer.frame.y + layer.frame.height/2) * compMult];
     // r('ADBE Transform Group')('ADBE Position').setValue(centeredPos);
     r('ADBE Transform Group')('ADBE Position').setValue( [layer.frame.x * compMult, layer.frame.y * compMult] );
-    // if Sketch scale to 25% for the 4x mult
-    // if (hostApp == 'Sketch') { 
-    //     r('ADBE Transform Group')('ADBE Scale').setValue([25*compMult,25*compMult]); 
-    // } else {
-        // get the scale from the size of the image
-        var w = layer.frame.width / r.width * 100;
-        var h = layer.frame.height / r.height * 100;
 
-        // un-skew the image
-        if (hostApp == 'Figma') {
-            let figmaMult = 3 
-            w = Math.min(100 / figmaMult, 4000)
-            h = Math.min(100 / figmaMult, 4000)
-        //     if (layer.frame.width > layer.frame.height) {
-        //         w = layer.frame.width / r.width * 100
-        //         h = layer.frame.width / r.height * 100
-        //     } else {
-        //         w = layer.frame.height / r.width * 100
-        //         h = layer.frame.height / r.height * 100
-        //     }
+    // get the scale from the size of the image
+    var w = 100;
+    var h = 100;
+
+    // un-skew the image
+    if (hostApp == 'Figma') {
+        // let figmaMult = 3 
+        // w = Math.min(100 / figmaMult, 4000)
+        // h = Math.min(100 / figmaMult, 4000)
+        w = layer.frame.width / r.width * 100;
+        h = layer.frame.height / r.height * 100;
+    } else {
+        if (r.height >= r.width) {
+            w = layer.frame.width / r.width * 100;
+            h = w;
+        } else {
+            h = layer.frame.height / r.height * 100;
+            w = h;
         }
-        
-        r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]); 
-        r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
-        r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
+    }
+    r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]); 
+    r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
+    r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
     
     // }
 
@@ -1204,6 +1203,12 @@ function createSymbol(layer) {
     /// reset variables
     var symbol;
     var symbolExists = false;
+
+    // project folder structure
+    var aeuxFolder = createNamedFolder('AEUX');
+    var frameFolder = createNamedFolder(compName);
+    frameFolder.parentFolder = aeuxFolder
+    var symbolFolder = createNamedFolder('Precomps', frameFolder);
 
     /// check if not an override
     if (layer.id != 'override') {
@@ -1319,6 +1324,8 @@ function aeArtboard(layer) {
         var frameFolder = createNamedFolder(compName);
             frameFolder.parentFolder = aeuxFolder
             thisComp.parentFolder = frameFolder
+    } else {
+        compName = thisComp.name 
     }
 
     // above code is skipped so it gets the comp multiplier

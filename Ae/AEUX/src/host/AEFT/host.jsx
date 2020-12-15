@@ -45,7 +45,7 @@ var AEUX = (function () {
             return d = eval("(" + a + ")"), typeof e === "function" ? c({ "": d }, "") : d; throw new SyntaxError("JSON.parse"); }; })();
     var scriptName = 'AEUX';
     var devName = 'sumUX';
-    var aeuxVersion = 0.77;
+    var aeuxVersion = 0.78;
     var hostApp, sourcePath;
     var clippingMask = null;
     var thisComp = null;
@@ -744,12 +744,21 @@ var AEUX = (function () {
         setLayerBlendMode(r, layer);
         setMask(r, layer);
         r('ADBE Transform Group')('ADBE Position').setValue([layer.frame.x * compMult, layer.frame.y * compMult]);
-        var w = layer.frame.width / r.width * 100;
-        var h = layer.frame.height / r.height * 100;
+        var w = 100;
+        var h = 100;
         if (hostApp == 'Figma') {
-            var figmaMult = 3;
-            w = Math.min(100 / figmaMult, 4000);
-            h = Math.min(100 / figmaMult, 4000);
+            w = layer.frame.width / r.width * 100;
+            h = layer.frame.height / r.height * 100;
+        }
+        else {
+            if (r.height >= r.width) {
+                w = layer.frame.width / r.width * 100;
+                h = w;
+            }
+            else {
+                h = layer.frame.height / r.height * 100;
+                w = h;
+            }
         }
         r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]);
         r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
@@ -786,6 +795,10 @@ var AEUX = (function () {
     function createSymbol(layer) {
         var symbol;
         var symbolExists = false;
+        var aeuxFolder = createNamedFolder('AEUX');
+        var frameFolder = createNamedFolder(compName);
+        frameFolder.parentFolder = aeuxFolder;
+        var symbolFolder = createNamedFolder('Precomps', frameFolder);
         if (layer.id != 'override') {
             for (var i = 1; i <= symbolFolder.items.length; i++) {
                 if (symbolFolder.item(i).comment === layer.masterId) {
@@ -852,6 +865,9 @@ var AEUX = (function () {
             var frameFolder = createNamedFolder(compName);
             frameFolder.parentFolder = aeuxFolder;
             thisComp.parentFolder = frameFolder;
+        }
+        else {
+            compName = thisComp.name;
         }
         compMult = getCompMultiplier(layer.size[0]);
         return true;

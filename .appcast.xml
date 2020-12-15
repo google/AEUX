@@ -6,6 +6,13 @@
     <description>Transfer layers to After Effects</description>
     <language>en</language>
     <item>
+      <title>Version 0.7.8</title>
+      <description>
+          Image fill fixes; folder is undefined errors. Download Ae panel updates at aeux.io.
+      </description>
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/v0.7.8/aeux.sketchplugin.zip" sparkle:version="0.7.8"/>
+    </item>
+    <item>
       <title>Version 0.7.6</title>
       <description>
           Image fills supported again with stronger layer mask support. Download Ae panel updates at aeux.io.

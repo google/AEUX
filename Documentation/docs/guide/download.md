@@ -2,7 +2,7 @@
 currentVersion: 0.7.7
 releaseDate: "December 3, 2020"
 gitHubLatest: https://github.com/google/sketch2ae/releases/latest/AEUX.zip
-currentDownload: /legacy-download/AEUX_0.7.5.zip
+currentDownload: /legacy-download/AEUX_0.7.5a.zip
 fiftyTwoDownload: /legacy-download/AEUX_0.6.9.zip
 fiftyDownload: /legacy-download/Sketch2AE_0.54.zip
 ---

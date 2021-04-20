@@ -245,7 +245,7 @@ function getText(layer, parentFrame) {
         stroke: getStrokes(layer),
         blendMode: getLayerBlending(layer.blendMode),
         // fontName: layer.style.fontPostScriptName,
-        fontName: layer.fontName.family.replace(' ', '') + '-' + layer.fontName.style.replace(' ', ''),
+        fontName: layer.fontName.family.replaceAll(' ', '') + '-' + layer.fontName.style.replaceAll(' ', ''),
         fontSize: layer.fontSize,
         // trackingAdjusted: layer.style.letterSpacing / layer.style.fontSize * 1000,
         trackingAdjusted: getTracking(layer),

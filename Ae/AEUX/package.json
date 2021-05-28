@@ -10,24 +10,26 @@
     "switch": "bombino-cmd switch",
     "update": "bombino-cmd update",
     "register": "bombino-cmd register",
-    "help": "bombino-cmd help"
+    "help": "bombino-cmd help",
+    "package": "bombino-cmd package"
   },
   "dependencies": {
     "@mdi/font": "^4.9.95",
-    "amulets": "^0.1.2",
-    "brutalism": "^2.0.0",
-    "cep-spy": "^1.3.4",
+    "amulets": "file:../../../../Modules/amulets",
+    "brutalism": "^2.2.2",
+    "cep-spy": "latest",
     "core-js": "^3.6.5",
     "hammerjs": "^2.0.8",
     "starlette": "^1.0.4",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "ws": "^6.2.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.4.6",
     "@vue/cli-plugin-eslint": "^4.4.6",
     "@vue/cli-service": "^4.4.6",
     "babel-eslint": "^10.1.0",
-    "bombino-commands": "^1.0.5",
+    "bombino-commands": "^1.1.1",
     "boxen": "^4.2.0",
     "chalk": "^2.4.2",
     "eslint": "^5.16.0",

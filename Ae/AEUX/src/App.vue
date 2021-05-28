@@ -10,8 +10,8 @@
 
 <script>
 
-import AEUX from './components/AEUX.vue'
-import Server from 'amulets/VueComponents/Server'
+import AEUX from '@/components/AEUX.vue'
+import Server from '@/components/Server.vue'
 
 export default {
     data: () => ({

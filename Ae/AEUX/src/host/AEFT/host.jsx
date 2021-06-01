@@ -699,17 +699,18 @@ var AEUX = (function () {
         frameFolder.parentFolder = aeuxFolder;
         var imageFolder = createNamedFolder('Images', frameFolder);
         imageFolder.parentFolder = frameFolder;
-        var bmpImage = getItem(layer.id, FileSource, imageFolder);
+        var nameId = layer.name + "_" + layer.id;
+        var bmpImage = getItem(nameId, FileSource, imageFolder);
         if (bmpImage === null) {
             var fileFound = false;
             var bmpFile;
             try {
-                if (File(folderPath + '/' + layer.id + '.png').exists) {
-                    bmpFile = new ImportOptions(new File(folderPath + '/' + layer.id + '.png'));
+                if (File(folderPath + '/' + nameId + '.png').exists) {
+                    bmpFile = new ImportOptions(new File(folderPath + '/' + nameId + '.png'));
                     fileFound = true;
                 }
-                else if (File(folderPath + '/' + layer.id + '.jpg').exists) {
-                    bmpFile = new ImportOptions(new File(folderPath + '/' + layer.id + '.jpg'));
+                else if (File(folderPath + '/' + nameId + '.jpg').exists) {
+                    bmpFile = new ImportOptions(new File(folderPath + '/' + nameId + '.jpg'));
                     fileFound = true;
                 }
                 if (fileFound) {
@@ -717,12 +718,12 @@ var AEUX = (function () {
                 }
                 else {
                     returnMessage.push(6);
-                    bmpImage = app.project.importPlaceholder(layer.id + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
+                    bmpImage = app.project.importPlaceholder(nameId + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
                 }
             }
             catch (e) {
                 returnMessage.push(6);
-                bmpImage = app.project.importPlaceholder(layer.id + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
+                bmpImage = app.project.importPlaceholder(nameId + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
             }
             bmpImage.parentFolder = imageFolder;
             bmpImage.selected = false;

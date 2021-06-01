@@ -31,7 +31,7 @@
         <input type="checkbox" class="option-checkbox" id="exportRefImage" v-model="prefs.exportRefImage" @click="setPrefs('exportRefImage')">
         <label for="exportRefImage">Export reference image</label>
     </div>
-
+<!-- 
     <div class="button horiz" @click="flattenLayers">
         <svg v-show="thinking !== 'flattenLayers'" fill="#000000" height="24" viewBox="0 0 24 24" width="24"><path d="M16 13h-3V3h-2v10H8l4 4 4-4zM4 19v2h16v-2H4z"/></svg>
 
@@ -40,30 +40,6 @@
         </svg>
         <div>
             Flatten shapes
-        </div>
-
-    </div>    
-    <div class="button horiz" @click="rasterizeSelection">
-        <svg v-show="thinking !== 'rasterizeSelection'" fill="#000000" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none" />
-        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" /></svg>
-
-        <svg v-show="thinking == 'rasterizeSelection'" class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-            <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
-        </svg>
-        <div>
-            Rasterize groups
-        </div>
-
-    </div>    
-    <!-- <div class="button horiz" @click="imageRefToAe">
-        <svg v-show="thinking !== 'imageRefToAe'" fill="#000000" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none" />
-        <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" /></svg>
-
-        <svg v-show="thinking == 'imageRefToAe'" class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-            <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
-        </svg>
-        <div>
-            Image ref to Ae
         </div>
 
     </div>     -->

@@ -30,7 +30,7 @@ export default {
     }),
     methods: {
         newWebSocket() {
-            this.server = new WebSocket.Server({port: 2002})
+            this.server = new WebSocket.Server({port: 7240})
             this.server.on('connection', (ws) => {
                 console.log('new connection');
                 ws.on('message', (message) => {
@@ -40,13 +40,14 @@ export default {
                     if (msg.method == 'writeFiles') {
                         amulets.getPrefs()
                         .then(prefs => {
-                            return prefs.absolutePath
+                            return prefs
                         })
-                        .then(path => {
-                            this.writeFiles(msg, path)
+                        .then(prefs => {
+                            amulets.checkPath(prefs.absolutePath)
+                            this.writeFiles(msg, prefs.absolutePath)
                             .then(folderPath => {
                                 msg.data.layerData[0].folderPath = folderPath
-    
+                                msg.data.prefs = prefs
                                 // build layers
                                 amulets.evalScript('buildLayers', msg.data)
                                 .then(result => {
@@ -55,7 +56,8 @@ export default {
                                 })
                             })
                             .catch(error =>
-                                alert(`Catch: ${error}`)
+                                ws.send(JSON.stringify(error))
+                                // alert(`Catch: ${error}`)
                             )
                         })
 
@@ -66,6 +68,8 @@ export default {
                             ws.send(JSON.stringify(result))
                         })
                     }
+
+                    amulets.switchApps('aftereffects')
                 })
             })
         },

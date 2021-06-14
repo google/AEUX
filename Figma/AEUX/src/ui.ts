@@ -10,6 +10,8 @@ var vm = new Vue({
 		thinking: false,
         footerMsg: null,
         imagePath: null,
+        btnMsg: 'Getting layer data',
+        btnCancel: 'Cancel',
         prefs: {
             exportRefImage: false,
             imgSaveDialog: false,
@@ -17,24 +19,33 @@ var vm = new Vue({
 	},
 	methods: {  
         exportSelection(e) {
-            this.thinking = 'fetchAEUX'
-            setTimeout(() => {
-            let shiftKey = e.shiftKey
-            parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: shiftKey } }, '*')
-            }, 50);
+            if (!this.thinking) {
+                this.thinking = 'fetchAEUX'
+                setTimeout(() => {
+                    let shiftKey = e.shiftKey
+                    parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: shiftKey } }, '*')
+                }, 50);
+            } else {
+                // cancel
+                this.thinking = null
+                // parent.postMessage({ pluginMessage: { type: 'exportCancel' } }, '*')
+            }
         },
-        detachComponents () {
-            parent.postMessage({ pluginMessage: { type: 'detachComponents' } }, '*')
+        addRasterizeFlag () {
+            parent.postMessage({ pluginMessage: { type: 'addRasterizeFlag' } }, '*')
         },
-        flattenLayers () {
-            parent.postMessage({ pluginMessage: { type: 'flattenLayers' } }, '*')
-        },
-        rasterizeSelection () {
-            parent.postMessage({ pluginMessage: { type: 'rasterizeSelection' } }, '*')
-        },
-        imageRefToAe () {
-            parent.postMessage({ pluginMessage: { type: 'imageRefToAe' } }, '*')
-        },
+        // detachComponents () {
+        //     parent.postMessage({ pluginMessage: { type: 'detachComponents' } }, '*')
+        // },
+        // flattenLayers () {
+        //     parent.postMessage({ pluginMessage: { type: 'flattenLayers' } }, '*')
+        // },
+        // rasterizeSelection () {
+        //     parent.postMessage({ pluginMessage: { type: 'rasterizeSelection' } }, '*')
+        // },
+        // imageRefToAe () {
+        //     parent.postMessage({ pluginMessage: { type: 'imageRefToAe' } }, '*')
+        // },
         setPrefs () {
             setTimeout(() => {
                 parent.postMessage({ pluginMessage: { type: 'setPrefs', prefs: this.prefs } }, '*')
@@ -85,32 +96,27 @@ onmessage = (event) => {
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
         console.log(aeuxData);
 
-        fetch(`http://127.0.0.1:7240/evalScript`, {
-        method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                method: 'buildLayers',
-                data: {layerData: aeuxData},
-                switch: 'aftereffects',
-                getPrefs: true,
-            })
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log(response);
+        const socket = new WebSocket('ws://localhost:7250')
+        socket.onopen = () => {
+            socket.send(
+                JSON.stringify({
+                    method: 'buildLayers',
+                    data: { layerData: aeuxData },
+                })
+            )
+        }
+        socket.onmessage = (e) => {
+            console.log('To Client:', e)
+            if (e.type == 'message') {
                 setfooterMsg(aeuxData[0].layerCount, 'sent to Ae')
-                return response.json()
-            } else {
-                throw Error('failed to connect')
             }
-        })
-        .catch(e => {
-            console.error(e)
+            vm.thinking = false
+        }
+        socket.onerror = (e) => {
+            console.log('ERROR', e);
             setfooterMsg(null, 'Failed to connect to Ae');
-        });
+            vm.thinking = false
+        };
     }
     if (msg && msg.type === 'footerMsg') {
         // console.log('LayerCount', msg.layerCount);
@@ -139,60 +145,31 @@ onmessage = (event) => {
         }
 
         console.log(aeuxData);
-        let imagePath = (vm.prefs.imgSaveDialog) ? null : vm.imagePath 
-        fetch(`http://127.0.0.1:7240/writeFiles`, {
-        method: "POST",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                // method: 'buildLayers',
-                // data: {layerData: aeuxData},
-                switch: 'aftereffects',
-                // getPrefs: true,
-                images: imageList,
-                path: imagePath,
-            })
-        })
-        .then(response => {
-            // if (response.ok) {
-                return response.json()
-            // } else {
-            //     throw Error('failed to connect')
-            // }
-        })
-        .then(res => {
-            console.log('res', res);
-            // Ae image export canceled
-            if (res.errno == -2) {
-                setfooterMsg(null, 'Image creation canceled')
-                return 
-            } else if (res.path) {
-                vm.imagePath = res.path     // store the path per session
-            }
-            
-            aeuxData[0].folderPath = res.path
-            
-            fetch(`http://127.0.0.1:7240/evalScript`, {
-            method: "POST",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    method: 'buildLayers',
-                    data: {layerData: aeuxData},
+
+        const socket = new WebSocket('ws://localhost:7250')
+        socket.onopen = () => {
+            socket.send(
+                JSON.stringify({
+                    method: 'writeFiles',
+                    data: { layerData: aeuxData },
+                    images: imageList,
                     // switch: 'aftereffects',
-                    getPrefs: true,
+                    // getPrefs: true,
                 })
-            })
-        })
-        .then( () => vm.thinking = false )
-        .catch(e => {
-            console.error(e)
-            setfooterMsg(null, 'Failed to connect to Ae')
-        });
+            )
+        }
+        socket.onmessage = (e) => {
+            console.log('To Client:', e)
+            if (e.type == 'message') {
+                setfooterMsg(aeuxData[0].layerCount, 'sent to Ae')
+            }
+            vm.thinking = false
+        }
+        socket.onerror = (e) => {
+            console.log('ERROR', e);
+            setfooterMsg(null, 'Failed to connect to Ae');
+            vm.thinking = false
+        };
     }
 }
 

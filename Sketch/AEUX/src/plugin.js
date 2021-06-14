@@ -184,6 +184,7 @@ export function fetchAEUX () {
         });
     } else {        // save images
         console.log('Build images');
+        console.log(aeuxData);
         
         fetch(`http://127.0.0.1:7240/writeFiles`, {
         method: "POST",
@@ -194,7 +195,8 @@ export function fetchAEUX () {
             body: JSON.stringify({
                 switch: 'aftereffects',
                 images: imageList,
-                path: imagePath, 
+                // path: imagePath, 
+                data: { layerData: aeuxData }
             })
         })
         .then(response => {
@@ -204,50 +206,18 @@ export function fetchAEUX () {
                 throw Error('failed to connect')
             }
         })
-        .then(res => {
-            console.log('res');
-            if (res.errno == -2) {
-                let msgToWebview = 'Image creation canceled'
-                if (!existingWebview) {     // webview is closed
-                    UI.message(msgToWebview)
-                } else {
-                    // send something to the webview            
-                    existingWebview.webContents.executeJavaScript(`setFooterMsg('${msgToWebview}')`)
-                }
-                return
-            } else if (res.path) {
-                imagePath = res.path     // store the path per session
-            }
-
-            aeuxData[0].folderPath = res.path
+        .then(json => {
+            // get back a message from Ae and display it at the bottom of Sketch
+            console.log(json)
+            let lyrs = json.layerCount        
+            let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
             
-            fetch(`http://127.0.0.1:7240/evalScript`, {
-            method: "POST",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    method: 'buildLayers',
-                    data: {layerData: aeuxData},
-                    // switch: 'aftereffects',
-                    getPrefs: true,
-                })
-            })
-            .then(response => response.json())
-            .then(json => {
-                // get back a message from Ae and display it at the bottom of Sketch
-                console.log(json)
-                let lyrs = json.layerCount
-                let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
-
-                if (!existingWebview) {     // webview is closed
-                    UI.message(msg)
-                } else {
-                    // send something to the webview
-                    existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
-                }
-            })
+            if (!existingWebview) {     // webview is closed
+                UI.message(msg)
+            } else {
+                // send something to the webview
+                existingWebview.webContents.executeJavaScript(`setFooterMsg('${msg}')`)
+            }
         })
         .catch(e => {
             let msgToWebview = 'Unable to communicate with Ae'

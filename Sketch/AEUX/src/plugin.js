@@ -787,7 +787,7 @@ function getImage(layer, filldata) {
         }
 
         imageList.push({
-            name: layerData.id + '.png',
+            name: `${layerData.name}_${layerData.id}.png`,
             imgData: `${imgData.replace(/<|>/g, '')}`
         })
         console.log(imageList)

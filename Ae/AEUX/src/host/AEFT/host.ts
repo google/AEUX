@@ -8,7 +8,7 @@ var JSON;JSON||(JSON={}); (function(){function k(a){return a<10?"0"+a:a}function
 ///////// variables /////////
 var scriptName = 'AEUX';
 var devName = 'sumUX';
-var aeuxVersion = 0.78;
+var aeuxVersion = 0.8;
 var hostApp, sourcePath;
 var clippingMask = null;
 var thisComp = null;
@@ -1074,6 +1074,7 @@ function aeImage(layer, opt_parent) {
 
     // check if file is already imported
     var nameId = `${layer.name}_${layer.id}`
+    // var nameId = (hostApp == 'Figma') ? `${layer.name}_${layer.id}` : layer.id
     var bmpImage = getItem(nameId, FileSource, imageFolder);
     // if not imported
     if (bmpImage === null) {

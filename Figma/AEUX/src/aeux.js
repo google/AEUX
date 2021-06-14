@@ -1,8 +1,8 @@
 /*jshint esversion: 6, asi: true*/
 import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
 
-var versionNumber = 0.78;
-var frameData, layers, hasArtboard, layerCount, layerData, boolOffset, rasterizeList;
+var versionNumber = 0.8;
+var frameData, layers, hasArtboard, layerCount, layerData, boolOffset, rasterizeList, frameSize;
 export function convert (data) {
     hasArtboard = false;
     layerCount = 0;
@@ -364,7 +364,7 @@ function getGroup(layer, parentFrame) {
     // }
   getEffects(layer, layerData);
 
-  if (layerData.layers[0].isMask) { layerData.type = 'Component' }
+if (layerData.layers[0] && layerData.layers[0].isMask) { layerData.type = 'Component' }
 //   console.log(layerData)
   return layerData;
 }
@@ -651,36 +651,53 @@ function getBoolType (layer) {
             return -1;
     }
 }
-function getFrame(layer, parentFrame) {  
-  var matrix = layer.relativeTransform;
-  var isRotated = matrix[0][0] != 1;
-  var isFlipped = (matrix[0][0] < 0 && matrix[1][1] > 0) || (matrix[0][0] > 0 && matrix[1][1] < 0);
-  var flippedHorizontal = matrix[0][0] < 0 && matrix[1][1] > 0;
-  var flippedVertical = matrix[0][0] > 0 && matrix[1][1] < 0;
-  // console.log('flippedHorizontal:', flippedHorizontal);
-  // console.log('flippedVertical:', flippedVertical);
-  
-  
-  var offset = [0,0];
-  if (parentFrame) {
-      offset = [parentFrame.x - parentFrame.width/2, parentFrame.y - parentFrame.height/2];
-  }
-  
+function getFrame(layer, parentFrame, constrainFrame) {
+    var matrix = layer.relativeTransform;
+    var isRotated = matrix[0][0] != 1;
+    var isFlipped = (matrix[0][0] < 0 && matrix[1][1] > 0) || (matrix[0][0] > 0 && matrix[1][1] < 0);
+    var flippedHorizontal = matrix[0][0] < 0 && matrix[1][1] > 0;
+    var flippedVertical = matrix[0][0] > 0 && matrix[1][1] < 0;
+    
+    
+    var offset = [0,0];
+    if (parentFrame) {
+        offset = [parentFrame.x - parentFrame.width/2, parentFrame.y - parentFrame.height/2];
+    }
+    
 
-  var width = layer.width || 0;
-  var height = layer.height || 0;
-  // find the center of the shape
-  var hypot = Math.sqrt(width/2 * width/2 + height/2 * height/2);
-  var angle = layer.rotation * (Math.PI/180);
+    var width = layer.width || 0;
+    var height = layer.height || 0;
+    // find the center of the shape
+    var hypot = Math.sqrt(width/2 * width/2 + height/2 * height/2);
+    var angle = layer.rotation * (Math.PI/180);
 
-  var vertOffset = 0;
-  // var horizOffset = 0;
-  if (flippedHorizontal) { 
-      offset[1] -= height;
-  }
+    //   var vertOffset = 0;
+    // var horizOffset = 0;
+    if (flippedHorizontal) { 
+        offset[1] -= height;
+    }
 
-  var x = layer.x + Math.cos(Math.atan2(height, width) - angle) * hypot - offset[0];
-  var y = layer.y + Math.sin(Math.atan2(height, width) - angle) * hypot - offset[1];
+    var x = layer.x + Math.cos(Math.atan2(height, width) - angle) * hypot - offset[0];
+    var y = layer.y + Math.sin(Math.atan2(height, width) - angle) * hypot - offset[1];
+
+    if (constrainFrame) {
+        if (layer.x < 0) {      // off the left edge
+            width += layer.x
+            x -= layer.x / 2
+        }
+        if (layer.x + layer.width > frameSize[0]) {      // off the right edge
+            width -= (layer.width + layer.x) - frameSize[0]
+            x -= ((layer.width + layer.x) - frameSize[0]) / 2
+        }
+        if (layer.y < 0) {      // off the top edge
+            height += layer.y
+            y -= layer.y / 2
+        }
+        if (layer.y + layer.height > frameSize[1]) {      // off the bottom edge
+            height -= (layer.height + layer.y) - frameSize[1]
+            y -= ((layer.height + layer.y) - frameSize[1]) / 2
+        }
+    }
 
     // console.log(layer.name, offset);
     return {
@@ -703,14 +720,16 @@ function storeArtboard(data) {
     var bgColor = colorObjToArray(data.backgrounds);
     if (!bgColor || bgColor[3] < 0.0000001) { bgColor = [1,1,1,1] }
 
+    frameSize = [data.width, data.height]
+
     var artboardObj = {
         type: "Artboard",
         aeuxVersion: versionNumber,
         hostApp: "Figma",
         name: data.name,
         bgColor: bgColor,
-        size: [data.width, data.height],
-        images: [],
+        size: frameSize,
+        // images: [],
     };
 
     frameOffset.x = data.absoluteTransform[0][2];
@@ -800,13 +819,25 @@ function getFills(layer, parentFrame) {
 }
 //// get layer data: IMAGE
 function getImageFill(layer, parentFrame) {
+    let frame = getFrame(layer, parentFrame, true)
+    console.log('frameSize', frameSize);
+
+    // resize the image frame to fit within the frame because the exported image will be cropped
+    if (frame.width > frameSize[0]) {
+        frame.width = frameSize[0]
+        frame.x = frameSize[0] / 2
+    }
+    if (frame.height > frameSize[1]) {
+        frame.height = frameSize[1]
+        frame.y = frameSize[1] / 2
+    }
 
 //   console.log('getImageFill');
 	var layerData =  {
     type: 'Image',
     name: layer.name,
     id: layer.id.replace(/:/g, '-'),
-    frame: getFrame(layer, parentFrame),
+    frame: frame,
     isVisible: (layer.visible !== false),
     opacity: 100,
     // opacity: layer.opacity*100 || 100,
@@ -815,6 +846,8 @@ function getImageFill(layer, parentFrame) {
     rotation: 0,
     // rotation: getRotation(layer),
   };
+    getEffects(layer, layerData);
+
 
     // console.log('getImageFill', layerData);
     return layerData;

@@ -30,44 +30,35 @@ export default {
     }),
     methods: {
         newWebSocket() {
-            this.server = new WebSocket.Server({port: 7240})
+            this.server = new WebSocket.Server({ port: 7250, })
             this.server.on('connection', (ws) => {
                 console.log('new connection');
                 ws.on('message', (message) => {
                     let msg = JSON.parse(message)
                     console.log('MSG', msg);
 
-                    if (msg.method == 'writeFiles') {
-                        amulets.getPrefs()
-                        .then(prefs => {
-                            return prefs
-                        })
-                        .then(prefs => {
+                    amulets.getPrefs()
+                    .then(prefs => {
+                        msg.data.prefs = prefs
+                        if (msg.method == 'writeFiles') {
                             amulets.checkPath(prefs.absolutePath)
                             this.writeFiles(msg, prefs.absolutePath)
                             .then(folderPath => {
                                 msg.data.layerData[0].folderPath = folderPath
-                                msg.data.prefs = prefs
-                                // build layers
-                                amulets.evalScript('buildLayers', msg.data)
-                                .then(result => {
-                                    console.log('RESULT', result);
-                                    ws.send(JSON.stringify(result))
-                                })
                             })
-                            .catch(error =>
-                                ws.send(JSON.stringify(error))
-                                // alert(`Catch: ${error}`)
-                            )
-                        })
-
-                    } else {
-                        amulets.evalScript(msg.method, msg.data)
+                        }
+                    })
+                    .then(() => {
+                        amulets.evalScript('buildLayers', msg.data)
                         .then(result => {
                             console.log('RESULT', result);
                             ws.send(JSON.stringify(result))
                         })
-                    }
+                        .catch(error =>
+                            // ws.send(JSON.stringify(error))
+                            alert(`Catch: ${error}`)
+                        )
+                    })
 
                     amulets.switchApps('aftereffects')
                 })
@@ -103,7 +94,8 @@ export default {
     },
     mounted() {
         amulets.configure({devName: this.devName, scriptName: this.scriptName})
-        this.newWebSocket()        
+        this.newWebSocket()   
+        amulets.newServer(7240)  
     },
 }
 </script>

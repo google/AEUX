@@ -224,7 +224,7 @@ function getText(layer, parentFrame) {
     var tempFrame = getFrame(layer, parentFrame);
     var lineHeight = getLineHeight(layer);
     frame = {
-        width: layer.width * 1.02,
+        width: Math.max(layer.width * 1.02, 1),
         height: layer.height,
         x: tempFrame.x,
         y: tempFrame.y,

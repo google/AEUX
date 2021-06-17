@@ -1127,13 +1127,10 @@ function aeImage(layer, opt_parent) {
     addInnerShadow(r, layer);
     setLayerBlendMode(r, layer);
 
-    setMask(r, layer);
-
+    
     // set transforms
     // var centeredPos = [(layer.frame.x + layer.frame.width/2) * compMult, (layer.frame.y + layer.frame.height/2) * compMult];
     // r('ADBE Transform Group')('ADBE Position').setValue(centeredPos);
-    r('ADBE Transform Group')('ADBE Position').setValue( [layer.frame.x * compMult, layer.frame.y * compMult] );
-
     // get the scale from the size of the image
     var w = 100;
     var h = 100;
@@ -1157,6 +1154,10 @@ function aeImage(layer, opt_parent) {
     r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]); 
     r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
     r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
+    r('ADBE Transform Group')('ADBE Position').setValue( [layer.frame.x * compMult, layer.frame.y * compMult] );
+    
+    setMask(r, layer);
+
     
     // }
 
@@ -1510,6 +1511,7 @@ function addStroke(r, layer) {
 
 //// dup mask layer, parent and set track matte
 function setMask(currentLayer, layerData) {
+    // alert(`${layerData.name} : ${layerData.type}`)
     /// reset variables
     var currentCompId = currentLayer.containingComp.id;
     var currentParentName = (currentLayer.parent) ? currentLayer.parent.name : 'comp';
@@ -1551,6 +1553,24 @@ function setMask(currentLayer, layerData) {
         maskLayer[layerID] = currentLayer;
         maskPosition = currentLayer('ADBE Transform Group')('ADBE Position').value;
     }
+
+    // resize masked images from their default frame size
+    try { 
+        if (hostApp == 'Figma' && layerData.type == 'Image') {
+            // const maskPos = newMask('ADBE Transform Group')('ADBE Position').value
+            const maskRect = newMask.sourceRectAtTime(0, false)
+            const sourceRect = currentLayer.sourceRectAtTime(0, false)
+            const adjSize = [
+                Math.min(maskRect.width, thisComp.width - maskRect.left),
+                Math.min(maskRect.height, thisComp.height - maskRect.top)]
+            const adjScale = [
+                Math.max(adjSize[0] / sourceRect.width * 100, 0.00001),
+                Math.max(adjSize[1] / sourceRect.height * 100, 0.00001)]
+            const adjPos = [adjSize[0]/2, adjSize[1]/2]
+            currentLayer('ADBE Transform Group')('ADBE Scale').setValue(adjScale);
+            currentLayer('ADBE Transform Group')('ADBE Position').setValue(adjPos);
+        }
+    } catch (e) {}
 }
 
 //// create gradient ffx and apply it to layer

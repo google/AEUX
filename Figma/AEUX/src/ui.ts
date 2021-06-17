@@ -10,7 +10,7 @@ var vm = new Vue({
 		thinking: false,
         footerMsg: null,
         imagePath: null,
-        btnMsg: 'Getting layer data',
+        btnMsg: 'Collecting layer data',
         btnCancel: 'Cancel',
         prefs: {
             exportRefImage: false,
@@ -24,7 +24,8 @@ var vm = new Vue({
                 setTimeout(() => {
                     let shiftKey = e.shiftKey
                     parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: shiftKey } }, '*')
-                }, 50);
+                    this.btnMsg = 'Transferring to Ae'
+                }, 250);
             } else {
                 // cancel
                 this.thinking = null
@@ -181,6 +182,7 @@ function setfooterMsg(layerCount, action) {
     } else {
         vm.footerMsg = layerCount + ' layers ' + action
     }
+    vm.btnMsg = 'Collecting layer data'
 
     setTimeout(() => {
         vm.footerMsg = null

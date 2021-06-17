@@ -28,7 +28,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
 
     if (!hasArtboard) {
         // console.log('artboard', storeArtboard(figmaData));
-        
+        console.log('missing artboard', figmaData);
         aeuxData.push(storeArtboard(figmaData));
         frameData = figmaData;      // store the whole frame data
     }
@@ -150,7 +150,7 @@ function getShape(layer, parentFrame, boolType) {
 
     /// if fill is an image group it and add a solid as a mask
     if (layerData.fill != null && layerData.fill.type == 'Image') {
-        console.log('do it');
+        // console.log('do it');
     //   return layerData.fill;
     // var imageLayer = layerData.fill
     // imageLayer.hasClippingMask = true

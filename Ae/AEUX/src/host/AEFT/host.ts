@@ -1097,11 +1097,11 @@ function aeImage(layer, opt_parent) {
                   bmpImage = app.project.importFile(bmpFile);   
                 } else {
                     returnMessage.push(6); 					//'Can't locate image file'
-                    bmpImage = app.project.importPlaceholder(nameId + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
+                    bmpImage = app.project.importPlaceholder(nameId + '.png', Math.abs(Math.round(layer.frame.width * 4)), Math.abs(Math.round(layer.frame.height * 4)), 60, 120);
                 }
             } catch (e) {
                 returnMessage.push(6); 					//'Can't locate image file'
-                bmpImage = app.project.importPlaceholder(nameId + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
+                bmpImage = app.project.importPlaceholder(nameId + '.png', Math.abs(Math.round(layer.frame.width * 4)), Math.abs(Math.round(layer.frame.height * 4)), 60, 120);
             }
             // }
             
@@ -1511,7 +1511,6 @@ function addStroke(r, layer) {
 
 //// dup mask layer, parent and set track matte
 function setMask(currentLayer, layerData) {
-    // alert(`${layerData.name} : ${layerData.type}`)
     /// reset variables
     var currentCompId = currentLayer.containingComp.id;
     var currentParentName = (currentLayer.parent) ? currentLayer.parent.name : 'comp';

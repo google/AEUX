@@ -320,7 +320,7 @@ function getText(layer, parentFrame) {
     function getTracking(layer) {
         if (layer.letterSpacing.unit == 'PIXELS') {
             return layer.fontSize * layer.letterSpacing.value * 3.9;
-        } else if (layer.lineHeight.unit == 'PERCENT') {
+        } else if (layer.letterSpacing.unit == 'PERCENT') {
             return layer.letterSpacing.value * 10;
         } else {
             return 0;

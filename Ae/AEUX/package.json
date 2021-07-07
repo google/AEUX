@@ -23,7 +23,7 @@
     "hammerjs": "^2.0.8",
     "starlette": "^1.0.4",
     "vue": "^2.6.11",
-    "ws": "^6.2.1"
+    "ws": "^6.2.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.4.6",

@@ -791,7 +791,7 @@ function getFills(layer, parentFrame) {
                     }
                     
                 // fill is an image or texture
-                } else if (fill.type == 'IMAGE') {
+                } else if (fill.type == 'IMAGE' && !layer.isMask) {
                     fillData = getImageFill(layer, parentFrame);
                     break;
                 // fill is a solid

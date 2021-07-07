@@ -8,7 +8,7 @@ fiftyDownload: /legacy-download/Sketch2AE_0.54.zip
 
 # Download
 
-## Sketch 71+ / Figma
+## Sketch 57+ / Figma
 <a :href="$frontmatter.gitHubLatest" class="nav-link action-button">Download {{ $frontmatter.currentVersion }}</a>
 
 Released: {{ $frontmatter.releaseDate }}

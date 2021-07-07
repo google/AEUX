@@ -2,7 +2,7 @@
 <ExtensionManifest 
   Version="5.0" 
   ExtensionBundleId="AEUX" 
-  ExtensionBundleVersion="0.7.8" 
+  ExtensionBundleVersion="0.7.9" 
   ExtensionBundleName="AEUX" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ExtensionList>
@@ -24,8 +24,8 @@
     <Extension Id="com.aeux.panel">
       <DispatchInfo>
         <Resources>
-          <MainPath>./dist/index.html</MainPath>
-          <!-- <MainPath>./public/index-dev.html</MainPath> -->
+          <MainPath>./public/index-dev.html</MainPath>
+          <!-- <MainPath>./dist/index.html</MainPath> -->
           <CEFCommandLine>
             <Parameter>--enable-nodejs</Parameter>
             <Parameter>--mixed-context</Parameter>
@@ -64,8 +64,8 @@
     <Extension Id="com.aeux.server">
       <DispatchInfo>
         <Resources>
-          <MainPath>./dist/index.html</MainPath>
-          <!-- <MainPath>./public/index-dev.html</MainPath> -->
+          <MainPath>./public/index-dev.html</MainPath>
+          <!-- <MainPath>./dist/index.html</MainPath> -->
           <CEFCommandLine>
             <Parameter>--enable-nodejs</Parameter>
             <Parameter>--mixed-context</Parameter>

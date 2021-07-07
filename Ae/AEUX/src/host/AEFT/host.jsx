@@ -45,7 +45,7 @@ var AEUX = (function () {
             return d = eval("(" + a + ")"), typeof e === "function" ? c({ "": d }, "") : d; throw new SyntaxError("JSON.parse"); }; })();
     var scriptName = 'AEUX';
     var devName = 'sumUX';
-    var aeuxVersion = 0.78;
+    var aeuxVersion = 0.8;
     var hostApp, sourcePath;
     var clippingMask = null;
     var thisComp = null;
@@ -718,12 +718,12 @@ var AEUX = (function () {
                 }
                 else {
                     returnMessage.push(6);
-                    bmpImage = app.project.importPlaceholder(nameId + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
+                    bmpImage = app.project.importPlaceholder(nameId + '.png', Math.abs(Math.round(layer.frame.width * 4)), Math.abs(Math.round(layer.frame.height * 4)), 60, 120);
                 }
             }
             catch (e) {
                 returnMessage.push(6);
-                bmpImage = app.project.importPlaceholder(nameId + '.png', Math.round(layer.frame.width * 4), Math.round(layer.frame.height * 4), 60, 120);
+                bmpImage = app.project.importPlaceholder(nameId + '.png', Math.abs(Math.round(layer.frame.width * 4)), Math.abs(Math.round(layer.frame.height * 4)), 60, 120);
             }
             bmpImage.parentFolder = imageFolder;
             bmpImage.selected = false;
@@ -743,8 +743,6 @@ var AEUX = (function () {
         addDropShadow(r, layer);
         addInnerShadow(r, layer);
         setLayerBlendMode(r, layer);
-        setMask(r, layer);
-        r('ADBE Transform Group')('ADBE Position').setValue([layer.frame.x * compMult, layer.frame.y * compMult]);
         var w = 100;
         var h = 100;
         if (hostApp == 'Figma') {
@@ -764,6 +762,8 @@ var AEUX = (function () {
         r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]);
         r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
         r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
+        r('ADBE Transform Group')('ADBE Position').setValue([layer.frame.x * compMult, layer.frame.y * compMult]);
+        setMask(r, layer);
         if (opt_parent !== null) {
             if (hostApp == 'Sketch') {
                 r.parent = opt_parent;
@@ -1010,6 +1010,24 @@ var AEUX = (function () {
             maskLayer[layerID] = currentLayer;
             maskPosition = currentLayer('ADBE Transform Group')('ADBE Position').value;
         }
+        try {
+            if (hostApp == 'Figma' && layerData.type == 'Image') {
+                var maskRect = newMask.sourceRectAtTime(0, false);
+                var sourceRect = currentLayer.sourceRectAtTime(0, false);
+                var adjSize = [
+                    Math.min(maskRect.width, thisComp.width - maskRect.left),
+                    Math.min(maskRect.height, thisComp.height - maskRect.top)
+                ];
+                var adjScale = [
+                    Math.max(adjSize[0] / sourceRect.width * 100, 0.00001),
+                    Math.max(adjSize[1] / sourceRect.height * 100, 0.00001)
+                ];
+                var adjPos = [adjSize[0] / 2, adjSize[1] / 2];
+                currentLayer('ADBE Transform Group')('ADBE Scale').setValue(adjScale);
+                currentLayer('ADBE Transform Group')('ADBE Position').setValue(adjPos);
+            }
+        }
+        catch (e) { }
     }
     function applyGradientFfx(type, dontTwirl, element) {
         var presetFiles = {

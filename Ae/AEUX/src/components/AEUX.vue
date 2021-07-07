@@ -28,7 +28,34 @@
 			label="Options"
 			:open="true"
             prefs-id="foldOptions">
-            <Dropdown
+            <div class="path-label">Image save path:</div>
+            <Folder-Picker
+                :style="{ 'margin-left':'-4px !important', 'margin-bottom': '6px' }"
+                folder
+                prefs-id="folderPath"
+                @prefs-update="updatePrefs"
+                ref="folder"
+                label="Filepath"
+                :prefs="prefs"
+                full-path
+                clearable
+                no-label
+            />
+            <!-- <Folder-Picker
+                :style="{ 'margin-left':'20px !important', }"
+                folder
+                prefs-id="folderPath"
+                @prefs-update="updatePrefs"
+                @input="testRead"
+                ref="folder"
+                label="Filepath"
+                :prefs="prefs"
+                :is-relative="prefs.relativeExport"
+                full-path
+                clearable
+                no-label
+            /> -->
+            <Select
                 v-show="prefs.newComp"
                 :items="compScaleOptions"
                 :active="prefs.compScale - 1"
@@ -41,7 +68,7 @@
                 label='Frame rate:' 
                 lazy
                 suffix="fps" 
-                size="10"
+                :size="10"
                 @change="val => setPref('frameRate', val)"
                 :value="prefs.frameRate"
                 :reset-value="prefs.frameRate"
@@ -52,7 +79,7 @@
                 label='Comp duration:' 
                 lazy
                 suffix="seconds" 
-                size="10"
+                :size="10"
                 @change="val => setPref('duration', val)"
                 :value="prefs.duration"
                 :reset-value="prefs.duration"
@@ -77,7 +104,7 @@
 				<Button
 					left
 					tall
-					icon-size="20px"
+					icon-size="16px"
 					prefix-icon="image-filter-center-focus-weak"
                     tooltip="Group selected layers"
 					label="Precomp"
@@ -86,7 +113,7 @@
 				<Button
 					left
 					tall
-					icon-size="20px"
+					icon-size="16px"
 					prefix-icon="arrow-expand-all"
                     tooltip="Expand layers from selected precomps"
 					label="Un-Precomp"
@@ -95,7 +122,7 @@
 				<Button
 					left
 					tall
-					icon-size="20px"
+					icon-size="16px"
 					prefix-icon="eye-off"
                     tooltip="Show/hide all guide layers"
 					label="Toggle guide layer visibility"
@@ -104,7 +131,7 @@
 				<Button
 					left
 					tall
-					icon-size="20px"
+					icon-size="16px"
 					prefix-icon="delete"
                     tooltip="Remove all AEUX created guide layers"
 					label="Delete group layers"
@@ -145,17 +172,19 @@ amulets.configure({
 })
 
 export default {
-    // components: {
-    // },
+    components: {
+        "Folder-Picker": require("@/components/custom/File-Picker").default,
+    },
 	data: () => ({
         aeuxVersion: 0.7,
 		prefs: {
 			newComp: true,
 			precompGroups: false,
 			parametrics: true,
-			compScale: 3,
+			compScale: 1,
 			frameRate: 60,
 			duration: 5,
+            absolutePath: null,
         },
         prefsLoaded: false,
 		compScaleOptions: [
@@ -167,8 +196,6 @@ export default {
             {label: '6x', value: '5'},
 		],
         footerMessage: null,
-        docLink: 'https://docs.google.com/document/d/1weEWK3uJbsnHHO5rlSq95hVi9rGlPd9q1t2bf1glbQk/edit?usp=sharing',
-        // docLink: 'http://aeux.io',
 	}),
 	methods: {
         aeCall (msg, data) {
@@ -177,8 +204,12 @@ export default {
         buildLayers (layerData) {
             amulets.evalScript('buildLayers', {layerData})
         },
-        openDocLink () {
-            amulets.webLink(this.docLink)
+        updatePrefs(val) {
+            console.log(val);
+            Object.keys(val).forEach(prefName => {
+                this.prefs[prefName] = val[prefName]
+            })
+            amulets.savePrefs(this.prefs)
         },
         openConfig () {
             amulets.openUserFolder('config')
@@ -267,5 +298,20 @@ export default {
 </script>
 
 <style>
-
+.brutalism-position-offset {
+    flex-direction: row-reverse;
+}
+.select-label {
+    margin-left: 4px;
+}
+.select-menu-item {
+    padding: 3px 6px 3px 0 !important;
+}
+.path-label {
+    color: var(--color-icon);
+    margin-bottom: -6px;
+}
+.input-value {
+    font-size: 10px;
+}
 </style>

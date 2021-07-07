@@ -4,7 +4,6 @@
   "description": "Transfer Sketch and Figma layers to After Effects",
   "main": "index.js",
   "dependencies": {
-    "amulets": "^0.1.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

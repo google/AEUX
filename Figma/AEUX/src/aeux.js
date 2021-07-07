@@ -45,7 +45,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         // detect * in layer names
         if (layer.name.charAt(0) == '*') {
             let rasterizedLayer = getImageFill(layer, parentFrame)
-            rasterizedLayer.name = layer.name.replace(/^\*\s/, '').replace(/^\*/, '') // remove astrix
+            rasterizedLayer.name = layer.name.replace(/^\*\s/, '').replace(/^\*/, '').replace(/:/g, '-').replace(/\s*(\/|\\)\s*/g, '-') // remove astrix
             aeuxData.push(rasterizedLayer)
             rasterizeList.push(layer.id)
             return
@@ -835,7 +835,7 @@ function getImageFill(layer, parentFrame) {
 //   console.log('getImageFill');
 	var layerData =  {
     type: 'Image',
-    name: layer.name,
+    name: layer.name.toString(),
     id: layer.id.replace(/:/g, '-'),
     frame: frame,
     isVisible: (layer.visible !== false),

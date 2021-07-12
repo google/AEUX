@@ -18,6 +18,7 @@ var returnMessage = [];
 var maskPosition = [0, 0];
     var folderPath, compName, importVersion;
 var inputFile, labelColor, progressInc;
+var groupName = 'AEUX_group'
 var ffxFolder = Folder.userData.toString() + '/'+ devName +'/'+ scriptName +'/ffx/';
 var prefs = {
     parametrics: false,
@@ -569,6 +570,7 @@ function aeGroup(layer, opt_parent) {
         r.guideLayer = true;
         // layer name
         r.name = nameInc(layer.name, thisComp.layers);
+        r.comment = groupName
         // increment label color
         labelColor = labelColor % 16 + 1;
         r.label = labelColor;
@@ -1894,7 +1896,8 @@ function groupToPrecomp() {
                     return; 				// quit
                 }
     
-                var isGroupLayer = (masterGroup.name.match('\u25BD')) ? true : false;		// check if it's a group layer from Sketch/Figma
+                var isGroupLayer = (masterGroup.comment.includes(groupName)) ? true : false;		// check if it's a group layer from Sketch/Figma
+                // var isGroupLayer = (masterGroup.name.match('\u25BD')) ? true : false;		// check if it's a group layer from Sketch/Figma
                 if (isGroupLayer) {
                     var bounds = masterGroup.sourceRectAtTime(thisComp.time, false);
                     var masterSize   = [Math.round(bounds.width * masterscale[0]), Math.round(bounds.height * masterscale[1])];
@@ -1915,6 +1918,7 @@ function groupToPrecomp() {
                     // reset group parent to comp center
                     if (isGroupLayer) {
                         precomp.layer(masterName)('ADBE Transform Group')('ADBE Position').setValue([precomp.width/2, precomp.height/2]);
+                        precomp.comment = groupName
                     }
                     precomp.label = masterLabel;
     
@@ -1940,6 +1944,7 @@ function groupToPrecomp() {
                     newGroupLayer('ADBE Transform Group')('ADBE Position').setValue(masterPos);
                     newGroupLayer('ADBE Transform Group')('ADBE Rotate Z').setValue(masterRot);
                     newGroupLayer.label = masterLabel;
+                    newGroupLayer.comment = groupName;
     
                     // set in and out points
                     newGroupLayer.inPoint = masterIn;
@@ -1975,7 +1980,8 @@ function precompToLayers() {
     /// loop through all selected layer
     for (var i = 0; i < precompMasters.length; i++) {
         precompMaster = precompMasters[i];
-        var isGroupLayer = (precompMaster.name.match('\u25BD')) ? true : false;		// check if it's a group layer from Sketch/Figma
+        var isGroupLayer = (precompMaster.comment.includes(groupName)) ? true : false;		// check if it's a group layer from Sketch/Figma
+        // var isGroupLayer = (precompMaster.name.match('\u25BD')) ? true : false;		// check if it's a group layer from Sketch/Figma
 
         inPoint = precompMasters[i].inPoint;
         outPoint = precompMasters[i].outPoint;
@@ -2125,9 +2131,10 @@ function deleteGroupLayers() {
 
     /// loop through all layers in comp
     for (var i = thisComp.layers.length; i > 0; i--) {
-        layer = thisComp.layer(i);
+        var layer = thisComp.layer(i);
         // if the layer name starts with ▽
-        if (layer.name.charAt(0) == '\u25BD' && layer.guideLayer) {
+        if (layer.comment.includes(groupName)) {
+        // if (layer.name.charAt(0) == '\u25BD' && layer.guideLayer) {
             layer.remove();
         }
     }

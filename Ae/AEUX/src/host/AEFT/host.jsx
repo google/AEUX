@@ -55,6 +55,7 @@ var AEUX = (function () {
     var maskPosition = [0, 0];
     var folderPath, compName, importVersion;
     var inputFile, labelColor, progressInc;
+    var groupName = 'AEUX_group';
     var ffxFolder = Folder.userData.toString() + '/' + devName + '/' + scriptName + '/ffx/';
     var prefs = {
         parametrics: false,
@@ -394,6 +395,7 @@ var AEUX = (function () {
             var r = thisComp.layers.addShape();
             r.guideLayer = true;
             r.name = nameInc(layer.name, thisComp.layers);
+            r.comment = groupName;
             labelColor = labelColor % 16 + 1;
             r.label = labelColor;
             r.shy = true;
@@ -1265,7 +1267,7 @@ var AEUX = (function () {
                     }
                     return;
                 }
-                var isGroupLayer = (masterGroup.name.match('\u25BD')) ? true : false;
+                var isGroupLayer = (masterGroup.comment.includes(groupName)) ? true : false;
                 if (isGroupLayer) {
                     var bounds = masterGroup.sourceRectAtTime(thisComp.time, false);
                     var masterSize = [Math.round(bounds.width * masterscale[0]), Math.round(bounds.height * masterscale[1])];
@@ -1281,6 +1283,7 @@ var AEUX = (function () {
                 precomp.height = masterSize[1];
                 if (isGroupLayer) {
                     precomp.layer(masterName)('ADBE Transform Group')('ADBE Position').setValue([precomp.width / 2, precomp.height / 2]);
+                    precomp.comment = groupName;
                 }
                 precomp.label = masterLabel;
                 precomp.layers[1]('ADBE Transform Group')('ADBE Rotate Z').setValue(0);
@@ -1301,6 +1304,7 @@ var AEUX = (function () {
                 newGroupLayer('ADBE Transform Group')('ADBE Position').setValue(masterPos);
                 newGroupLayer('ADBE Transform Group')('ADBE Rotate Z').setValue(masterRot);
                 newGroupLayer.label = masterLabel;
+                newGroupLayer.comment = groupName;
                 newGroupLayer.inPoint = masterIn;
                 newGroupLayer.outPoint = masterOut;
                 if (!isGroupLayer) {
@@ -1326,7 +1330,7 @@ var AEUX = (function () {
         app.beginUndoGroup('Group to precomp');
         for (var i = 0; i < precompMasters.length; i++) {
             precompMaster = precompMasters[i];
-            var isGroupLayer = (precompMaster.name.match('\u25BD')) ? true : false;
+            var isGroupLayer = (precompMaster.comment.includes(groupName)) ? true : false;
             inPoint = precompMasters[i].inPoint;
             outPoint = precompMasters[i].outPoint;
             label = precompMasters[i].label;
@@ -1432,8 +1436,8 @@ var AEUX = (function () {
         }
         ;
         for (var i = thisComp.layers.length; i > 0; i--) {
-            layer = thisComp.layer(i);
-            if (layer.name.charAt(0) == '\u25BD' && layer.guideLayer) {
+            var layer = thisComp.layer(i);
+            if (layer.comment.includes(groupName)) {
                 layer.remove();
             }
         }

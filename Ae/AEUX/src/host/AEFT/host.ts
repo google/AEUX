@@ -1093,7 +1093,7 @@ function aeImage(layer, opt_parent) {
                     fileFound = true;
                 }
                 
-                
+
                 // import
                 if (fileFound) { 
                   bmpImage = app.project.importFile(bmpFile);   
@@ -1112,6 +1112,13 @@ function aeImage(layer, opt_parent) {
             // deselect
             bmpImage.selected = false;
     } else {
+        // if the footage is missing, try reloading it
+        if (bmpImage?.mainSource?.missingFootagePath) {
+            try {
+                let replaceFile = File(folderPath + '/' + nameId + '.png')
+                bmpImage.replace(replaceFile)
+            } catch (error) { }
+        }
         try {
             bmpImage.mainSource.reload();  
         } catch (error) {}

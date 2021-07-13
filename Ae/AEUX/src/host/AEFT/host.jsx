@@ -696,6 +696,7 @@ var AEUX = (function () {
         setMask(r, layer);
     }
     function aeImage(layer, opt_parent) {
+        var _a;
         var aeuxFolder = createNamedFolder('AEUX');
         var frameFolder = createNamedFolder(compName);
         frameFolder.parentFolder = aeuxFolder;
@@ -731,6 +732,13 @@ var AEUX = (function () {
             bmpImage.selected = false;
         }
         else {
+            if ((_a = bmpImage === null || bmpImage === void 0 ? void 0 : bmpImage.mainSource) === null || _a === void 0 ? void 0 : _a.missingFootagePath) {
+                try {
+                    var replaceFile = File(folderPath + '/' + nameId + '.png');
+                    bmpImage.replace(replaceFile);
+                }
+                catch (error) { }
+            }
             try {
                 bmpImage.mainSource.reload();
             }

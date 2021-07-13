@@ -71,7 +71,7 @@ onmessage = (event) => {
     if (msg && msg.type === 'exportAEUX') {
         // console.log(msg.imageBytesList);
         if (!msg.data) {
-            setfooterMsg(null, 'Select layers first');
+            setFooterMsg(null, 'Select layers first');
             return
         }
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
@@ -90,38 +90,45 @@ onmessage = (event) => {
 	if (msg && msg.type === 'fetchAEUX') {
         // console.log(msg.imageBytesList);
         if (!msg.data) {
-            setfooterMsg(null, 'Select layers first');
+            setFooterMsg(null, 'Select layers first');
             return
         }
         
         let aeuxData = aeux.convert(msg.data[0])		// convert layer data
         console.log(aeuxData);
 
-        const socket = new WebSocket('ws://localhost:7250')
-        socket.onopen = () => {
-            socket.send(
-                JSON.stringify({
-                    method: 'buildLayers',
-                    data: { layerData: aeuxData },
-                })
-            )
-        }
-        socket.onmessage = (e) => {
-            console.log('To Client:', e)
-            if (e.type == 'message') {
-                setfooterMsg(aeuxData[0].layerCount, 'sent to Ae')
+        fetch(`http://127.0.0.1:7240/evalScript`, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                method: 'buildLayers',
+                data: { layerData: aeuxData },
+                switch: 'aftereffects',
+                getPrefs: true,
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                throw Error('failed to connect')
             }
-            vm.thinking = false
-        }
-        socket.onerror = (e) => {
-            console.log('ERROR', e);
-            setfooterMsg(null, 'Failed to connect to Ae');
-            vm.thinking = false
-        };
-    }
-    if (msg && msg.type === 'footerMsg') {
-        // console.log('LayerCount', msg.layerCount);
-        setfooterMsg(msg.layerCount, msg.action);
+        })
+        .then(json => {
+            // get back a message from Ae and display it at the bottom of Sketch
+            console.log(json)
+            let lyrs = json.layerCount        
+            let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
+
+            setFooterMsg(null, msg)
+        })
+        .catch(e => {
+            console.error(e)
+            setFooterMsg(null, 'Failed to connect to Ae');
+        });
     }
 	if (msg && msg.type === 'fetchImagesAndAEUX') {
         vm.thinking = 'fetchAEUX'
@@ -145,36 +152,73 @@ onmessage = (event) => {
             aeuxData.push(msg.refImg)
         }
 
-        console.log(aeuxData);
-
-        const socket = new WebSocket('ws://localhost:7250')
-        socket.onopen = () => {
-            socket.send(
-                JSON.stringify({
-                    method: 'writeFiles',
-                    data: { layerData: aeuxData },
-                    images: imageList,
-                    // switch: 'aftereffects',
-                    // getPrefs: true,
-                })
-            )
-        }
-        socket.onmessage = (e) => {
-            console.log('To Client:', e)
-            if (e.type == 'message') {
-                setfooterMsg(aeuxData[0].layerCount, 'sent to Ae')
+        fetch(`http://127.0.0.1:7240/writeFiles`, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                switch: 'aftereffects',
+                images: imageList,
+                // path: imagePath, 
+                data: { layerData: aeuxData }
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                throw Error('failed to connect')
             }
-            vm.thinking = false
-        }
-        socket.onerror = (e) => {
-            console.log('ERROR', e);
-            setfooterMsg(null, 'Failed to connect to Ae');
-            vm.thinking = false
-        };
+        })
+        .then(json => {
+            // get back a message from Ae and display it at the bottom of Sketch
+            console.log(json)
+            let lyrs = json.layerCount        
+            let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
+
+            setFooterMsg(null, msg)
+        })
+        .catch(e => {
+            console.error(e)
+            setFooterMsg(null, 'Failed to connect to Ae');
+        });
+
+        // console.log(aeuxData);
+
+        // const socket = new WebSocket('ws://localhost:7250')
+        // socket.onopen = () => {
+        //     socket.send(
+        //         JSON.stringify({
+        //             method: 'writeFiles',
+        //             data: { layerData: aeuxData },
+        //             images: imageList,
+        //             // switch: 'aftereffects',
+        //             // getPrefs: true,
+        //         })
+        //     )
+        // }
+        // socket.onmessage = (e) => {
+        //     console.log('To Client:', e)
+        //     if (e.type == 'message') {
+        //         setFooterMsg(aeuxData[0].layerCount, 'sent to Ae')
+        //     }
+        //     vm.thinking = false
+        // }
+        // socket.onerror = (e) => {
+        //     console.log('ERROR', e);
+        //     setFooterMsg(null, 'Failed to connect to Ae');
+        //     vm.thinking = false
+        // };
+    }
+    if (msg && msg.type === 'footerMsg') {
+        // console.log('LayerCount', msg.layerCount);
+        setFooterMsg(msg.layerCount, msg.action);
     }
 }
 
-function setfooterMsg(layerCount, action) {
+function setFooterMsg(layerCount, action) {
     if (layerCount === null) {
         vm.footerMsg = action
     } else if (layerCount == 1) {

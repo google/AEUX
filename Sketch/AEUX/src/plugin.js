@@ -1409,6 +1409,6 @@ function hexToArray(hexString) {
 	var r = parseInt(hexColor.slice(0, 2), 16) / 255,
 		g = parseInt(hexColor.slice(2, 4), 16) / 255,
         b = parseInt(hexColor.slice(4, 6), 16) / 255,
-        a = parseInt(hexColor.slice(6, 8), 16) / 255 || 1
+        a = (hexColor.length > 6) ? parseInt(hexColor.slice(6, 8), 16) / 255 : 1
 	return [r, g, b, a];
 }

@@ -1,5 +1,39 @@
 # Change log
 
+## v0.8.0
+Released: August 25, 2021
+
+### Added
+- Figma: Magic Astrix
+  - Adding a `*` at the start of a layer or group name will generate a PNG
+- Ae: Image folder path field
+  - By setting a path, Ae will not ask where to save images each time
+
+### Changed
+- Figma: UI updates
+  - Removed **Rasterize Groups** button
+  - Removed **Set image Path**
+  - Removed **Flatten Shapes** button
+  - Added **Rasterize layer on export**
+- Figma: image handling
+  - Remove redundant collection for major speed boost
+  - Exported image file names now add the layer name before the id - `LayerName_1234-56.png`
+  - Disable drop shadows on frames before exporting for better alignment
+  - Tighter alignment when images off the edge of a frame
+  - 
+- Ae: image handling
+  - Attempt to reconnect missing images on transfer
+  - Don't lower image opacity since this is baked into PNGs
+- Skip 
+  
+### Fixes
+- Sketch: gradient point opacity
+- Figma: reference images interfering with image layer exporting
+- Figma: Keep images under the 4000px width or height limit
+- Figma: Support for top level auto layouts
+- Figma: Sanitize slashes from layer names
+- Figma: Text fields < 1px
+
 ## v0.7.8
 Released: December 15, 2020
 

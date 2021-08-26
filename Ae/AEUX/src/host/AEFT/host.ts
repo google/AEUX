@@ -1145,13 +1145,15 @@ function aeImage(layer, opt_parent) {
     var h = 100;
 
     // un-skew the image
-    if (hostApp == 'Figma') {
+    // if (hostApp == 'Figma') {
         // let figmaMult = 3 
         // w = Math.min(100 / figmaMult, 4000)
         // h = Math.min(100 / figmaMult, 4000)
-        w = layer.frame.width / r.width * 100;
-        h = layer.frame.height / r.height * 100;
-    } else {
+        // w = layer.frame.width / r.width * 100;
+        // h = layer.frame.height / r.height * 100;
+    //     w = Math.min(layer.frame.width, layer.frame.height)
+    //     h = w
+    // } else {
         if (r.height >= r.width) {
             w = layer.frame.width / r.width * 100;
             h = w;
@@ -1159,7 +1161,7 @@ function aeImage(layer, opt_parent) {
             h = layer.frame.height / r.height * 100;
             w = h;
         }
-    }
+    // }
     r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]); 
     r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
     r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);

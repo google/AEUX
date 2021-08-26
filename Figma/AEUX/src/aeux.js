@@ -145,70 +145,36 @@ function getShape(layer, parentFrame, boolType) {
         innerRad: layer.innerRadius || null,
         polyScale: getPolyscale(layer),
     };
-//   console.log(layerData);
   
 
     /// if fill is an image group it and add a solid as a mask
     if (layerData.fill != null && layerData.fill.type == 'Image') {
-        // console.log('do it');
-    //   return layerData.fill;
-    // var imageLayer = layerData.fill
-    // imageLayer.hasClippingMask = true
-    // imageLayer.frame.x -= layerData.frame.x
-    // imageLayer.frame.x = layerData.frame.width / 2
-    // imageLayer.frame.y = layerData.frame.height / 2
-
-    // layerData.fill = [{
-    //     type: 'fill',
-    //     enabled: true,
-    //     color: [0.5, 0.5, 0.5, 1],
-    //     opacity: 100,
-    //     blendMode: 1,
-    // }]
-    // layerData.frame.x = layerData.frame.width / 2
-    // layerData.frame.y = layerData.frame.height / 2
-    // layerData.hasClippingMask = true
-
-    // let groupData = {
-    //     type: 'Component',
-    //     name: layerData.name,
-    //     // masterId: layer.componentId,
-    //     id: layerData.id,
-    //     frame: getFrame(layer, parentFrame),
-    //     isVisible: layerData.isVisible,
-    //     opacity: layerData.opacity,
-    //     blendMode: layerData.blendMode,
-    //     // symbolFrame: layer.masterComponent,
-    //     bgColor: [1, 1, 1, 1],
-    //     rotation: layerData.rotation,
-    //     flip: layerData.flip,
-    //     isMask: layer.isMask,
-    //     layers: [layerData, imageLayer],
-    // }
-
         // layerData = groupData
         layerData = layerData.fill
+        layerData.rotation = 0
 
+        // console.log(layerData.frame);
         // if layer is off the left edge
-        if (layer.relativeTransform[0][2] < 0) {
-            layerData.frame.width += layer.relativeTransform[0][2]
-            layerData.frame.x = layerData.frame.width / 2
-        }
-        // if layer is off the top edge
-        if (layer.relativeTransform[1][2] < 0) {
-            layerData.frame.height -= Math.abs(layer.relativeTransform[1][2])
-            layerData.frame.y = layerData.frame.height / 2
-        }
-        // if layer is off the right edge
-        if (layer.relativeTransform[0][2] + layerData.frame.width > frameData.width) {
-            layerData.frame.width = frameData.width - layer.relativeTransform[0][2]
-            layerData.frame.x = frameData.width - layerData.frame.width / 2
-        }
-        // if layer is off the bottom edge
-        if (layer.relativeTransform[1][2] + layerData.frame.height > frameData.height) {
-            layerData.frame.height = frameData.height - layer.relativeTransform[1][2]
-            layerData.frame.y = frameData.height - layerData.frame.height / 2
-        }
+        // if (layer.relativeTransform[0][2] < 0) {
+        //     layerData.frame.width += layer.relativeTransform[0][2]
+        //     layerData.frame.x = layerData.frame.width / 2
+        // }
+        // // if layer is off the top edge
+        // if (layer.relativeTransform[1][2] < 0) {
+        //     layerData.frame.height -= Math.abs(layer.relativeTransform[1][2])
+        //     layerData.frame.y = layerData.frame.height / 2
+        // }
+        // // if layer is off the right edge
+        // if (layer.relativeTransform[0][2] + layerData.frame.width > frameData.width) {
+        //     layerData.frame.width = frameData.width - layer.relativeTransform[0][2]
+        //     layerData.frame.x = frameData.width - layerData.frame.width / 2
+        // }
+        // // if layer is off the bottom edge
+        // if (layer.relativeTransform[1][2] + layerData.frame.height > frameData.height) {
+        //     layerData.frame.height = frameData.height - layer.relativeTransform[1][2]
+        //     layerData.frame.y = frameData.height - layerData.frame.height / 2
+        // }
+        // console.log(layerData.frame);
     }
 
   getEffects(layer, layerData);
@@ -744,84 +710,74 @@ function storeArtboard(data) {
 //// get layer data: FILL
 function getFills(layer, parentFrame) {
     // console.log('getFills');
-    
-    // /// get layer style object
-    // var style = layer.sketchObject.style();
 
-    // /// check if the layer has at least one fill
-	// var hasFill = ( style.firstEnabledFill() ) ? true : false;
-
-    // if (hasFill) {
     var fillData = [];
     var fills = layer.fills;
     var size = [layer.width, layer.height];
 
-        // loop through all fills
-        for (var i = 0; i < fills.length; i++) {
-            var fill = fills[i];
+    // loop through all fills
+    for (var i = 0; i < fills.length; i++) {
+        var fill = fills[i];
 
-            // add fill to fillProps only if fill is enabled
-            if (fill.visible !== false) {
-                var fillObj = {}
-                var fillType = getFillType(fill.type);   /// find type and if a gradient get the grad type
-                // fill is a gradient
-                if (fillType[0] > 0) {
-                    var gradType = fillType[1];
-                    
-                    let points = {}
-                    if (gradType == 2) {
-                        let radialPoints = extractRadialOrDiamondGradientParams(layer.width, layer.height, fill.gradientTransform)
-                        let rad = radialPoints.radius[0]
-                        points.start = radialPoints.center
-                        points.end = [points.start[0] + rad, points.start[1]]
-                    } else {
-                        points = extractLinearGradientParamsFromTransform(layer.width, layer.height, fill.gradientTransform)
-                    }                    
-                    
-                    fillObj = {
-                        type: 'gradient',
-                        // startPoint: [points.start[0], points.start[1] ],
-                        // endPoint: [points.end[0], points.end[1] ],
-                        startPoint: [points.start[0] - layer.width / 2, points.start[1] - layer.height / 2 ],
-                        endPoint: [points.end[0] - layer.width / 2, points.end[1] - layer.height / 2 ],
-                        gradType:  gradType,
-                        gradient: getGradient(fill.gradientStops),
-                        opacity: 100,
-                        blendMode: getShapeBlending( fill.blendMode ),
-                    }
-                    
-                // fill is an image or texture
-                } else if (fill.type == 'IMAGE' && !layer.isMask) {
-                    fillData = getImageFill(layer, parentFrame);
-                    break;
-                // fill is a solid
-                } else {                    
-                    var color = colorObjToArray(fill);                    
-                    
-                    fillObj = {
-    					type: 'fill',
-    					enabled: fill.visible !== false,
-                        color: color,
-                        opacity: color[3] * 100,
-    					// opacity: (color) ? 100 : Math.round(color[3] * 100),
-    					blendMode: getShapeBlending( fill.blendMode ),
-    				}
+        // add fill to fillProps only if fill is enabled
+        if (fill.visible !== false) {
+            var fillObj = {}
+            var fillType = getFillType(fill.type);   /// find type and if a gradient get the grad type
+            // fill is a gradient
+            if (fillType[0] > 0) {
+                var gradType = fillType[1];
+                
+                let points = {}
+                if (gradType == 2) {
+                    let radialPoints = extractRadialOrDiamondGradientParams(layer.width, layer.height, fill.gradientTransform)
+                    let rad = radialPoints.radius[0]
+                    points.start = radialPoints.center
+                    points.end = [points.start[0] + rad, points.start[1]]
+                } else {
+                    points = extractLinearGradientParamsFromTransform(layer.width, layer.height, fill.gradientTransform)
+                }                    
+                
+                fillObj = {
+                    type: 'gradient',
+                    // startPoint: [points.start[0], points.start[1] ],
+                    // endPoint: [points.end[0], points.end[1] ],
+                    startPoint: [points.start[0] - layer.width / 2, points.start[1] - layer.height / 2 ],
+                    endPoint: [points.end[0] - layer.width / 2, points.end[1] - layer.height / 2 ],
+                    gradType:  gradType,
+                    gradient: getGradient(fill.gradientStops),
+                    opacity: 100,
+                    blendMode: getShapeBlending( fill.blendMode ),
                 }
+                
+            // fill is an image or texture
+            } else if (fill.type == 'IMAGE' && !layer.isMask) {
+                fillData = getImageFill(layer, parentFrame);
+                break;
+            // fill is a solid
+            } else {                    
+                var color = colorObjToArray(fill);                    
+                
+                fillObj = {
+                    type: 'fill',
+                    enabled: fill.visible !== false,
+                    color: color,
+                    opacity: color[3] * 100,
+                    // opacity: (color) ? 100 : Math.round(color[3] * 100),
+                    blendMode: getShapeBlending( fill.blendMode ),
+                }
+            }
 
-                // add obj string to array
-				fillData.push(fillObj);
-			}
-		}
-		return fillData;
-	// } else {
-	// 	return null;
-	// }
+            // add obj string to array
+            fillData.push(fillObj);
+        }
+    }
+    return fillData;
 }
 //// get layer data: IMAGE
 function getImageFill(layer, parentFrame) {
     let frame = getFrame(layer, parentFrame, true)
-    console.log('frameSize', frameSize);
-
+    // console.log('frameSize', frame);
+    
     // resize the image frame to fit within the frame because the exported image will be cropped
     if (frame.width > frameSize[0]) {
         frame.width = frameSize[0]
@@ -831,25 +787,23 @@ function getImageFill(layer, parentFrame) {
         frame.height = frameSize[1]
         frame.y = frameSize[1] / 2
     }
+    
+    
+	let layerData =  {
+        type: 'Image',
+        name: layer.name.toString(),
+        id: layer.id.replace(/:/g, '-'),
+        frame: frame,
+        isVisible: (layer.visible !== false),
+        opacity: 100,
+        blendMode: getLayerBlending(layer.blendMode),
+        isMask: layer.isMask,
+        rotation: 0,
+        // rotation: getRotation(layer),
+    };
+    // getEffects(layer, layerData);
 
-//   console.log('getImageFill');
-	var layerData =  {
-    type: 'Image',
-    name: layer.name.toString(),
-    id: layer.id.replace(/:/g, '-'),
-    frame: frame,
-    isVisible: (layer.visible !== false),
-    opacity: 100,
-    // opacity: layer.opacity*100 || 100,
-    blendMode: getLayerBlending(layer.blendMode),
-    isMask: layer.isMask,
-    rotation: 0,
-    // rotation: getRotation(layer),
-  };
-    getEffects(layer, layerData);
 
-
-    // console.log('getImageFill', layerData);
     return layerData;
 }
 //// get layer data: STROKE

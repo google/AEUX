@@ -755,19 +755,13 @@ var AEUX = (function () {
         setLayerBlendMode(r, layer);
         var w = 100;
         var h = 100;
-        if (hostApp == 'Figma') {
+        if (r.height >= r.width) {
             w = layer.frame.width / r.width * 100;
-            h = layer.frame.height / r.height * 100;
+            h = w;
         }
         else {
-            if (r.height >= r.width) {
-                w = layer.frame.width / r.width * 100;
-                h = w;
-            }
-            else {
-                h = layer.frame.height / r.height * 100;
-                w = h;
-            }
+            h = layer.frame.height / r.height * 100;
+            w = h;
         }
         r('ADBE Transform Group')('ADBE Scale').setValue([w * compMult, h * compMult]);
         r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);

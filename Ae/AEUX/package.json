@@ -1,6 +1,6 @@
 {
   "name": "aeux",
-  "version": "0.7.9",
+  "version": "0.8.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -40,7 +40,7 @@
     "make-runnable": "^1.3.6",
     "ora": "^4.0.4",
     "shelljs": "^0.8.4",
-    "types-for-adobe": "^1.7.0",
+    "types-for-adobe": "github:pravdomil/types-for-adobe",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {

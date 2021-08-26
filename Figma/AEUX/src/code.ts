@@ -68,7 +68,7 @@ figma.ui.onmessage = message => {
             if (shapeTree[0].children.length < 1) {
                 shapeTree[0].children = selection;
             }
-            console.log('shapeTree: ', shapeTree);
+            // console.log('shapeTree: ', shapeTree);
         } catch (error) {
             console.log(error);
             console.log('selected layers need to be inside of a frame');

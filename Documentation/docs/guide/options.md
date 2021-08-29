@@ -20,7 +20,7 @@ There are a few known alignment issues with layers from Figma. Enable this check
 ### Rasterize layer on export
 <!-- <img :src="'/action_detach.png'" alt="Detach symbols" class="action-img"> -->
 
-Internally nicknamed **Magic Astrix**, starting in AEUX v0.8.0, it is possible to automatically send anything in Figma to Ae as a PNG file (without editing the art) by adding a `*` to the start of the layer name. This becomes very useful for icons, complex group hierarchies, or anything that doesn't need to be animated and could be optimized by flattening it down to a single image.
+Internally nicknamed **Magic Asterisk**, starting in AEUX v0.8.0, it is possible to automatically send anything in Figma to Ae as a PNG file (without editing the art) by adding a `*` to the start of the layer name. This becomes very useful for icons, complex group hierarchies, or anything that doesn't need to be animated and could be optimized by flattening it down to a single image.
 
 Renaming in Figma may be done by:
 - Manually renaming a layer

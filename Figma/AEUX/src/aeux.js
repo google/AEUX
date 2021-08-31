@@ -190,12 +190,12 @@ function getText(layer, parentFrame) {
     var tempFrame = getFrame(layer, parentFrame);
     var lineHeight = getLineHeight(layer);
     frame = {
-        width: Math.max(layer.width * 1.02, 1),
+        width: layer.width,
         height: layer.height,
         x: tempFrame.x,
+        // y: 454, //428
         y: tempFrame.y,
     };
-    // console.log(frame.x);
     
 	var layerData =  {
         type: 'Text',
@@ -279,8 +279,9 @@ function getText(layer, parentFrame) {
             return layer.lineHeight.value;
         } else if (layer.lineHeight.unit == 'PERCENT') {
             return layer.fontSize * (layer.lineHeight.value / 100); 
-        } else {
-            return null;
+        } else {        // line height set to auto
+            return layer.height / layer.fontSize;
+            // return null;
         }
     }
     function getTracking(layer) {
@@ -646,6 +647,10 @@ function getFrame(layer, parentFrame, constrainFrame) {
     var x = layer.x + Math.cos(Math.atan2(height, width) - angle) * hypot - offset[0];
     var y = layer.y + Math.sin(Math.atan2(height, width) - angle) * hypot - offset[1];
 
+    if (layer.type == 'TEXT') {
+        // y = (layer.y + 19.5) + Math.sin(Math.atan2(height, width) - angle) * hypot - offset[1];
+    }
+
     if (constrainFrame) {
         if (layer.x < 0) {      // off the left edge
             width += layer.x
@@ -801,7 +806,7 @@ function getImageFill(layer, parentFrame) {
         rotation: 0,
         // rotation: getRotation(layer),
     };
-    // getEffects(layer, layerData);
+    getEffects(layer, layerData);
 
 
     return layerData;

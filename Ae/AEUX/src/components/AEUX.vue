@@ -62,6 +62,7 @@
                 label="Comp size multiplier"
                 label-to-right
                 @update="val => setPref('compScale', parseInt(compScaleOptions[val].value) + 1)"
+                no-indicator
             />
             <Input-Scroll 
                 v-show="prefs.newComp"
@@ -306,6 +307,9 @@ export default {
 }
 .select-menu-item {
     padding: 3px 6px 3px 0 !important;
+}
+.select-menu-item-label {
+    padding-left: 8px;
 }
 .path-label {
     color: var(--color-icon);

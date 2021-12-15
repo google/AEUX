@@ -1,5 +1,6 @@
 /*jshint esversion: 6, asi: true*/
 import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
+// import * as triclops from './triclops.js'
 
 var versionNumber = 0.8;
 var frameData, layers, hasArtboard, layerCount, layerData, boolOffset, rasterizeList, frameSize;
@@ -28,7 +29,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
 
     if (!hasArtboard) {
         // console.log('artboard', storeArtboard(figmaData));
-        console.log('missing artboard', figmaData);
+        // console.log('missing artboard', figmaData);
         aeuxData.push(storeArtboard(figmaData));
         frameData = figmaData;      // store the whole frame data
     }
@@ -52,9 +53,10 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         }
 
         if (layer.type == "GROUP") {            
-            aeuxData.push(getGroup(layer, parentFrame));
+            let prevMask = aeuxData[aeuxData.length - 1].isMask     // check if the previous layer is a mask
+            aeuxData.push(getGroup(layer, parentFrame, prevMask));
         }
-        if (layer.fillGeometry && layer.fillGeometry.length > 1) { layer.type = "BOOLEAN_OPERATION" }         // overwrite the layer type
+        // if (layer.fillGeometry && layer.fillGeometry.length > 1) { layer.type = "BOOLEAN_OPERATION" }         // overwrite the layer type
 
         if (layer.type == "BOOLEAN_OPERATION") {
             layer = getBoolean(layer, parentFrame, boolType);
@@ -211,6 +213,7 @@ function getText(layer, parentFrame) {
         stroke: getStrokes(layer),
         blendMode: getLayerBlending(layer.blendMode),
         // fontName: layer.style.fontPostScriptName,
+        // fontName: triclops.getPostscript(layer.fontName),
         fontName: layer.fontName.family.replaceAll(' ', '') + '-' + layer.fontName.style.replaceAll(' ', ''),
         fontSize: layer.fontSize,
         // trackingAdjusted: layer.style.letterSpacing / layer.style.fontSize * 1000,
@@ -222,9 +225,8 @@ function getText(layer, parentFrame) {
         rotation: getRotation(layer),
         isMask: layer.isMask,
     };
-    console.log('hasMissingFont', layer);
     
-    console.log('layerData', layerData);
+    // console.log('layerData', layerData);
 
     getEffects(layer, layerData);
 
@@ -232,7 +234,7 @@ function getText(layer, parentFrame) {
 
     function getTextFill (layer) {
         var fills = getFills(layer, null)
-        console.log(fills);
+        // console.log(fills);
         
         if (fills.length > 0) {
             var fillColor = fills[0].color
@@ -295,7 +297,7 @@ function getText(layer, parentFrame) {
     }
 }
 //// get layer data: GROUP
-function getGroup(layer, parentFrame) {
+function getGroup(layer, parentFrame, isMasked) {
     // var flip = getFlipMultiplier(layer);
     var frame = getFrame(layer);
     var calcFrame = getFrame(layer, parentFrame);
@@ -304,7 +306,7 @@ function getGroup(layer, parentFrame) {
     // console.log('group frame', layer.name, stackOffset);
     
 	var layerData =  {
-        type: 'Group',
+        type: isMasked ? 'Component' : 'Group',
 		name: '\u25BD ' + layer.name,
 		id: layer.id,
 		frame: calcFrame,

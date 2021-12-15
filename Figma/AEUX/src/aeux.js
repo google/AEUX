@@ -927,7 +927,7 @@ function getShapeType(layer) {
     if ( layer.type == 'RECTANGLE' && 
         allEqual([layer.topLeftRadius, layer.topRightRadius, layer.bottomLeftRadius, layer.bottomRightRadius]) ) { return 'Rect' }
     if ( layer.type == 'ELLIPSE' ) { return 'Ellipse' }
-    if ( layer.type == 'STAR' || layer.type == 'POLYGON') { return 'Star' }
+    // if ( layer.type == 'STAR' || layer.type == 'POLYGON') { return 'Star' }
     return 'Path';
 }
 //// get layer data: SHAPE TYPE
@@ -1109,7 +1109,7 @@ function getPath(layer, bounding, type) {
 
     // check if rectangle has uniform corner rounding
     const allEqual = arr => arr.every(v => v === arr[0])
-    if (layer.type == 'RECTANGLE' && !allEqual([layer.topLeftRadius, layer.topRightRadius, layer.bottomLeftRadius, layer.bottomRightRadius])) {
+    if (layer.type == 'STAR' || layer.type == 'POLYGON' || (layer.type == 'RECTANGLE' && !allEqual([layer.topLeftRadius, layer.topRightRadius, layer.bottomLeftRadius, layer.bottomRightRadius])) ) {
         layer.vectorPaths = layer.fillGeometry
         layer.type = 'Path'
     }

@@ -922,7 +922,10 @@ function getGradient(grad) {
 
 //// get layer data: SHAPE TYPE
 function getShapeType(layer) {
-    if ( layer.type == 'RECTANGLE' ) { return 'Rect' }
+    const allEqual = arr => arr.every(v => v === arr[0])
+
+    if ( layer.type == 'RECTANGLE' && 
+        allEqual([layer.topLeftRadius, layer.topRightRadius, layer.bottomLeftRadius, layer.bottomRightRadius]) ) { return 'Rect' }
     if ( layer.type == 'ELLIPSE' ) { return 'Ellipse' }
     if ( layer.type == 'STAR' || layer.type == 'POLYGON') { return 'Star' }
     return 'Path';
@@ -1103,12 +1106,19 @@ function getShapeBlending(mode) {
 //// get shape data: PATH
 function getPath(layer, bounding, type) {    
     // console.log('getPath', layer);
+
+    // check if rectangle has uniform corner rounding
+    const allEqual = arr => arr.every(v => v === arr[0])
+    if (layer.type == 'RECTANGLE' && !allEqual([layer.topLeftRadius, layer.topRightRadius, layer.bottomLeftRadius, layer.bottomRightRadius])) {
+        layer.vectorPaths = layer.fillGeometry
+        layer.type = 'Path'
+    }
     
     var pathStr, pathObj;
     if (layer.vectorPaths && layer.vectorPaths.length < 2) {       // find an individual path
         pathStr = layer.vectorPaths || layer;
         pathObj = parseSvg(pathStr[0].data);
-        // console.log('pathObj', pathObj);
+        console.log('pathObj', pathObj);
     } else if (layer.vectorPaths && layer.vectorPaths.length > 1) {
         let comboPath = ''
         layer.vectorPaths.forEach(path => {
@@ -1191,21 +1201,21 @@ function getPath(layer, bounding, type) {
     }
 
     // convert path to rectangle for corner rounding
-    if (layer.type == 'RECTANGLE') {
-        console.log('get that rectangle');
+    // if (layer.type == 'RECTANGLE') {
+    //     console.log('get that rectangle');
         
-        pathObj = {
-            points: [
-                [0, 0],
-                [bounding.width, 0],
-                [bounding.width, bounding.height],
-                [0, bounding.height],
-            ],
-            inTangents: [],
-            outTangents: [],
-            closed: true
-        }
-    }
+    //     pathObj = {
+    //         points: [
+    //             [0, 0],
+    //             [bounding.width, 0],
+    //             [bounding.width, bounding.height],
+    //             [0, bounding.height],
+    //         ],
+    //         inTangents: [],
+    //         outTangents: [],
+    //         closed: true
+    //     }
+    // }
     // console.log(pathObj)
     return pathObj;
 }

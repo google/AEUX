@@ -1,6 +1,6 @@
 /*jshint esversion: 6, asi: true*/
 import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
-// import * as triclops from './triclops.js'
+import * as triclops from './triclops.js'
 
 var versionNumber = 0.8;
 var frameData, layers, hasArtboard, layerCount, layerData, boolOffset, rasterizeList, frameSize;
@@ -53,7 +53,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         }
 
         if (layer.type == "GROUP") {            
-            let prevMask = aeuxData[aeuxData.length - 1].isMask     // check if the previous layer is a mask
+            let prevMask = (aeuxData.length > 0) ? aeuxData[aeuxData.length - 1].isMask : false    // check if the previous layer is a mask
             aeuxData.push(getGroup(layer, parentFrame, prevMask));
         }
         // if (layer.fillGeometry && layer.fillGeometry.length > 1) { layer.type = "BOOLEAN_OPERATION" }         // overwrite the layer type
@@ -213,8 +213,8 @@ function getText(layer, parentFrame) {
         stroke: getStrokes(layer),
         blendMode: getLayerBlending(layer.blendMode),
         // fontName: layer.style.fontPostScriptName,
-        // fontName: triclops.getPostscript(layer.fontName),
-        fontName: layer.fontName.family.replaceAll(' ', '') + '-' + layer.fontName.style.replaceAll(' ', ''),
+        fontName: triclops.getPostscript(layer.fontName),
+        // fontName: layer.fontName.family.replaceAll(' ', '') + '-' + layer.fontName.style.replaceAll(' ', ''),
         fontSize: layer.fontSize,
         // trackingAdjusted: layer.style.letterSpacing / layer.style.fontSize * 1000,
         trackingAdjusted: getTracking(layer),

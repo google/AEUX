@@ -332,6 +332,7 @@ function aeText(layer, opt_parent) {
     addInnerShadow(r, layer);
     setLayerBlendMode(r, layer);
     setMask(r, layer);
+    addBgBlur(r, layer);
 
     /// set transforms
     // position transform depends the type of text layer (point or box)
@@ -711,6 +712,7 @@ function aeRect(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
     return r;
 }
 
@@ -757,6 +759,7 @@ function aeEllipse(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 }
 //// parametric star
 function aeStar(layer, opt_parent) {
@@ -818,6 +821,7 @@ function aeStar(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 }
 
 //// path
@@ -890,6 +894,7 @@ function aePath(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 }
 
 //// compound path
@@ -937,6 +942,7 @@ function aeCompound(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 
     function createCompoundShapes(group, layer) {
         // loop through and build all shapes in a compound
@@ -1077,6 +1083,7 @@ function aeSymbol(layer, opt_parent) {
 
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 }
 
 //// import and add image
@@ -1182,6 +1189,7 @@ function aeImage(layer, opt_parent) {
     addDropShadow(r, layer);
     addInnerShadow(r, layer);
     setLayerBlendMode(r, layer);
+    addBlur(r, layer, true);
 
     
     // }
@@ -1701,8 +1709,9 @@ function addDropShadow(r, layer) {
 }
 
 //// add blur effect
-function addBlur(r, layer) {
+function addBlur(r, layer, ignoreCompMult?) {
     if (layer.blur != null) {
+        compMult = (ignoreCompMult) ? 1 : compMult
         // loop through multiple blur objects
         for (var i = layer.blur.length-1; i >= 0; i--) {
             /// Gaussian Blur
@@ -1730,6 +1739,22 @@ function addBlur(r, layer) {
     }
 }
 
+//// add bg blur effect 
+function addBgBlur(r, layer, ignoreCompMult?) {
+    compMult = (ignoreCompMult) ? 1 : compMult
+    if (layer.bgBlur != null) {
+        let newLayer = r.duplicate()
+        newLayer.name = '\u25A8 ' + r.name
+        newLayer.moveAfter(r)
+        newLayer.adjustmentLayer = true
+        newLayer.parent = r
+        try { newLayer("ADBE Root Vectors Group")(1)("ADBE Vectors Group")(2)("ADBE Vector Fill Opacity").setValue(100) } catch (e) { }
+        try { newLayer("ADBE Text Properties")("ADBE Text Animators")(1)("ADBE Text Animator Properties")("ADBE Text Fill Opacity").setValue(100) } catch (error) { }
+
+        let blur = newLayer.property('Effects').addProperty('ADBE Gaussian Blur 2');
+        blur.property('ADBE Gaussian Blur 2-0001').setValue(layer.bgBlur * compMult);
+    }
+}
 //// update settings of createAndApplyShadowFfx()
 function addInnerShadow(r, layer) {
     /// skip if no inner shadow

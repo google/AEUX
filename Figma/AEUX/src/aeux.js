@@ -587,13 +587,15 @@ function getEffects(layer, layerData) {
             if (effect.type == 'LAYER_BLUR') {
                 if (effect.visible) {
                     layerData.blur.push({
-                        radius: effect.radius,
+                        radius: effect.radius * 4,
                         type: 0,
         			});
                 }
             }
             if (effect.type == 'BACKGROUND_BLUR') {
                 // adjustment layer
+                layerData.bgBlur = effect.radius * 2
+                console.log('BG BLUR');
             }
         }
     }

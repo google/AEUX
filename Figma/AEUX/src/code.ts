@@ -139,6 +139,7 @@ figma.ui.onmessage = message => {
 
                     shape.exportAsync({
                         format: "PNG",
+                        useAbsoluteBounds: true,
                         constraint: { type: "SCALE", value: imgScale }
                     })
                     .then(img => {                        
@@ -183,7 +184,7 @@ figma.ui.onmessage = message => {
                 storeImageData(imageHashList, shapeTree, null)
             }
         }
-        console.log('imageHashList', imageHashList);
+        // console.log('imageHashList', imageHashList);
     }
   
     if (message.type === 'addRasterizeFlag') {

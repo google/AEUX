@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/google/sketch2ae/issues"
   },
-  "homepage": "https://aeux.io"
+  "homepage": "https://aeux.io",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.39.1"
+  }
 }

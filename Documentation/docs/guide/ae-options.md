@@ -4,7 +4,7 @@ The primary role of the After Effects panel is to control how layers get built. 
 ## New comp
 
 <Screenshot 
-    url="/ae_options.png" 
+    url="/AE_Options.png" 
     alt="Ae options" 
     width="210px"
     left />

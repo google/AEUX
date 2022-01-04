@@ -8,7 +8,7 @@ var JSON;JSON||(JSON={}); (function(){function k(a){return a<10?"0"+a:a}function
 ///////// variables /////////
 var scriptName = 'AEUX';
 var devName = 'sumUX';
-var aeuxVersion = 0.8;
+var aeuxVersion = 0.81;
 var hostApp, sourcePath;
 var clippingMask = null;
 var thisComp = null;

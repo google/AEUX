@@ -45,7 +45,7 @@ var AEUX = (function () {
             return d = eval("(" + a + ")"), typeof e === "function" ? c({ "": d }, "") : d; throw new SyntaxError("JSON.parse"); }; })();
     var scriptName = 'AEUX';
     var devName = 'sumUX';
-    var aeuxVersion = 0.8;
+    var aeuxVersion = 0.81;
     var hostApp, sourcePath;
     var clippingMask = null;
     var thisComp = null;
@@ -704,7 +704,7 @@ var AEUX = (function () {
         frameFolder.parentFolder = aeuxFolder;
         var imageFolder = createNamedFolder('Images', frameFolder);
         imageFolder.parentFolder = frameFolder;
-        var nameId = layer.name + "_" + layer.id;
+        var nameId = "".concat(layer.name, "_").concat(layer.id);
         var bmpImage = getItem(nameId, FileSource, imageFolder);
         if (bmpImage === null) {
             var fileFound = false;
@@ -1572,7 +1572,7 @@ var AEUX = (function () {
     }
     function downloadUpdateDialog() {
         var w = new Window('dialog', 'AEUX update required');
-        var messageText = w.add('statictext', undefined, "Download a new version of the Ae panel (" + importVersion + ") from aeux.io", { multiline: true });
+        var messageText = w.add('statictext', undefined, "Download a new version of the Ae panel (".concat(importVersion, ") from aeux.io"), { multiline: true });
         messageText.preferredSize.width = 300;
         var buttonGroup = w.add('group {alignment: "right"}');
         buttonGroup.add('button', undefined, 'Close', { name: 'cancel' });

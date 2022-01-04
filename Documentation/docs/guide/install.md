@@ -52,15 +52,22 @@ Requirements: [Figma desktop](https://www.figma.com/downloads/)
 
 ### For non-Googlers
 
-The plugin is not yet published on [figma.com/plugins](http://figma.com/plugins) so the installation process is a little more involved than it will be.
+The plugin is not yet published on [figma.com/plugins](http://figma.com/plugins) so the installation process is a little more involved right now.
 
-- Copy the contents of the download zip **AEUX_{{ $frontmatter.currentVersion }}/Figma/** to a location that is *not* your downloads folder (if you delete these files after installing through the *Development* menu, it will break the plugin)
-- Right-click the canvas or the top left hamburger menu and navigate to Plugins > Development > New Plugin…
-- Under **Link existing plugin**, click to open the manifest file in **AEUX_{{ $frontmatter.currentVersion }}/Figma/manifest.json**
-- This panel will close and AEUX will now be available by:
-  - CMD+/ or Ctrl+/ to open the [Quick Actions](https://help.figma.com/hc/en-us/articles/360040328653-Use-shortcuts-and-quick-actions) menu and start typeing **AEUX**, or
-  - Right-clicking Plugins > Development > AEUX
+1. Copy the contents of the download zip **AEUX_{{ $frontmatter.currentVersion }}/Figma/** to a location that is *not* your downloads folder (if you delete these files after installing through the *Development* menu, it will break the plugin)
 
-<img src="/figma-install-01.png" />
-<img src="/figma-install-02.png" />
-<img src="/figma-install-03.png" />
+<img src="/figma-install-01.jpg" />
+
+2. Right-click the canvas Plugins > Development > Import plugin from manifest…
+
+<img src="/figma-install-02.jpg" />
+
+3. Navigate to the file **AEUX_{{ $frontmatter.currentVersion }}/Figma/manifest.json**
+  
+<img src="/figma-install-03.jpg" />
+
+1. This panel will close and AEUX will now be available by:
+- Right-clicking Plugins > Development > AEUX
+- CMD+/ or Ctrl+/ to open the [Quick Actions](https://help.figma.com/hc/en-us/articles/360040328653-Use-shortcuts-and-quick-actions) menu and start typeing **AEUX**, or
+
+<img src="/figma-install-04.jpg" />

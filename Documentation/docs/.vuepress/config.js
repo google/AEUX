@@ -57,8 +57,8 @@ module.exports = {
             'download',
             'install',
             'ae-options',
+            'options',
             'grouping',
-            'layer-prep',
             'faq',
             'changelog',
           ]

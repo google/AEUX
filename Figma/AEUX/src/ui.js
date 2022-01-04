@@ -1,13 +1,13 @@
-import * as fileType from 'file-type'
-import Vue from 'vue/dist/vue.esm.js'
-import * as aeux from './aeux.js'
+import * as fileType from 'file-type';
+import Vue from 'vue/dist/vue.esm.js';
+import * as aeux from './aeux.js';
 import { saveAs } from 'file-saver';
-import './ui.css'
+import './ui.css';
 var vm = new Vue({
-	el: '#app',
-	data: {
-		count: null,
-		thinking: false,
+    el: '#app',
+    data: {
+        count: null,
+        thinking: false,
         footerMsg: null,
         imagePath: null,
         btnMsg: 'Collecting layer data',
@@ -16,24 +16,25 @@ var vm = new Vue({
             exportRefImage: false,
             imgSaveDialog: false,
         }
-	},
-	methods: {  
+    },
+    methods: {
         exportSelection(e) {
             if (!this.thinking) {
-                this.thinking = 'fetchAEUX'
+                this.thinking = 'fetchAEUX';
                 setTimeout(() => {
-                    let shiftKey = e.shiftKey
-                    parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: shiftKey } }, '*')
-                    this.btnMsg = 'Transferring to Ae'
+                    let shiftKey = e.shiftKey;
+                    parent.postMessage({ pluginMessage: { type: 'exportSelection', exportJSON: shiftKey } }, '*');
+                    this.btnMsg = 'Transferring to Ae';
                 }, 250);
-            } else {
+            }
+            else {
                 // cancel
-                this.thinking = null
+                this.thinking = null;
                 // parent.postMessage({ pluginMessage: { type: 'exportCancel' } }, '*')
             }
         },
-        addRasterizeFlag () {
-            parent.postMessage({ pluginMessage: { type: 'addRasterizeFlag' } }, '*')
+        addRasterizeFlag() {
+            parent.postMessage({ pluginMessage: { type: 'addRasterizeFlag' } }, '*');
         },
         // detachComponents () {
         //     parent.postMessage({ pluginMessage: { type: 'detachComponents' } }, '*')
@@ -47,56 +48,46 @@ var vm = new Vue({
         // imageRefToAe () {
         //     parent.postMessage({ pluginMessage: { type: 'imageRefToAe' } }, '*')
         // },
-        setPrefs () {
+        setPrefs() {
             setTimeout(() => {
-                parent.postMessage({ pluginMessage: { type: 'setPrefs', prefs: this.prefs } }, '*')
+                parent.postMessage({ pluginMessage: { type: 'setPrefs', prefs: this.prefs } }, '*');
             }, 50);
-            
         },
     },
-	mounted() {
-        parent.postMessage({ pluginMessage: { type: 'getPrefs', defaultPrefs: this.prefs } }, '*')      // get the prefs
+    mounted() {
+        parent.postMessage({ pluginMessage: { type: 'getPrefs', defaultPrefs: this.prefs } }, '*'); // get the prefs
     }
-})
-
+});
 // receiving messages back from code.ts
 onmessage = (event) => {
     let msg = event.data.pluginMessage;
     console.log(msg);
-  
     if (msg && msg.type === 'retPrefs') {
-        vm.prefs = msg.prefs 
+        vm.prefs = msg.prefs;
     }
-
     if (msg && msg.type === 'exportAEUX') {
         // console.log(msg.imageBytesList);
         if (!msg.data) {
             setFooterMsg(null, 'Select layers first');
-            return
+            return;
         }
-        let aeuxData = aeux.convert(msg.data[0])		// convert layer data
+        let aeuxData = aeux.convert(msg.data[0]); // convert layer data
         console.log(aeuxData);
-
         var blob = new Blob([JSON.stringify(aeuxData, null, 2)], {
             type: "text/plain;charset=ansi"
         });
-
         saveAs(blob, "AEUX.json");
         console.log('save');
-
-        vm.thinking = false
+        vm.thinking = false;
     }
-
-	if (msg && msg.type === 'fetchAEUX') {
+    if (msg && msg.type === 'fetchAEUX') {
         // console.log(msg.imageBytesList);
         if (!msg.data) {
             setFooterMsg(null, 'Select layers first');
-            return
+            return;
         }
-        
-        let aeuxData = aeux.convert(msg.data[0])		// convert layer data
+        let aeuxData = aeux.convert(msg.data[0]); // convert layer data
         // console.log(aeuxData);
-
         fetch(`http://127.0.0.1:7240/evalScript`, {
             method: "POST",
             headers: {
@@ -110,48 +101,44 @@ onmessage = (event) => {
                 getPrefs: true,
             })
         })
-        .then(response => {
+            .then(response => {
             if (response.ok) {
-                return response.json()
-            } else {
-                throw Error('failed to connect')
+                return response.json();
+            }
+            else {
+                throw Error('failed to connect');
             }
         })
-        .then(json => {
+            .then(json => {
             // get back a message from Ae and display it at the bottom of Sketch
-            console.log(json)
-            let lyrs = json.layerCount        
-            let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
-
-            setFooterMsg(null, msg)
+            console.log(json);
+            let lyrs = json.layerCount;
+            let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae';
+            setFooterMsg(null, msg);
         })
-        .catch(e => {
-            console.error(e)
+            .catch(e => {
+            console.error(e);
             setFooterMsg(null, 'Failed to connect to Ae');
         });
     }
-	if (msg && msg.type === 'fetchImagesAndAEUX') {
-        vm.thinking = 'fetchAEUX'
-        let aeuxData = aeux.convert(msg.data[0])		// convert layer data
+    if (msg && msg.type === 'fetchImagesAndAEUX') {
+        vm.thinking = 'fetchAEUX';
+        let aeuxData = aeux.convert(msg.data[0]); // convert layer data
         // console.log(aeuxData);
         let imageList = [];
-
         msg.images.forEach(img => {
-            const filetype = fileType(img.bytes)
+            const filetype = fileType(img.bytes);
             // const blob = new Blob([img.bytes], { type: filetype.mime })
-            const name = img.name + '.' + filetype.ext
-
+            const name = img.name + '.' + filetype.ext;
             imageList.push({
-                name, 
+                name,
                 imgData: _arrayBufferToBase64(img.bytes)
-            })
+            });
             // folder.file(name, blob);
-        })
-
+        });
         if (msg.refImg) {
-            aeuxData.push(msg.refImg)
+            aeuxData.push(msg.refImg);
         }
-
         fetch(`http://127.0.0.1:7240/writeFiles`, {
             method: "POST",
             headers: {
@@ -165,28 +152,26 @@ onmessage = (event) => {
                 data: { layerData: aeuxData }
             })
         })
-        .then(response => {
+            .then(response => {
             if (response.ok) {
-                return response.json()
-            } else {
-                throw Error('failed to connect')
+                return response.json();
+            }
+            else {
+                throw Error('failed to connect');
             }
         })
-        .then(json => {
+            .then(json => {
             // get back a message from Ae and display it at the bottom of Sketch
-            console.log(json)
-            let lyrs = json.layerCount        
-            let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae'
-
-            setFooterMsg(null, msg)
+            console.log(json);
+            let lyrs = json.layerCount;
+            let msg = (lyrs == 1) ? lyrs + ' layer sent to Ae' : lyrs + ' layers sent to Ae';
+            setFooterMsg(null, msg);
         })
-        .catch(e => {
-            console.error(e)
+            .catch(e => {
+            console.error(e);
             setFooterMsg(null, 'Failed to connect to Ae');
         });
-
         // console.log(aeuxData);
-
         // const socket = new WebSocket('ws://localhost:7250')
         // socket.onopen = () => {
         //     socket.send(
@@ -216,31 +201,29 @@ onmessage = (event) => {
         // console.log('LayerCount', msg.layerCount);
         setFooterMsg(msg.layerCount, msg.action);
     }
-}
-
+};
 function setFooterMsg(layerCount, action) {
     if (layerCount === null) {
-        vm.footerMsg = action
-    } else if (layerCount == 1) {
-        vm.footerMsg = layerCount + ' layer ' + action
-    } else {
-        vm.footerMsg = layerCount + ' layers ' + action
+        vm.footerMsg = action;
     }
-    vm.btnMsg = 'Collecting layer data'
-
+    else if (layerCount == 1) {
+        vm.footerMsg = layerCount + ' layer ' + action;
+    }
+    else {
+        vm.footerMsg = layerCount + ' layers ' + action;
+    }
+    vm.btnMsg = 'Collecting layer data';
     setTimeout(() => {
-        vm.footerMsg = null
+        vm.footerMsg = null;
     }, 5000);
-
-    vm.thinking = false
+    vm.thinking = false;
 }
-
-function _arrayBufferToBase64( buffer ) {
+function _arrayBufferToBase64(buffer) {
     var binary = '';
-    var bytes = new Uint8Array( buffer );
+    var bytes = new Uint8Array(buffer);
     var len = bytes.byteLength;
     for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode( bytes[ i ] );
+        binary += String.fromCharCode(bytes[i]);
     }
-    return window.btoa( binary );
+    return window.btoa(binary);
 }

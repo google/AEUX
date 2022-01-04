@@ -251,6 +251,7 @@ var AEUX = (function () {
             addInnerShadow(r, layer);
             setLayerBlendMode(r, layer);
             setMask(r, layer);
+            addBgBlur(r, layer);
             if (layer.kind == 'Point') {
                 if (layer.rotation != 0 || (layer.flip[0] != 100 && layer.flip[1] != 100)) {
                     var rect = r.sourceRectAtTime(0, false);
@@ -265,13 +266,8 @@ var AEUX = (function () {
                 }
             }
             else {
-                if (layer.rotation != 0 || (layer.flip[0] != 100 && layer.flip[1] != 100) || hostApp != 'Figma') {
-                    var centeredPos = [(layer.frame.x) * compMult, (layer.frame.y) * compMult];
-                    r('ADBE Transform Group')('ADBE Position').setValue(centeredPos);
-                }
-                else {
-                    r('ADBE Transform Group')('ADBE Position').setValue([layer.frame.x * compMult, (layer.frame.y + layer.fontSize / 6) * compMult]);
-                }
+                var centeredPos = [(layer.frame.x) * compMult, (layer.frame.y) * compMult];
+                r('ADBE Transform Group')('ADBE Position').setValue(centeredPos);
             }
             r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
             r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
@@ -324,7 +320,7 @@ var AEUX = (function () {
                 var textTracking = r('ADBE Text Properties')(4).addProperty('ADBE Text Animator');
                 textTracking.name = 'Text tracking';
                 textTracking('ADBE Text Animator Properties').addProperty('ADBE Text Tracking Amount');
-                textTracking('ADBE Text Animator Properties')('ADBE Text Tracking Amount').setValue(layer.tracking);
+                textTracking('ADBE Text Animator Properties')('ADBE Text Tracking Amount').setValue(layer.trackingAdjusted);
             }
             else {
                 textDoc.tracking = Math.floor(layer.trackingAdjusted);
@@ -458,6 +454,7 @@ var AEUX = (function () {
             r.moveAfter(opt_parent);
         }
         setMask(r, layer);
+        addBgBlur(r, layer);
         return r;
     }
     function aeEllipse(layer, opt_parent) {
@@ -482,6 +479,7 @@ var AEUX = (function () {
             r.moveAfter(opt_parent);
         }
         setMask(r, layer);
+        addBgBlur(r, layer);
     }
     function aeStar(layer, opt_parent) {
         var r = initShapeLayer(layer, opt_parent);
@@ -524,6 +522,7 @@ var AEUX = (function () {
             r.moveAfter(opt_parent);
         }
         setMask(r, layer);
+        addBgBlur(r, layer);
     }
     function aePath(layer, opt_parent) {
         if (!layer.path || layer.path.points.length < 1) {
@@ -568,6 +567,7 @@ var AEUX = (function () {
             r.moveAfter(opt_parent);
         }
         setMask(r, layer);
+        addBgBlur(r, layer);
     }
     function aeCompound(layer, opt_parent) {
         var r = initShapeLayer(layer, opt_parent);
@@ -593,6 +593,7 @@ var AEUX = (function () {
             r.moveAfter(opt_parent);
         }
         setMask(r, layer);
+        addBgBlur(r, layer);
         function createCompoundShapes(group, layer) {
             var layerCount = layer.layers.length || 1;
             for (var i = 0; i < layerCount; i++) {
@@ -694,6 +695,7 @@ var AEUX = (function () {
         r('ADBE Transform Group')('ADBE Rotate Z').setValue(layer.rotation);
         r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
         setMask(r, layer);
+        addBgBlur(r, layer);
     }
     function aeImage(layer, opt_parent) {
         var _a;
@@ -750,9 +752,6 @@ var AEUX = (function () {
         if (layer.guide) {
             r.guideLayer = true;
         }
-        addDropShadow(r, layer);
-        addInnerShadow(r, layer);
-        setLayerBlendMode(r, layer);
         var w = 100;
         var h = 100;
         if (r.height >= r.width) {
@@ -768,6 +767,10 @@ var AEUX = (function () {
         r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
         r('ADBE Transform Group')('ADBE Position').setValue([layer.frame.x * compMult, layer.frame.y * compMult]);
         setMask(r, layer);
+        addDropShadow(r, layer);
+        addInnerShadow(r, layer);
+        setLayerBlendMode(r, layer);
+        addBlur(r, layer, true);
         if (opt_parent !== null) {
             if (hostApp == 'Sketch') {
                 r.parent = opt_parent;
@@ -1088,6 +1091,7 @@ var AEUX = (function () {
         }
     }
     function addDropShadow(r, layer) {
+        var layerScaleFactor = 100 / r("ADBE Transform Group")("ADBE Scale").value[0];
         try {
             if (layer.shadow != null) {
                 for (var i = layer.shadow.length - 1; i >= 0; i--) {
@@ -1100,8 +1104,8 @@ var AEUX = (function () {
                     shadowEffect("ADBE Drop Shadow-0001").setValue(layer.shadow[i].color);
                     shadowEffect("ADBE Drop Shadow-0002").setValue(layer.shadow[i].color[3] * 255);
                     shadowEffect("ADBE Drop Shadow-0003").setValue(shadowAngle);
-                    shadowEffect("ADBE Drop Shadow-0004").setValue(shadowDistance);
-                    shadowEffect("ADBE Drop Shadow-0005").setValue(layer.shadow[i].blur * compMult);
+                    shadowEffect("ADBE Drop Shadow-0004").setValue(shadowDistance * layerScaleFactor);
+                    shadowEffect("ADBE Drop Shadow-0005").setValue(layer.shadow[i].blur * compMult * layerScaleFactor);
                 }
             }
         }
@@ -1109,8 +1113,9 @@ var AEUX = (function () {
             alert(e.toString() + "\nError on line: " + e.line.toString());
         }
     }
-    function addBlur(r, layer) {
+    function addBlur(r, layer, ignoreCompMult) {
         if (layer.blur != null) {
+            compMult = (ignoreCompMult) ? 1 : compMult;
             for (var i = layer.blur.length - 1; i >= 0; i--) {
                 if (layer.blur[i].type == 0) {
                     blur = r.property('Effects').addProperty('ADBE Gaussian Blur 2');
@@ -1131,6 +1136,26 @@ var AEUX = (function () {
                     return;
                 }
             }
+        }
+    }
+    function addBgBlur(r, layer, ignoreCompMult) {
+        compMult = (ignoreCompMult) ? 1 : compMult;
+        if (layer.bgBlur != null) {
+            var newLayer = r.duplicate();
+            newLayer.name = '\u25A8 ' + r.name;
+            newLayer.moveAfter(r);
+            newLayer.adjustmentLayer = true;
+            newLayer.parent = r;
+            try {
+                newLayer("ADBE Root Vectors Group")(1)("ADBE Vectors Group")(2)("ADBE Vector Fill Opacity").setValue(100);
+            }
+            catch (e) { }
+            try {
+                newLayer("ADBE Text Properties")("ADBE Text Animators")(1)("ADBE Text Animator Properties")("ADBE Text Fill Opacity").setValue(100);
+            }
+            catch (error) { }
+            var blur = newLayer.property('Effects').addProperty('ADBE Gaussian Blur 2');
+            blur.property('ADBE Gaussian Blur 2-0001').setValue(layer.bgBlur * compMult);
         }
     }
     function addInnerShadow(r, layer) {

@@ -159,7 +159,7 @@ function buildLayers(compObj) {
 }
 
 //// send layer data to the right layer build function
-function filterTypes(layerData, opt_parent) {
+function filterTypes(layerData, opt_parent?) {
     /// reset variables
     var groupParent = null;
 
@@ -332,6 +332,7 @@ function aeText(layer, opt_parent) {
     addInnerShadow(r, layer);
     setLayerBlendMode(r, layer);
     setMask(r, layer);
+    addBgBlur(r, layer);
 
     /// set transforms
     // position transform depends the type of text layer (point or box)
@@ -348,16 +349,16 @@ function aeText(layer, opt_parent) {
             r('ADBE Transform Group')('ADBE Position').setValue([ (layer.frame.x + justificationOffset) * compMult, (layer.frame.y - boundsTop) * compMult]);
         }
     } else {		// text box
-        if (layer.rotation != 0 || (layer.flip[0] != 100 && layer.flip[1] != 100) || hostApp != 'Figma') {
+        // if (layer.rotation != 0 || (layer.flip[0] != 100 && layer.flip[1] != 100) || hostApp != 'Figma') {
             // var rect = r.sourceRectAtTime(0, false);
             var centeredPos = [(layer.frame.x) * compMult, (layer.frame.y) * compMult];
             r('ADBE Transform Group')('ADBE Position').setValue( centeredPos );		// set position
-        } else {
-            // r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, (layer.frame.y + layer.fontSize/6) * compMult]);
-            r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, (layer.frame.y + layer.fontSize/6) * compMult]);
-            // r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, (layer.frame.y) * compMult]);
-            // r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, layer.frame.y * compMult]);
-        }
+        // } else {
+        //     // r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, (layer.frame.y + layer.fontSize/6) * compMult]);
+        //     r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, (layer.frame.y + layer.fontSize/6) * compMult]);
+        //     // r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, (layer.frame.y) * compMult]);
+        //     // r('ADBE Transform Group')('ADBE Position').setValue([ layer.frame.x * compMult, layer.frame.y * compMult]);
+        // }
     }
 
     r('ADBE Transform Group')('ADBE Opacity').setValue(layer.opacity);
@@ -442,7 +443,7 @@ function aeText(layer, opt_parent) {
                 var textTracking = r('ADBE Text Properties')(4).addProperty('ADBE Text Animator');
                     textTracking.name = 'Text tracking';
                     textTracking('ADBE Text Animator Properties').addProperty('ADBE Text Tracking Amount');
-                    textTracking('ADBE Text Animator Properties')('ADBE Text Tracking Amount').setValue(layer.tracking);
+            textTracking('ADBE Text Animator Properties')('ADBE Text Tracking Amount').setValue(layer.trackingAdjusted);
         } else {
             /// can be set with text options
             textDoc.tracking = Math.floor(layer.trackingAdjusted);
@@ -472,7 +473,22 @@ function aeText(layer, opt_parent) {
 
 //// group
 function aeGroup(layer, opt_parent) {
-  // alert(JSON.stringify(layer, false, 2))
+//   alert(JSON.stringify(layer, false, 2))
+    // alert(thisComp.layers[thisComp.layers.length].name)
+    // let isMasked = false
+    // try {
+        
+    //     for (const key in maskLayer) {
+    //         if (Object.prototype.hasOwnProperty.call(maskLayer, key)) {
+    //             const element = maskLayer[key];
+    //             if (element?.containingComp == thisComp) {
+    //                 isMasked = true
+    //             }
+    //         }
+    //     }
+    // } catch (error) {
+        
+    // }
     /// if auto-precomp is enabled
     if (prefs.precompGroups || layer.type == 'Component') {
         var frameRate = prefs.frameRate || 60;
@@ -696,6 +712,7 @@ function aeRect(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
     return r;
 }
 
@@ -742,6 +759,7 @@ function aeEllipse(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 }
 //// parametric star
 function aeStar(layer, opt_parent) {
@@ -803,6 +821,7 @@ function aeStar(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 }
 
 //// path
@@ -875,6 +894,7 @@ function aePath(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 }
 
 //// compound path
@@ -922,6 +942,7 @@ function aeCompound(layer, opt_parent) {
     }
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 
     function createCompoundShapes(group, layer) {
         // loop through and build all shapes in a compound
@@ -1062,6 +1083,7 @@ function aeSymbol(layer, opt_parent) {
 
 
     setMask(r, layer);
+    addBgBlur(r, layer);
 }
 
 //// import and add image
@@ -1131,11 +1153,6 @@ function aeImage(layer, opt_parent) {
         r.guideLayer = true
     }
 
-    /// add layer elements
-    addDropShadow(r, layer);
-    addInnerShadow(r, layer);
-    setLayerBlendMode(r, layer);
-
     
     // set transforms
     // var centeredPos = [(layer.frame.x + layer.frame.width/2) * compMult, (layer.frame.y + layer.frame.height/2) * compMult];
@@ -1168,6 +1185,11 @@ function aeImage(layer, opt_parent) {
     r('ADBE Transform Group')('ADBE Position').setValue( [layer.frame.x * compMult, layer.frame.y * compMult] );
     
     setMask(r, layer);
+    /// add layer effects
+    addDropShadow(r, layer);
+    addInnerShadow(r, layer);
+    setLayerBlendMode(r, layer);
+    addBlur(r, layer, true);
 
     
     // }
@@ -1531,7 +1553,7 @@ function setMask(currentLayer, layerData) {
         maskLayer[layerID] = null;
         maskPosition = [0,0];
     }
-
+    
     // if the current comp has a mask layer
     if (maskLayer[layerID]) {
         try {
@@ -1657,6 +1679,7 @@ function setLayerBlendMode(r, layer) {
 
 //// add drop shadow effect
 function addDropShadow(r, layer) {
+    let layerScaleFactor = 100 / r("ADBE Transform Group")("ADBE Scale").value[0]
     try {
 
     if (layer.shadow != null) {
@@ -1676,8 +1699,8 @@ function addDropShadow(r, layer) {
                     shadowEffect("ADBE Drop Shadow-0001").setValue(layer.shadow[i].color);
                     shadowEffect("ADBE Drop Shadow-0002").setValue(layer.shadow[i].color[3]*255);
                     shadowEffect("ADBE Drop Shadow-0003").setValue(shadowAngle);
-                    shadowEffect("ADBE Drop Shadow-0004").setValue(shadowDistance);
-                    shadowEffect("ADBE Drop Shadow-0005").setValue(layer.shadow[i].blur*compMult);
+                    shadowEffect("ADBE Drop Shadow-0004").setValue(shadowDistance * layerScaleFactor);
+                    shadowEffect("ADBE Drop Shadow-0005").setValue(layer.shadow[i].blur * compMult * layerScaleFactor);
         }
     }
     }catch(e) {
@@ -1686,8 +1709,9 @@ function addDropShadow(r, layer) {
 }
 
 //// add blur effect
-function addBlur(r, layer) {
+function addBlur(r, layer, ignoreCompMult?) {
     if (layer.blur != null) {
+        compMult = (ignoreCompMult) ? 1 : compMult
         // loop through multiple blur objects
         for (var i = layer.blur.length-1; i >= 0; i--) {
             /// Gaussian Blur
@@ -1715,6 +1739,22 @@ function addBlur(r, layer) {
     }
 }
 
+//// add bg blur effect 
+function addBgBlur(r, layer, ignoreCompMult?) {
+    compMult = (ignoreCompMult) ? 1 : compMult
+    if (layer.bgBlur != null) {
+        let newLayer = r.duplicate()
+        newLayer.name = '\u25A8 ' + r.name
+        newLayer.moveAfter(r)
+        newLayer.adjustmentLayer = true
+        newLayer.parent = r
+        try { newLayer("ADBE Root Vectors Group")(1)("ADBE Vectors Group")(2)("ADBE Vector Fill Opacity").setValue(100) } catch (e) { }
+        try { newLayer("ADBE Text Properties")("ADBE Text Animators")(1)("ADBE Text Animator Properties")("ADBE Text Fill Opacity").setValue(100) } catch (error) { }
+
+        let blur = newLayer.property('Effects').addProperty('ADBE Gaussian Blur 2');
+        blur.property('ADBE Gaussian Blur 2-0001').setValue(layer.bgBlur * compMult);
+    }
+}
 //// update settings of createAndApplyShadowFfx()
 function addInnerShadow(r, layer) {
     /// skip if no inner shadow

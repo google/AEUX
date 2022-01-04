@@ -1,5 +1,6 @@
 /*jshint esversion: 6, asi: true*/
 import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
+import * as triclops from './triclops.js'
 
 var versionNumber = 0.8;
 var frameData, layers, hasArtboard, layerCount, layerData, boolOffset, rasterizeList, frameSize;
@@ -28,7 +29,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
 
     if (!hasArtboard) {
         // console.log('artboard', storeArtboard(figmaData));
-        console.log('missing artboard', figmaData);
+        // console.log('missing artboard', figmaData);
         aeuxData.push(storeArtboard(figmaData));
         frameData = figmaData;      // store the whole frame data
     }
@@ -52,9 +53,10 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         }
 
         if (layer.type == "GROUP") {            
-            aeuxData.push(getGroup(layer, parentFrame));
+            let prevMask = (aeuxData.length > 0) ? aeuxData[aeuxData.length - 1].isMask : false    // check if the previous layer is a mask
+            aeuxData.push(getGroup(layer, parentFrame, prevMask));
         }
-        if (layer.fillGeometry && layer.fillGeometry.length > 1) { layer.type = "BOOLEAN_OPERATION" }         // overwrite the layer type
+        // if (layer.fillGeometry && layer.fillGeometry.length > 1) { layer.type = "BOOLEAN_OPERATION" }         // overwrite the layer type
 
         if (layer.type == "BOOLEAN_OPERATION") {
             layer = getBoolean(layer, parentFrame, boolType);
@@ -190,12 +192,12 @@ function getText(layer, parentFrame) {
     var tempFrame = getFrame(layer, parentFrame);
     var lineHeight = getLineHeight(layer);
     frame = {
-        width: Math.max(layer.width * 1.02, 1),
+        width: layer.width,
         height: layer.height,
         x: tempFrame.x,
+        // y: 454, //428
         y: tempFrame.y,
     };
-    // console.log(frame.x);
     
 	var layerData =  {
         type: 'Text',
@@ -211,7 +213,8 @@ function getText(layer, parentFrame) {
         stroke: getStrokes(layer),
         blendMode: getLayerBlending(layer.blendMode),
         // fontName: layer.style.fontPostScriptName,
-        fontName: layer.fontName.family.replaceAll(' ', '') + '-' + layer.fontName.style.replaceAll(' ', ''),
+        fontName: triclops.getPostscript(layer.fontName),
+        // fontName: layer.fontName.family.replaceAll(' ', '') + '-' + layer.fontName.style.replaceAll(' ', ''),
         fontSize: layer.fontSize,
         // trackingAdjusted: layer.style.letterSpacing / layer.style.fontSize * 1000,
         trackingAdjusted: getTracking(layer),
@@ -222,9 +225,8 @@ function getText(layer, parentFrame) {
         rotation: getRotation(layer),
         isMask: layer.isMask,
     };
-    console.log('hasMissingFont', layer);
     
-    console.log('layerData', layerData);
+    // console.log('layerData', layerData);
 
     getEffects(layer, layerData);
 
@@ -232,7 +234,7 @@ function getText(layer, parentFrame) {
 
     function getTextFill (layer) {
         var fills = getFills(layer, null)
-        console.log(fills);
+        // console.log(fills);
         
         if (fills.length > 0) {
             var fillColor = fills[0].color
@@ -279,8 +281,9 @@ function getText(layer, parentFrame) {
             return layer.lineHeight.value;
         } else if (layer.lineHeight.unit == 'PERCENT') {
             return layer.fontSize * (layer.lineHeight.value / 100); 
-        } else {
-            return null;
+        } else {        // line height set to auto
+            return layer.height / layer.fontSize;
+            // return null;
         }
     }
     function getTracking(layer) {
@@ -294,7 +297,7 @@ function getText(layer, parentFrame) {
     }
 }
 //// get layer data: GROUP
-function getGroup(layer, parentFrame) {
+function getGroup(layer, parentFrame, isMasked) {
     // var flip = getFlipMultiplier(layer);
     var frame = getFrame(layer);
     var calcFrame = getFrame(layer, parentFrame);
@@ -303,7 +306,7 @@ function getGroup(layer, parentFrame) {
     // console.log('group frame', layer.name, stackOffset);
     
 	var layerData =  {
-        type: 'Group',
+        type: isMasked ? 'Component' : 'Group',
 		name: '\u25BD ' + layer.name,
 		id: layer.id,
 		frame: calcFrame,
@@ -584,13 +587,15 @@ function getEffects(layer, layerData) {
             if (effect.type == 'LAYER_BLUR') {
                 if (effect.visible) {
                     layerData.blur.push({
-                        radius: effect.radius,
+                        radius: effect.radius * 4,
                         type: 0,
         			});
                 }
             }
             if (effect.type == 'BACKGROUND_BLUR') {
                 // adjustment layer
+                layerData.bgBlur = effect.radius * 2
+                console.log('BG BLUR');
             }
         }
     }
@@ -645,6 +650,10 @@ function getFrame(layer, parentFrame, constrainFrame) {
 
     var x = layer.x + Math.cos(Math.atan2(height, width) - angle) * hypot - offset[0];
     var y = layer.y + Math.sin(Math.atan2(height, width) - angle) * hypot - offset[1];
+
+    if (layer.type == 'TEXT') {
+        // y = (layer.y + 19.5) + Math.sin(Math.atan2(height, width) - angle) * hypot - offset[1];
+    }
 
     if (constrainFrame) {
         if (layer.x < 0) {      // off the left edge
@@ -801,7 +810,7 @@ function getImageFill(layer, parentFrame) {
         rotation: 0,
         // rotation: getRotation(layer),
     };
-    // getEffects(layer, layerData);
+    getEffects(layer, layerData);
 
 
     return layerData;
@@ -915,9 +924,12 @@ function getGradient(grad) {
 
 //// get layer data: SHAPE TYPE
 function getShapeType(layer) {
-    if ( layer.type == 'RECTANGLE' ) { return 'Rect' }
+    const allEqual = arr => arr.every(v => v === arr[0])
+
+    if ( layer.type == 'RECTANGLE' && 
+        allEqual([layer.topLeftRadius, layer.topRightRadius, layer.bottomLeftRadius, layer.bottomRightRadius]) ) { return 'Rect' }
     if ( layer.type == 'ELLIPSE' ) { return 'Ellipse' }
-    if ( layer.type == 'STAR' || layer.type == 'POLYGON') { return 'Star' }
+    // if ( layer.type == 'STAR' || layer.type == 'POLYGON') { return 'Star' }
     return 'Path';
 }
 //// get layer data: SHAPE TYPE
@@ -1096,12 +1108,19 @@ function getShapeBlending(mode) {
 //// get shape data: PATH
 function getPath(layer, bounding, type) {    
     // console.log('getPath', layer);
+
+    // check if rectangle has uniform corner rounding
+    const allEqual = arr => arr.every(v => v === arr[0])
+    if (layer.type == 'STAR' || layer.type == 'POLYGON' || (layer.type == 'RECTANGLE' && !allEqual([layer.topLeftRadius, layer.topRightRadius, layer.bottomLeftRadius, layer.bottomRightRadius])) ) {
+        layer.vectorPaths = layer.fillGeometry
+        layer.type = 'Path'
+    }
     
     var pathStr, pathObj;
     if (layer.vectorPaths && layer.vectorPaths.length < 2) {       // find an individual path
         pathStr = layer.vectorPaths || layer;
         pathObj = parseSvg(pathStr[0].data);
-        // console.log('pathObj', pathObj);
+        console.log('pathObj', pathObj);
     } else if (layer.vectorPaths && layer.vectorPaths.length > 1) {
         let comboPath = ''
         layer.vectorPaths.forEach(path => {
@@ -1184,21 +1203,21 @@ function getPath(layer, bounding, type) {
     }
 
     // convert path to rectangle for corner rounding
-    if (layer.type == 'RECTANGLE') {
-        console.log('get that rectangle');
+    // if (layer.type == 'RECTANGLE') {
+    //     console.log('get that rectangle');
         
-        pathObj = {
-            points: [
-                [0, 0],
-                [bounding.width, 0],
-                [bounding.width, bounding.height],
-                [0, bounding.height],
-            ],
-            inTangents: [],
-            outTangents: [],
-            closed: true
-        }
-    }
+    //     pathObj = {
+    //         points: [
+    //             [0, 0],
+    //             [bounding.width, 0],
+    //             [bounding.width, bounding.height],
+    //             [0, bounding.height],
+    //         ],
+    //         inTangents: [],
+    //         outTangents: [],
+    //         closed: true
+    //     }
+    // }
     // console.log(pathObj)
     return pathObj;
 }

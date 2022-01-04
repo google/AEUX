@@ -27,6 +27,8 @@
           <MainPath>./public/index-dev.html</MainPath>
           <!-- <MainPath>./dist/index.html</MainPath> -->
           <CEFCommandLine>
+            <Parameter>--disable-features=SameSiteByDefaultCookies,CookiesWithoutSameSiteMustBeSecure,NetworkService</Parameter>
+            <Parameter>--disable-site-isolation-trials</Parameter>  
             <Parameter>--enable-nodejs</Parameter>
             <Parameter>--mixed-context</Parameter>
           </CEFCommandLine>

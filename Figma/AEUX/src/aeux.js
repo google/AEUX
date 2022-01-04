@@ -2,7 +2,7 @@
 import { extractLinearGradientParamsFromTransform, extractRadialOrDiamondGradientParams } from "@figma-plugin/helpers";
 import * as triclops from './triclops.js'
 
-var versionNumber = 0.8;
+var versionNumber = 0.81;
 var frameData, layers, hasArtboard, layerCount, layerData, boolOffset, rasterizeList, frameSize;
 export function convert (data) {
     hasArtboard = false;

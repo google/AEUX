@@ -490,14 +490,14 @@ let fontList = {
     ///// Google fonts Jan 2022
     "Alumni Sans Thin": {
         "Italic": "AlumniSans-ThinItalic",
-            "Regular": "AlumniSans-Thin"
+        "Regular": "AlumniSans-Thin"
     },
     "AmstelvarAlpha Default": {
         "Regular": "AmstelvarAlpha-Default"
     },
     "Archivo SemiBold": {
         "Italic": "Archivo-SemiBoldItalic",
-            "Regular": "Archivo-SemiBold"
+        "Regular": "Archivo-SemiBold"
     },
     "Arvo": {
         "Regular": "Arvo"
@@ -507,7 +507,7 @@ let fontList = {
     },
     "Azeret Mono Thin": {
         "Italic": "AzeretMono-ThinItalic",
-            "Regular": "AzeretMono-Thin"
+        "Regular": "AzeretMono-Thin"
     },
     "Battambang Black": {
         "Regular": "Battambang-Black"
@@ -520,51 +520,51 @@ let fontList = {
     },
     "Be Vietnam ExtraBold": {
         "Regular": "BeVietnam-ExtraBold",
-            "Italic": "BeVietnam-ExtraBoldItalic"
+        "Italic": "BeVietnam-ExtraBoldItalic"
     },
     "Be Vietnam Light": {
         "Regular": "BeVietnam-Light",
-            "Italic": "BeVietnam-LightItalic"
+        "Italic": "BeVietnam-LightItalic"
     },
     "Be Vietnam Medium": {
         "Regular": "BeVietnam-Medium",
-            "Italic": "BeVietnam-MediumItalic"
+        "Italic": "BeVietnam-MediumItalic"
     },
     "Be Vietnam SemiBold": {
         "Regular": "BeVietnam-SemiBold",
-            "Italic": "BeVietnam-SemiBoldItalic"
+        "Italic": "BeVietnam-SemiBoldItalic"
     },
     "Be Vietnam Thin": {
         "Regular": "BeVietnam-Thin",
-            "Italic": "BeVietnam-ThinItalic"
+        "Italic": "BeVietnam-ThinItalic"
     },
     "Be Vietnam Pro Black": {
         "Regular": "BeVietnamPro-Black",
-            "Italic": "BeVietnamPro-BlackItalic"
+        "Italic": "BeVietnamPro-BlackItalic"
     },
     "Be Vietnam Pro ExtraBold": {
         "Regular": "BeVietnamPro-ExtraBold",
-            "Italic": "BeVietnamPro-ExtraBoldItalic"
+        "Italic": "BeVietnamPro-ExtraBoldItalic"
     },
     "Be Vietnam Pro ExtraLight": {
         "Regular": "BeVietnamPro-ExtraLight",
-            "Italic": "BeVietnamPro-ExtraLightItalic"
+        "Italic": "BeVietnamPro-ExtraLightItalic"
     },
     "Be Vietnam Pro Light": {
         "Regular": "BeVietnamPro-Light",
-            "Italic": "BeVietnamPro-LightItalic"
+        "Italic": "BeVietnamPro-LightItalic"
     },
     "Be Vietnam Pro Medium": {
         "Regular": "BeVietnamPro-Medium",
-            "Italic": "BeVietnamPro-MediumItalic"
+        "Italic": "BeVietnamPro-MediumItalic"
     },
     "Be Vietnam Pro SemiBold": {
         "Regular": "BeVietnamPro-SemiBold",
-            "Italic": "BeVietnamPro-SemiBoldItalic"
+        "Italic": "BeVietnamPro-SemiBoldItalic"
     },
     "Be Vietnam Pro Thin": {
         "Regular": "BeVietnamPro-Thin",
-            "Italic": "BeVietnamPro-ThinItalic"
+        "Italic": "BeVietnamPro-ThinItalic"
     },
     "Big Shoulders Display Thin": {
         "Regular": "BigShouldersDisplay-Thin"
@@ -589,7 +589,7 @@ let fontList = {
     },
     "Bitter Thin": {
         "Italic": "Bitter-ThinItalic",
-            "Regular": "Bitter-Thin"
+        "Regular": "Bitter-Thin"
     },
     "Blinker Black": {
         "Regular": "Blinker-Black"
@@ -689,15 +689,15 @@ let fontList = {
     },
     "DM Mono Light": {
         "Regular": "DMMono-Light",
-            "Italic": "DMMono-LightItalic"
+        "Italic": "DMMono-LightItalic"
     },
     "DM Mono Medium": {
         "Regular": "DMMono-Medium",
-            "Italic": "DMMono-MediumItalic"
+        "Italic": "DMMono-MediumItalic"
     },
     "DM Sans Medium": {
         "Regular": "DMSans-Medium",
-            "Italic": "DMSans-MediumItalic"
+        "Italic": "DMSans-MediumItalic"
     },
     "Encode Sans Condensed Thin": {
         "Regular": "EncodeSans-CondensedThin"
@@ -716,7 +716,7 @@ let fontList = {
     },
     "Faustina Light": {
         "Italic": "Faustina-LightItalic",
-            "Regular": "Faustina-Light"
+        "Regular": "Faustina-Light"
     },
     "Fenix": {
         "Regular": "Fenix"
@@ -729,7 +729,7 @@ let fontList = {
     },
     "Fraunces": {
         "Italic": "Fraunces-9ptBlackItalic",
-            "Regular": "Fraunces-9ptBlack"
+        "Regular": "Fraunces-9ptBlack"
     },
     "Fredoka Light": {
         "Regular": "Fredoka-Light"
@@ -751,11 +751,11 @@ let fontList = {
     },
     "Genos Thin": {
         "Italic": "Genos-ThinItalic",
-            "Regular": "Genos-Thin"
+        "Regular": "Genos-Thin"
     },
     "Georama ExtraCondensed Thin": {
         "Italic": "GeoramaItalic-ExtraCondensedThinItalic",
-            "Regular": "GeoramaRoman-ExtraCondensedThin"
+        "Regular": "GeoramaRoman-ExtraCondensedThin"
     },
     "Gidugu": {
         "Regular": "Gidugu"
@@ -768,7 +768,7 @@ let fontList = {
     },
     "Glory Thin": {
         "Italic": "Glory-ThinItalic",
-            "Regular": "Glory-Thin"
+        "Regular": "Glory-Thin"
     },
     "Gluten Thin": {
         "Regular": "Gluten-Thin"
@@ -781,7 +781,7 @@ let fontList = {
     },
     "Grandstander Thin": {
         "Italic": "Grandstander-ThinItalic",
-            "Regular": "Grandstander-Thin"
+        "Regular": "Grandstander-Thin"
     },
     "Gravitas One": {
         "Regular": "GravitasOne"
@@ -848,43 +848,43 @@ let fontList = {
     },
     "IBM Plex Mono ExtraLight": {
         "Regular": "IBMPlexMono-ExtraLight",
-            "Italic": "IBMPlexMono-ExtraLightItalic"
+        "Italic": "IBMPlexMono-ExtraLightItalic"
     },
     "IBM Plex Mono Light": {
         "Regular": "IBMPlexMono-Light",
-            "Italic": "IBMPlexMono-LightItalic"
+        "Italic": "IBMPlexMono-LightItalic"
     },
     "IBM Plex Mono Medium": {
         "Regular": "IBMPlexMono-Medium",
-            "Italic": "IBMPlexMono-MediumItalic"
+        "Italic": "IBMPlexMono-MediumItalic"
     },
     "IBM Plex Mono SemiBold": {
         "Regular": "IBMPlexMono-SemiBold",
-            "Italic": "IBMPlexMono-SemiBoldItalic"
+        "Italic": "IBMPlexMono-SemiBoldItalic"
     },
     "IBM Plex Mono Thin": {
         "Regular": "IBMPlexMono-Thin",
-            "Italic": "IBMPlexMono-ThinItalic"
+        "Italic": "IBMPlexMono-ThinItalic"
     },
     "IBM Plex Sans ExtraLight": {
         "Regular": "IBMPlexSans-ExtraLight",
-            "Italic": "IBMPlexSans-ExtraLightItalic"
+        "Italic": "IBMPlexSans-ExtraLightItalic"
     },
     "IBM Plex Sans Light": {
         "Regular": "IBMPlexSans-Light",
-            "Italic": "IBMPlexSans-LightItalic"
+        "Italic": "IBMPlexSans-LightItalic"
     },
     "IBM Plex Sans Medium": {
         "Regular": "IBMPlexSans-Medium",
-            "Italic": "IBMPlexSans-MediumItalic"
+        "Italic": "IBMPlexSans-MediumItalic"
     },
     "IBM Plex Sans SemiBold": {
         "Regular": "IBMPlexSans-SemiBold",
-            "Italic": "IBMPlexSans-SemiBoldItalic"
+        "Italic": "IBMPlexSans-SemiBoldItalic"
     },
     "IBM Plex Sans Thin": {
         "Regular": "IBMPlexSans-Thin",
-            "Italic": "IBMPlexSans-ThinItalic"
+        "Italic": "IBMPlexSans-ThinItalic"
     },
     "IBM Plex Sans Arabic ExtraLight": {
         "Regular": "IBMPlexSansArabic-ExtraLight"
@@ -903,29 +903,29 @@ let fontList = {
     },
     "IBM Plex Sans Condensed": {
         "Bold": "IBMPlexSansCond-Bold",
-            "Bold Italic": "IBMPlexSansCond-BoldItalic",
-                "Italic": "IBMPlexSansCond-Italic",
-                    "Regular": "IBMPlexSansCond-Regular"
+        "Bold Italic": "IBMPlexSansCond-BoldItalic",
+            "Italic": "IBMPlexSansCond-Italic",
+                "Regular": "IBMPlexSansCond-Regular"
     },
     "IBM Plex Sans Condensed ExtraLight": {
         "Regular": "IBMPlexSansCond-ExtraLight",
-            "Italic": "IBMPlexSansCond-ExtraLightItalic"
+        "Italic": "IBMPlexSansCond-ExtraLightItalic"
     },
     "IBM Plex Sans Condensed Light": {
         "Regular": "IBMPlexSansCond-Light",
-            "Italic": "IBMPlexSansCond-LightItalic"
+        "Italic": "IBMPlexSansCond-LightItalic"
     },
     "IBM Plex Sans Condensed Medium": {
         "Regular": "IBMPlexSansCond-Medium",
-            "Italic": "IBMPlexSansCond-MediumItalic"
+        "Italic": "IBMPlexSansCond-MediumItalic"
     },
     "IBM Plex Sans Condensed SemiBold": {
         "Regular": "IBMPlexSansCond-SemiBold",
-            "Italic": "IBMPlexSansCond-SemiBoldItalic"
+        "Italic": "IBMPlexSansCond-SemiBoldItalic"
     },
     "IBM Plex Sans Condensed Thin": {
         "Regular": "IBMPlexSansCond-Thin",
-            "Italic": "IBMPlexSansCond-ThinItalic"
+        "Italic": "IBMPlexSansCond-ThinItalic"
     },
     "IBM Plex Sans Devanagari ExtraLight": {
         "Regular": "IBMPlexSansDevanagari-ExtraLight"
@@ -989,23 +989,23 @@ let fontList = {
     },
     "IBM Plex Serif ExtraLight": {
         "Regular": "IBMPlexSerif-ExtraLight",
-            "Italic": "IBMPlexSerif-ExtraLightItalic"
+        "Italic": "IBMPlexSerif-ExtraLightItalic"
     },
     "IBM Plex Serif Light": {
         "Regular": "IBMPlexSerif-Light",
-            "Italic": "IBMPlexSerif-LightItalic"
+        "Italic": "IBMPlexSerif-LightItalic"
     },
     "IBM Plex Serif Medium": {
         "Regular": "IBMPlexSerif-Medium",
-            "Italic": "IBMPlexSerif-MediumItalic"
+        "Italic": "IBMPlexSerif-MediumItalic"
     },
     "IBM Plex Serif SemiBold": {
         "Regular": "IBMPlexSerif-SemiBold",
-            "Italic": "IBMPlexSerif-SemiBoldItalic"
+        "Italic": "IBMPlexSerif-SemiBoldItalic"
     },
     "IBM Plex Serif Thin": {
         "Regular": "IBMPlexSerif-Thin",
-            "Italic": "IBMPlexSerif-ThinItalic"
+        "Italic": "IBMPlexSerif-ThinItalic"
     },
     "Imbue Thin": {
         "Regular": "Imbue-Thin"
@@ -1015,32 +1015,32 @@ let fontList = {
     },
     "IM FELL English": {
         "Italic": "IM_FELL_English_Italic",
-            "Regular": "IM_FELL_English_Roman"
+        "Regular": "IM_FELL_English_Roman"
     },
     "IM FELL English SC": {
         "Regular": "IM_FELL_English_SC"
     },
     "IM FELL French Canon": {
         "Italic": "IM_FELL_French_Canon_Italic",
-            "Regular": "IM_FELL_French_Canon_Roman"
+        "Regular": "IM_FELL_French_Canon_Roman"
     },
     "IM FELL French Canon SC": {
         "Regular": "IM_FELL_French_Canon_SC"
     },
     "IM FELL Great Primer": {
         "Italic": "IM_FELL_Great_Primer_Italic",
-            "Regular": "IM_FELL_Great_Primer_Roman"
+        "Regular": "IM_FELL_Great_Primer_Roman"
     },
     "IM FELL Great Primer SC": {
         "Regular": "IM_FELL_Great_Primer_SC"
     },
     "IM FELL Double Pica": {
         "Italic": "IM_FELL_Double_Pica_Italic",
-            "Regular": "IM_FELL_Double_Pica_Roman"
+        "Regular": "IM_FELL_Double_Pica_Roman"
     },
     "IM FELL DW Pica": {
         "Italic": "IM_FELL_DW_Pica_Italic",
-            "Regular": "IM_FELL_DW_Pica_Roman"
+        "Regular": "IM_FELL_DW_Pica_Roman"
     },
     "IM FELL DW Pica SC": {
         "Regular": "IM_FELL_DW_Pica_SC"
@@ -1278,22 +1278,22 @@ let fontList = {
     },
     "Inria Sans Light": {
         "Regular": "InriaSans-Light",
-            "Italic": "InriaSans-LightItalic"
+        "Italic": "InriaSans-LightItalic"
     },
     "Inria Serif Light": {
         "Regular": "InriaSerif-Light",
-            "Italic": "InriaSerif-LightItalic"
+        "Italic": "InriaSerif-LightItalic"
     },
     "Jolly Lodger": {
         "Regular": "JollyLodger"
     },
     "Josefin Sans Thin": {
         "Italic": "JosefinSans-ThinItalic",
-            "Regular": "JosefinSans-Thin"
+        "Regular": "JosefinSans-Thin"
     },
     "Josefin Slab Thin": {
         "Italic": "JosefinSlab-ThinItalic",
-            "Regular": "JosefinSlab-Thin"
+        "Regular": "JosefinSlab-Thin"
     },
     "jsMath-cmbx10": {
         "cmbx10": "jsMath-cmbx10"
@@ -1330,31 +1330,31 @@ let fontList = {
     },
     "Kanit Black": {
         "Regular": "Kanit-Black",
-            "Italic": "Kanit-BlackItalic"
+        "Italic": "Kanit-BlackItalic"
     },
     "Kanit ExtraBold": {
         "Regular": "Kanit-ExtraBold",
-            "Italic": "Kanit-ExtraBoldItalic"
+        "Italic": "Kanit-ExtraBoldItalic"
     },
     "Kanit ExtraLight": {
         "Regular": "Kanit-ExtraLight",
-            "Italic": "Kanit-ExtraLightItalic"
+        "Italic": "Kanit-ExtraLightItalic"
     },
     "Kanit Light": {
         "Regular": "Kanit-Light",
-            "Italic": "Kanit-LightItalic"
+        "Italic": "Kanit-LightItalic"
     },
     "Kanit Medium": {
         "Regular": "Kanit-Medium",
-            "Italic": "Kanit-MediumItalic"
+        "Italic": "Kanit-MediumItalic"
     },
     "Kanit SemiBold": {
         "Regular": "Kanit-SemiBold",
-            "Italic": "Kanit-SemiBoldItalic"
+        "Italic": "Kanit-SemiBoldItalic"
     },
     "Kanit Thin": {
         "Regular": "Kanit-Thin",
-            "Italic": "Kanit-ThinItalic"
+        "Italic": "Kanit-ThinItalic"
     },
     "Karantina Light": {
         "Regular": "Karantina-Light"
@@ -1403,15 +1403,15 @@ let fontList = {
     },
     "Kulim Park ExtraLight": {
         "Regular": "KulimPark-ExtraLight",
-            "Italic": "KulimPark-ExtraLightItalic"
+        "Italic": "KulimPark-ExtraLightItalic"
     },
     "Kulim Park Light": {
         "Regular": "KulimPark-Light",
-            "Italic": "KulimPark-LightItalic"
+        "Italic": "KulimPark-LightItalic"
     },
     "Kulim Park SemiBold": {
         "Regular": "KulimPark-SemiBold",
-            "Italic": "KulimPark-SemiBoldItalic"
+        "Italic": "KulimPark-SemiBoldItalic"
     },
     "La Belle Aurore": {
         "Regular": "LaBelleAurore"
@@ -1445,34 +1445,34 @@ let fontList = {
     },
     "Libre Franklin Thin": {
         "Italic": "LibreFranklin-ThinItalic",
-            "Regular": "LibreFranklin-Thin"
+        "Regular": "LibreFranklin-Thin"
     },
     "Lilita One": {
         "Regular": "LilitaOne"
     },
     "Livvic Black": {
         "Regular": "Livvic-Black",
-            "Italic": "Livvic-BlackItalic"
+        "Italic": "Livvic-BlackItalic"
     },
     "Livvic ExtraLight": {
         "Regular": "Livvic-ExtraLight",
-            "Italic": "Livvic-ExtraLightItalic"
+        "Italic": "Livvic-ExtraLightItalic"
     },
     "Livvic Light": {
         "Regular": "Livvic-Light",
-            "Italic": "Livvic-LightItalic"
+        "Italic": "Livvic-LightItalic"
     },
     "Livvic Medium": {
         "Regular": "Livvic-Medium",
-            "Italic": "Livvic-MediumItalic"
+        "Italic": "Livvic-MediumItalic"
     },
     "Livvic SemiBold": {
         "Regular": "Livvic-SemiBold",
-            "Italic": "Livvic-SemiBoldItalic"
+        "Italic": "Livvic-SemiBoldItalic"
     },
     "Livvic Thin": {
         "Regular": "Livvic-Thin",
-            "Italic": "Livvic-ThinItalic"
+        "Italic": "Livvic-ThinItalic"
     },
     "Lobster Two": {
         "Regular": "LobsterTwo"
@@ -1554,18 +1554,18 @@ let fontList = {
     },
     "Mohave Light": {
         "Italic": "Mohave-LightItalic",
-            "Regular": "Mohave-Light"
+        "Regular": "Mohave-Light"
     },
     "Monofett": {
         "Regular": "Monofett"
     },
     "Montserrat Thin": {
         "Italic": "Montserrat-ThinItalic",
-            "Regular": "Montserrat-Thin"
+        "Regular": "Montserrat-Thin"
     },
     "Mulish ExtraLight": {
         "Italic": "Mulish-ExtraLightItalic",
-            "Regular": "Mulish-ExtraLight"
+        "Regular": "Mulish-ExtraLight"
     },
     "Murecho Thin": {
         "Regular": "Murecho-Thin"
@@ -1581,8 +1581,8 @@ let fontList = {
     },
     "NanumGothic": {
         "Bold": "NanumGothicBold",
-            "Regular": "NanumGothic",
-                "ExtraBold": "NanumGothicExtraBold"
+        "Regular": "NanumGothic",
+            "ExtraBold": "NanumGothicExtraBold"
     },
     "NATS": {
         "Regular": "NATS"
@@ -1607,8 +1607,8 @@ let fontList = {
     },
     "NanumMyeongjo": {
         "Bold": "NanumMyeongjoBold",
-            "ExtraBold": "NanumMyeongjoExtraBold",
-                "Regular": "NanumMyeongjo"
+        "ExtraBold": "NanumMyeongjoExtraBold",
+            "Regular": "NanumMyeongjo"
     },
     "Nokora Black": {
         "Regular": "Nokora-Black"
@@ -1885,38 +1885,38 @@ let fontList = {
     },
     "Nunito ExtraLight": {
         "Italic": "Nunito-ExtraLightItalic",
-            "Regular": "Nunito-ExtraLight"
+        "Regular": "Nunito-ExtraLight"
     },
     "Nunito Sans Black": {
         "Regular": "NunitoSans-Black",
-            "Italic": "NunitoSans-BlackItalic"
+        "Italic": "NunitoSans-BlackItalic"
     },
     "Nunito Sans ExtraBold": {
         "Regular": "NunitoSans-ExtraBold",
-            "Italic": "NunitoSans-ExtraBoldItalic"
+        "Italic": "NunitoSans-ExtraBoldItalic"
     },
     "Nunito Sans ExtraLight": {
         "Regular": "NunitoSans-ExtraLight",
-            "Italic": "NunitoSans-ExtraLightItalic"
+        "Italic": "NunitoSans-ExtraLightItalic"
     },
     "Nunito Sans Light": {
         "Regular": "NunitoSans-Light",
-            "Italic": "NunitoSans-LightItalic"
+        "Italic": "NunitoSans-LightItalic"
     },
     "Nunito Sans SemiBold": {
         "Regular": "NunitoSans-SemiBold",
-            "Italic": "NunitoSans-SemiBoldItalic"
+        "Italic": "NunitoSans-SemiBoldItalic"
     },
     "OFL Sorts Mill Goudy TT": {
         "Italic": "OFLGoudyStMTT-Italic",
-            "Regular": "OFLGoudyStMTT"
+        "Regular": "OFLGoudyStMTT"
     },
     "Open Sans Hebrew Extra Bold": {
         "Regular": "OpenSansHebrew-ExtraBold"
     },
     "Open Sans Hebrew Light": {
         "Regular": "OpenSansHebrew-Light",
-            "Italic": "OpenSansHebrew-LightItalic"
+        "Italic": "OpenSansHebrew-LightItalic"
     },
     "Open Sans Hebrew Condensed Extra Bold": {
         "Regular": "OpenSansHebrewCondensed-ExtraBold"
@@ -1959,31 +1959,31 @@ let fontList = {
     },
     "Poppins Black": {
         "Regular": "Poppins-Black",
-            "Italic": "Poppins-BlackItalic"
+        "Italic": "Poppins-BlackItalic"
     },
     "Poppins ExtraBold": {
         "Regular": "Poppins-ExtraBold",
-            "Italic": "Poppins-ExtraBoldItalic"
+        "Italic": "Poppins-ExtraBoldItalic"
     },
     "Poppins ExtraLight": {
         "Regular": "Poppins-ExtraLight",
-            "Italic": "Poppins-ExtraLightItalic"
+        "Italic": "Poppins-ExtraLightItalic"
     },
     "Poppins Light": {
         "Regular": "Poppins-Light",
-            "Italic": "Poppins-LightItalic"
+        "Italic": "Poppins-LightItalic"
     },
     "Poppins Medium": {
         "Regular": "Poppins-Medium",
-            "Italic": "Poppins-MediumItalic"
+        "Italic": "Poppins-MediumItalic"
     },
     "Poppins SemiBold": {
         "Regular": "Poppins-SemiBold",
-            "Italic": "Poppins-SemiBoldItalic"
+        "Italic": "Poppins-SemiBoldItalic"
     },
     "Poppins Thin": {
         "Regular": "Poppins-Thin",
-            "Italic": "Poppins-ThinItalic"
+        "Italic": "Poppins-ThinItalic"
     },
     "Porter Sans Block": {
         "Block": "PorterSansBlock"
@@ -1993,19 +1993,19 @@ let fontList = {
     },
     "PT Sans Caption": {
         "Bold": "PTSans-CaptionBold",
-            "Regular": "PTSans-Caption"
+        "Regular": "PTSans-Caption"
     },
     "PT Sans Narrow": {
         "Bold": "PTSans-NarrowBold",
-            "Regular": "PTSans-Narrow"
+        "Regular": "PTSans-Narrow"
     },
     "PT Serif Caption": {
         "Italic": "PTSerif-CaptionItalic",
-            "Regular": "PTSerif-Caption"
+        "Regular": "PTSerif-Caption"
     },
     "Public Sans Thin": {
         "Italic": "PublicSans-ThinItalic",
-            "Regular": "PublicSans-Thin"
+        "Regular": "PublicSans-Thin"
     },
     "Quattrocento": {
         "Regular": "Quattrocento"
@@ -2018,7 +2018,7 @@ let fontList = {
     },
     "Raleway Thin": {
         "Italic": "Raleway-ThinItalic",
-            "Regular": "Raleway-Thin"
+        "Regular": "Raleway-Thin"
     },
     "Ramabhadra": {
         "Regular": "Ramabhadra"
@@ -2031,15 +2031,15 @@ let fontList = {
     },
     "Red Hat Display": {
         "Italic": "RedHatDisplay-LightItalic",
-            "Regular": "RedHatDisplay-Light"
+        "Regular": "RedHatDisplay-Light"
     },
     "Red Hat Mono": {
         "Italic": "RedHatMono-LightItalic",
-            "Regular": "RedHatMono-Light"
+        "Regular": "RedHatMono-Light"
     },
     "Red Hat Text": {
         "Italic": "RedHatText-LightItalic",
-            "Regular": "RedHatText-Light"
+        "Regular": "RedHatText-Light"
     },
     "Reem Kufi Medium": {
         "Regular": "ReemKufi-Medium"
@@ -2058,27 +2058,27 @@ let fontList = {
     },
     "Roboto Black": {
         "Regular": "Roboto-Black",
-            "Italic": "Roboto-BlackItalic"
+        "Italic": "Roboto-BlackItalic"
     },
     "Roboto Light": {
         "Regular": "Roboto-Light",
-            "Italic": "Roboto-LightItalic"
+        "Italic": "Roboto-LightItalic"
     },
     "Roboto Medium": {
         "Regular": "Roboto-Medium",
-            "Italic": "Roboto-MediumItalic"
+        "Italic": "Roboto-MediumItalic"
     },
     "Roboto Thin": {
         "Regular": "Roboto-Thin",
-            "Italic": "Roboto-ThinItalic"
+        "Italic": "Roboto-ThinItalic"
     },
     "Roboto Condensed Light": {
         "Regular": "RobotoCondensed-Light",
-            "Italic": "RobotoCondensed-LightItalic"
+        "Italic": "RobotoCondensed-LightItalic"
     },
     "Roboto Condensed Medium": {
         "Regular": "RobotoCondensed-Medium",
-            "Italic": "RobotoCondensed-MediumItalic"
+        "Italic": "RobotoCondensed-MediumItalic"
     },
     "Recursive Sans Linear Light": {
         "Regular": "Recursive-SansLinearLight"
@@ -2088,7 +2088,7 @@ let fontList = {
     },
     "Rubik Light": {
         "Italic": "Rubik-LightItalic",
-            "Regular": "Rubik-Light"
+        "Regular": "Rubik-Light"
     },
     "Ruluko": {
         "Regular": "Ruluko"
@@ -2098,11 +2098,11 @@ let fontList = {
     },
     "Saira Thin": {
         "Italic": "Saira-ThinItalic",
-            "Regular": "Saira-Thin"
+        "Regular": "Saira-Thin"
     },
     "Sansation Light": {
         "Light": "Sansation-Light",
-            "Light Italic": "Sansation-LightItalic"
+        "Light Italic": "Sansation-LightItalic"
     },
     "Sansita Swashed Light": {
         "Regular": "SansitaSwashed-Light"
@@ -2166,7 +2166,7 @@ let fontList = {
     },
     "Sometype Mono Medium": {
         "Regular": "SometypeMono-Medium",
-            "Italic": "SometypeMono-MediumItalic"
+        "Italic": "SometypeMono-MediumItalic"
     },
     "SeoulNamsan B": {
         "Regular": "SeoulNamsanB"
@@ -2194,50 +2194,50 @@ let fontList = {
     },
     "Source Code Pro": {
         "Italic": "SourceCode_ExtraLight-Italic",
-            "Regular": "SourceCode_ExtraLight"
+        "Regular": "SourceCode_ExtraLight"
     },
     "Source Sans 3": {
         "Regular": "SourceSans3-Roman"
     },
     "Source Sans Pro Black": {
         "Regular": "SourceSansPro-Black",
-            "Italic": "SourceSansPro-BlackItalic"
+        "Italic": "SourceSansPro-BlackItalic"
     },
     "Source Sans Pro ExtraLight": {
         "Regular": "SourceSansPro-ExtraLight",
-            "Italic": "SourceSansPro-ExtraLightItalic"
+        "Italic": "SourceSansPro-ExtraLightItalic"
     },
     "Source Sans Pro Light": {
         "Regular": "SourceSansPro-Light",
-            "Italic": "SourceSansPro-LightItalic"
+        "Italic": "SourceSansPro-LightItalic"
     },
     "Source Sans Pro SemiBold": {
         "Regular": "SourceSansPro-SemiBold",
-            "Italic": "SourceSansPro-SemiBoldItalic"
+        "Italic": "SourceSansPro-SemiBoldItalic"
     },
     "Source Serif 4": {
         "Italic": "SourceSerif4Italic-Italic",
-            "Regular": "SourceSerif4Roman-Regular"
+        "Regular": "SourceSerif4Roman-Regular"
     },
     "Source Serif Pro Black": {
         "Regular": "SourceSerifPro-Black",
-            "Italic": "SourceSerifPro-BlackIt"
+        "Italic": "SourceSerifPro-BlackIt"
     },
     "Source Serif Pro": {
         "Bold Italic": "SourceSerifPro-BoldIt",
-            "Italic": "SourceSerifPro-It"
+        "Italic": "SourceSerifPro-It"
     },
     "Source Serif Pro ExtraLight": {
         "Regular": "SourceSerifPro-ExtraLight",
-            "Italic": "SourceSerifPro-ExtraLightIt"
+        "Italic": "SourceSerifPro-ExtraLightIt"
     },
     "Source Serif Pro Light": {
         "Regular": "SourceSerifPro-Light",
-            "Italic": "SourceSerifPro-LightIt"
+        "Italic": "SourceSerifPro-LightIt"
     },
     "Source Serif Pro SemiBold": {
         "Regular": "SourceSerifPro-SemiBold",
-            "Italic": "SourceSerifPro-SemiBoldIt"
+        "Italic": "SourceSerifPro-SemiBoldIt"
     },
     "SeoulHangang CB": {
         "Regular": "SeH-CB"
@@ -2313,7 +2313,7 @@ let fontList = {
     },
     "Texturina Medium": {
         "Italic": "Texturina-MediumItalic",
-            "Regular": "Texturina-Medium"
+        "Regular": "Texturina-Medium"
     },
     "Thabit-Bold": {
         "Bold": "Thabit-Bold"
@@ -2341,35 +2341,35 @@ let fontList = {
     },
     "Tomorrow Black": {
         "Regular": "Tomorrow-Black",
-            "Italic": "Tomorrow-BlackItalic"
+        "Italic": "Tomorrow-BlackItalic"
     },
     "Tomorrow ExtraBold": {
         "Regular": "Tomorrow-ExtraBold",
-            "Italic": "Tomorrow-ExtraBoldItalic"
+        "Italic": "Tomorrow-ExtraBoldItalic"
     },
     "Tomorrow ExtraLight": {
         "Regular": "Tomorrow-ExtraLight",
-            "Italic": "Tomorrow-ExtraLightItalic"
+        "Italic": "Tomorrow-ExtraLightItalic"
     },
     "Tomorrow Light": {
         "Regular": "Tomorrow-Light",
-            "Italic": "Tomorrow-LightItalic"
+        "Italic": "Tomorrow-LightItalic"
     },
     "Tomorrow Medium": {
         "Regular": "Tomorrow-Medium",
-            "Italic": "Tomorrow-MediumItalic"
+        "Italic": "Tomorrow-MediumItalic"
     },
     "Tomorrow SemiBold": {
         "Regular": "Tomorrow-SemiBold",
-            "Italic": "Tomorrow-SemiBoldItalic"
+        "Italic": "Tomorrow-SemiBoldItalic"
     },
     "Tomorrow Thin": {
         "Regular": "Tomorrow-Thin",
-            "Italic": "Tomorrow-ThinItalic"
+        "Italic": "Tomorrow-ThinItalic"
     },
     "Tourney Thin": {
         "Italic": "Tourney-ThinItalic",
-            "Regular": "Tourney-Thin"
+        "Regular": "Tourney-Thin"
     },
     "Trade Winds": {
         "Regular": "TradeWinds"
@@ -2424,15 +2424,15 @@ let fontList = {
     },
     "Zilla Slab Light": {
         "Regular": "ZillaSlab-Light",
-            "Italic": "ZillaSlab-LightItalic"
+        "Italic": "ZillaSlab-LightItalic"
     },
     "Zilla Slab Medium": {
         "Regular": "ZillaSlab-Medium",
-            "Italic": "ZillaSlab-MediumItalic"
+        "Italic": "ZillaSlab-MediumItalic"
     },
     "Zilla Slab SemiBold": {
         "Regular": "ZillaSlab-SemiBold",
-            "Italic": "ZillaSlab-SemiBoldItalic"
+        "Italic": "ZillaSlab-SemiBoldItalic"
     },
     "Zen Kaku Gothic Antique Black": {
         "Regular": "ZenKakuGothicAntique-Black"

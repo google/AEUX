@@ -24,8 +24,8 @@
     <Extension Id="com.aeux.panel">
       <DispatchInfo>
         <Resources>
-          <MainPath>./public/index-dev.html</MainPath>
-          <!-- <MainPath>./dist/index.html</MainPath> -->
+          <MainPath>./dist/index.html</MainPath>
+          <!-- <MainPath>./public/index-dev.html</MainPath> -->
           <CEFCommandLine>
             <Parameter>--disable-features=SameSiteByDefaultCookies,CookiesWithoutSameSiteMustBeSecure,NetworkService</Parameter>
             <Parameter>--disable-site-isolation-trials</Parameter>  
@@ -66,8 +66,9 @@
     <Extension Id="com.aeux.server">
       <DispatchInfo>
         <Resources>
-          <MainPath>./public/index-dev.html</MainPath>
-          <!-- <MainPath>./dist/index.html</MainPath> -->
+          <MainPath>./dist/index.html</MainPath>
+          <!-- <MainPath>./public/index-dev.html</MainPath> -->
+          <ScriptPath>./src/host/AEFT/host.jsx</ScriptPath>
           <CEFCommandLine>
             <Parameter>--enable-nodejs</Parameter>
             <Parameter>--mixed-context</Parameter>

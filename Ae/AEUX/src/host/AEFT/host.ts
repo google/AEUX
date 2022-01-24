@@ -154,7 +154,6 @@ function buildLayers(compObj) {
     // var endTime = new Date();	// start timer for clocking
     // var duration = endTime.getTime() - startTime.getTime()
     // alert(duration);
-
     return JSON.stringify({msg: returnMessage, layerCount});
 }
 
@@ -2346,7 +2345,7 @@ return {
         alert('yay');
     },
     buildLayers: function (compObj) {
-        return buildLayers(compObj);
+        return buildLayers(compObj)
     },
     toggleGroupVisibility: function () {
         toggleGroupVisibility()

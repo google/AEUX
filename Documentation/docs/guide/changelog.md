@@ -1,5 +1,26 @@
 # Change log
 
+## v0.8.1
+Released: Jan 24, 2022
+
+### Added 
+- Figma: Support Background Blur effect
+- Figma: Layer Blur on images
+- Font name replacement for all Google Fonts files
+  
+### Fixes
+- Images failed to be saved if a folder path was not set initially in the Ae panel
+- Ae: tracking greater than 1000
+- Figma: Much better compound paths support
+- Figma: Stronger non-uniform corner rounding detection
+- Figma: Shadow effect on images
+- Figma: Crashing bug with a single grouped shape
+- Figma: Failed to get the Ae prefs with an image frame
+
+### Changed
+- Figma: Removed the shape type **Star** because it rarely looked correct
+- Ae: Visual change to the comp size multiplier - removed check mark 
+
 ## v0.8.0
 Released: August 25, 2021
 

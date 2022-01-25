@@ -1,7 +1,7 @@
 ---
 currentVersion: 0.8.0
 figmaLink: http://aeux.io
-figmaLinkGoogler: https://www.figma.com/community/plugin/864522107465619637/AEUX
+figmaLinkGoogler: https://www.figma.com/community/plugin/1067758050355011239/AEUX
 fiftyTwoDownload: /legacy-download/AEUX_0.6.9.zip
 fiftyDownload: /legacy-download/Sketch2AE_0.54.zip
 ---
@@ -44,13 +44,13 @@ If you follow all the Ae instructions and AEUX still isn't showing up in the AE 
 
 ## Figma
 
-Requirements: [Figma desktop](https://www.figma.com/downloads/)
 ### For Googlers
 - Install in <a :href="$frontmatter.figmaLinkGoogler">Figma</a>
 - Right-click within a Figma file and navigate to Plugins > AEUX
 - Click to open the panel
 
 ### For non-Googlers
+Requirements: [Figma desktop](https://www.figma.com/downloads/)
 
 The plugin is not yet published on [figma.com/plugins](http://figma.com/plugins) so the installation process is a little more involved right now.
 

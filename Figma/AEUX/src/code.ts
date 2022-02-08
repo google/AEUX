@@ -373,7 +373,7 @@ async function storeImageData (imageHashList, layers, refImg) {
         // console.log(element[i]);
         const hash = imageHashList[i].hash;
         const name = imageHashList[i].id
-            .replace(/:/g, '-')     // remove colons
+            .replace(/[\\:"*?%<>|]/g, '-')     // replace illegal characters
             .replace(/\s*(\/|\\)\s*/g, '-')    // remove slashes
 
         try {

@@ -800,7 +800,7 @@ function getImageFill(layer, parentFrame) {
     
 	let layerData =  {
         type: 'Image',
-        name: layer.name.toString(),
+        name: layer.name.toString().replace(/[\\:"*?%<>|]/g, '-'),     // replace illegal characters
         id: layer.id.replace(/:/g, '-'),
         frame: frame,
         isVisible: (layer.visible !== false),

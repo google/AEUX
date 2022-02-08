@@ -6,6 +6,13 @@
     <description>Transfer layers to After Effects</description>
     <language>en</language>
     <item>
+      <title>Version 0.8.1</title>
+      <description>
+          Image exporting bug fix for newer versions of Sketch.
+      </description>
+      <enclosure url="https://github.com/google/sketch2ae/releases/download/v0.8.1/aeux.sketchplugin.zip" sparkle:version="0.8.1"/>
+    </item>
+    <item>
       <title>Version 0.8.0</title>
       <description>
           Better image handling and shape gradient point opacity support. Download Ae panel updates at aeux.io.

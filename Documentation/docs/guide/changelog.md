@@ -1,5 +1,11 @@
 # Change log
 
+## v0.8.1-a
+Released: Feb 11, 2022
+
+### Fixed 
+- Figma: The first image file fails to export
+
 ## v0.8.1
 Released: Jan 24, 2022
 

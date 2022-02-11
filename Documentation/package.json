@@ -7,7 +7,7 @@
     "name": "Adam Plouff",
     "email": "adamplouff@google.com"
   },
-  "repository": "https://github.com/google/sketch2ae.git",
+  "repository": "https://github.com/google/aeux.git",
   "scripts": {
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",

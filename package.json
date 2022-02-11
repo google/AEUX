@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/google/sketch2ae.git"
+    "url": "git+https://github.com/google/aeux.git"
   },
   "author": "Adam Plouff",
   "license": "Apache",
   "bugs": {
-    "url": "https://github.com/google/sketch2ae/issues"
+    "url": "https://github.com/google/aeux/issues"
   },
   "homepage": "https://aeux.io",
   "devDependencies": {

@@ -4,7 +4,7 @@
   "engines": {
     "sketch": ">=3.0"
   },
-  "repository": "https://github.com/google/sketch2ae",
+  "repository": "https://github.com/google/aeux",
   "skpm": {
     "name": "AEUX",
     "manifest": "src/manifest.json",

@@ -110,57 +110,10 @@ figma.ui.onmessage = message => {
             rasterizeList = [... new Set(rasterizeList)]        // remove duplicates
             // console.log('RASTERIZELIST', rasterizeList);
 
-            function clone(val) {
-                return JSON.parse(JSON.stringify(val))
-            }
-
-            function asyncCollectHashes(id, cb) {
-                setTimeout(() => {
-                    // console.log('done with', item);
-                    let shape = (figma.getNodeById(id) as any)
-                    // disable effects
-                    
-                    let effectVisList = []      // to store the effect visibility
-                    let effects 
-                    if (shape.effects) {
-                        effects = clone(shape.effects)     
-                        effects.forEach(effect => {         // turn them all off
-                            effectVisList.push(effect.visible)
-                            if (effect.type == 'DROP_SHADOW' || effect.type == 'LAYER_BLUR') {
-                                effect.visible = false
-                            }
-                        })
-                        shape.effects = effects
-                    }
-                    
-                    let compMult = 3
-                    let imgScale = Math.min(3500 / Math.max(shape.width, shape.height), compMult)  // limit it to 4000px
-                    // console.log('IMAGESCALE', imgScale, shape);
-
-                    shape.exportAsync({
-                        format: "PNG",
-                        useAbsoluteBounds: true,
-                        constraint: { type: "SCALE", value: imgScale }
-                    })
-                    .then(img => {                        
-                        imageHashList.push({
-                            hash: figma.createImage(img).hash,
-                            id: `${shape.name.replace(/^\*\s/, '').replace(/^\*/, '')}_${id}`
-                        })
-                    })
-
-                    // re-enable effects 
-                    for (let i = 0; i < effectVisList.length; i++) {
-                        effects[i].visible = effectVisList[i]
-                    }
-                    shape.effects = effects
-
-
-                    cb();
-                }, 100);
-            }
 
             let requests = rasterizeList.map((item) => {
+                console.log('iten++', item);
+                
                 return new Promise((resolve) => {
                     asyncCollectHashes(item, resolve);
                 });
@@ -170,9 +123,12 @@ figma.ui.onmessage = message => {
             .then(() => storeImageData(imageHashList, shapeTree, refImg))
             .then(() => {
                 // remove the reference mask
-                tempGroup.parent.appendChild(parentFrame)
-                tempGroup.remove()
+                if (tempGroup) {
+                    tempGroup.parent.appendChild(parentFrame)
+                    tempGroup.remove()
+                }
             })
+                
 
         } else {
             // check if images need to export then send message to ui.ts
@@ -185,6 +141,59 @@ figma.ui.onmessage = message => {
             }
         }
         // console.log('imageHashList', imageHashList);
+
+        function clone(val) {
+            return JSON.parse(JSON.stringify(val))
+        }
+
+        function asyncCollectHashes(id, cb) {
+            setTimeout(() => {
+                // console.log('done with', item);
+                let shape = (figma.getNodeById(id) as any)
+
+                // disable effects
+                let effectVisList = []      // to store the effect visibility
+                let effects
+                if (shape.effects) {
+                    effects = clone(shape.effects)
+                    effects.forEach(effect => {         // turn them all off
+                        effectVisList.push(effect.visible)
+                        if (effect.type == 'DROP_SHADOW' || effect.type == 'LAYER_BLUR') {
+                            effect.visible = false
+                        }
+                    })
+                    shape.effects = effects
+                }
+
+                let compMult = 3
+                let imgScale = Math.min(3500 / Math.max(shape.width, shape.height), compMult)  // limit it to 4000px
+                // console.log('IMAGESCALE', imgScale, shape);
+
+                shape.exportAsync({
+                    format: "PNG",
+                    useAbsoluteBounds: true,
+                    constraint: { type: "SCALE", value: imgScale }
+                })
+                .then(img => {
+                    imageHashList.push({
+                        hash: figma.createImage(img).hash,
+                        id: `${shape.name.replace(/^\*\s/, '').replace(/^\*/, '')}_${id}`
+                    })
+                })
+                .then(() => {                    
+                    // re-enable effects 
+                    for (let i = 0; i < effectVisList.length; i++) {
+                        effects[i].visible = effectVisList[i]
+                    }
+                    shape.effects = effects
+                })
+                .then(() => {
+                    cb();
+                })
+
+
+            }, 100);
+        }
     }
   
     if (message.type === 'addRasterizeFlag') {
@@ -366,22 +375,26 @@ function nodeToObj (nodes) {
 
 }
 
-async function storeImageData (imageHashList, layers, refImg) {
-    console.log('layers', layers);
+async function storeImageData(imageHashList, layers, refImg) { // imageHashList should be fiiled but isnt
+    // console.log('layers++', layers);
+    // console.log('imageHashList++', imageHashList);
     
     for (const i in imageHashList) {
-        // console.log(element[i]);
+        // console.log('i', i);
         const hash = imageHashList[i].hash;
+        // console.log('hash', hash);
+        
         const name = imageHashList[i].id
             .replace(/[\\:"*?%<>|]/g, '-')     // replace illegal characters
             .replace(/\s*(\/|\\)\s*/g, '-')    // remove slashes
+        // console.log('name', name);
 
         try {
-            let image = figma.getImageByHash(hash)
+            let image = figma.getImageByHash(hash)            
             let bytes = await image.getBytesAsync()
 
             imageBytesList.push({ name, bytes })
-            // console.log(bytes);
+            // console.log('bytes', bytes);
         } catch (error) {}
     }
     if (imageBytesList.length > 0) {

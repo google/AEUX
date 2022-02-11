@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@mdi/font": "^4.9.95",
-    "amulets": "file:../../../../Modules/amulets",
+    "amulets": "^0.2.0",
     "brutalism": "^2.3.2",
     "cep-spy": "latest",
     "core-js": "^3.6.5",

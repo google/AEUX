@@ -61,6 +61,10 @@ input {
 .button span {
     background-color: #1f1f1f;
 }
+.version {
+    padding-top: 2px;
+    opacity: 0.5;
+}
 .footer {
   z-index: 1;
   bottom: 0;

@@ -1,6 +1,6 @@
 {
   "name": "aeux",
-  "version": "0.7.9",
+  "version": "0.8.1",
   "description": "This plugin template uses Typescript. If you are familiar with Javascript, Typescript will look very familiar. In fact, valid Javascript code is already valid Typescript code.",
   "main": "code.js",
   "scripts": {

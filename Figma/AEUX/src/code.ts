@@ -78,7 +78,7 @@ figma.ui.onmessage = message => {
         let refImg = null, tempGroup, parentFrame
         if (prefs.exportRefImage) {         // include a reference image with transfer
             parentFrame = findFrame(figma.currentPage.selection[0])
-            let parentFrameName = parentFrame.name.replace(/\s*(\/|\\)\s*/g, '-')
+            let parentFrameName = parentFrame.name.replace(/\s*(\/|\\)\s*/g, '-').replace(/^\*\s/, '').replace(/^\*/, '')
 
             // group and mask
             let mask = figma.createRectangle()
@@ -298,7 +298,7 @@ function nodeToObj (nodes) {
             children: [],
             type: null,
         };        
-        if (node.name && node.name.charAt(0) == '*') {
+        if (node.name && node.name.charAt(0) == '*' && node != findFrame(node)) {
             console.log('rasterize', node);
             rasterizeList.push(node.id)
             rasterize = true
@@ -421,6 +421,10 @@ function findFrame(node) {
         }
 }
 function addMagicStar(selection, layerCount) {
+    if (findFrame(selection[0]) == selection[0] ) {     // selection is the top most frame
+        selection = selection[0].children               // select all the children
+    }
+        
     selection.forEach(shape => {
         if (shape.name.charAt(0) !== '*') {
             shape.name = `* ${shape.name}`

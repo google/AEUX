@@ -44,7 +44,7 @@ function filterTypes(figmaData, opt_parentFrame, boolType) {
         // console.log(layer.name, layer.type);
 
         // detect * in layer names
-        if (layer.name.charAt(0) == '*') {
+        if (layer.name && layer.name.charAt(0) == '*') {        // skip frames with *
             let rasterizedLayer = getImageFill(layer, parentFrame)
             rasterizedLayer.name = layer.name.replace(/^\*\s/, '').replace(/^\*/, '').replace(/:/g, '-').replace(/\s*(\/|\\)\s*/g, '-') // remove astrix
             aeuxData.push(rasterizedLayer)
@@ -701,7 +701,7 @@ function storeArtboard(data) {
         type: "Artboard",
         aeuxVersion: versionNumber,
         hostApp: "Figma",
-        name: data.name,
+        name: data.name.replace(/^\*\s/, '').replace(/^\*/, ''),
         bgColor: bgColor,
         size: frameSize,
         // images: [],

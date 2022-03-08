@@ -59,7 +59,7 @@ module.exports = {
             'ae-options',
             'options',
             'grouping',
-            'faq',
+            'troubleshooting',
             'changelog',
           ]
         }

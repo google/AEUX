@@ -15,6 +15,13 @@
 :root {
     --accent: #5688B3
 }
+a {
+  text-decoration: underline;
+  text-underline-offset: 1px;
+}
+a.sidebar-link, .nav-item a, .repo-link {
+  text-decoration: none;
+}
 body {
   //font-family: 'Fira Mono', monospace;
   font-family: 'Work Sans', sans-serif;
@@ -63,11 +70,15 @@ li>ul>li {
   border-radius: 0 !important;
   background: transparent !important;
   margin: 20px 0 0;
+  text-decoration: none;
 }
 
 .action-button:hover {
   background: #5688b3 !important;
   color: #fff !important;
+}
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  text-underline-offset: 4px !important;
 }
 
 h1, h2, h3, h4, h5, h6, .site-name {

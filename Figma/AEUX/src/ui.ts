@@ -6,6 +6,7 @@ import './ui.css'
 var vm = new Vue({
 	el: '#app',
 	data: {
+        version: '0.8.1-a',
 		count: null,
 		thinking: false,
         footerMsg: null,

@@ -1,7 +1,7 @@
 ---
-currentVersion: 0.8.0
+currentVersion: 0.8.1-a
 figmaLink: http://aeux.io
-figmaLinkGoogler: https://www.figma.com/community/plugin/1067758050355011239/AEUX
+figmaLinkGoogler: https://www.figma.com/community/plugin/1074089134220495724/AEUX
 fiftyTwoDownload: /legacy-download/AEUX_0.6.9.zip
 fiftyDownload: /legacy-download/Sketch2AE_0.54.zip
 ---

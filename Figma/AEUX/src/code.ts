@@ -1,4 +1,4 @@
-figma.showUI(__html__, { width: 166, height: 180 });
+figma.showUI(__html__, { width: 166, height: 184 });
 let hasFrameData;
 let shapeTree = []
 let imageHashList = []

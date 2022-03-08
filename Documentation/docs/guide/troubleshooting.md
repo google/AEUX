@@ -1,7 +1,18 @@
-# FAQ
+# Troubleshooting
 
-## Layers misaligned
-Great care has been taken to align layers as pixel-perfect as possible, but because of the differences in each app's coordinate syste, it doesn’t always work quite right. Text can be problematic. The easiest solution is to export a reference image of your artboard, import it into Ae and place it on top of your layers with a reduced opacity. This will give you something to manually align layers.
+## Layers misaligned (Figma)
+
+Great care has been taken to align layers as pixel-perfect as possible, but because of the differences in each app's coordinate system, it doesn’t always work quite right. 
+
+### Rotated images misaligned
+
+If a rotated image appears offset in Ae, simply Group it in Figma and [add a *](./options.html#rasterize-layer-on-export) to the start of the group's layer name. 
+
+The layer will be exported rasterized without any rotation and will be aligned properly.
+
+### Text vertically offset
+
+Text can be problematic because of the different methods of text alignment Adobe and Figma use. The easiest solution is to export a [reference image](./options.html#export-reference-image) of your artboard. This reference will import on top of your layers with a reduced opacity. Use this reference to manually align layers.
 
 ## Kerning or multiple fonts/styles
 Unfortunately, it is not possible in After Effects to set per-character variation type. A workaround for this is to hightlight text in Figma/Sketch, copy, then in Ae select the misaligned layer, highlight the text and paste. This will create a text layer in the correct position then apply styling.

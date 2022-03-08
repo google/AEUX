@@ -1,4 +1,4 @@
-# Change log
+# Changelog
 
 ## v0.8.1-a
 Released: Feb 11, 2022

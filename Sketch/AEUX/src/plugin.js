@@ -765,24 +765,11 @@ function getImage(layer, filldata) {
             hasClippingMask: layer.sketchObject.hasClippingMask(),
             shouldBreakMaskChain: layer.sketchObject.shouldBreakMaskChain(),
         }
-        // UI.alert('filldata', JSON.stringify(filldata, false, 2))
-        // UI.alert('layerData', JSON.stringify(layerData, false, 2))
         var imgData = ''
         
         if (layer.image) {
-            if (layer.image.nsimage.toString().search('NSBitmapImageRep') != -1) {
-                imgData = layer.image.nsdata.base64EncodedStringWithOptions(0).toString()
-            }
+            imgData = layer.image.nsdata.base64EncodedStringWithOptions(0).toString()
         } else {
-            // var sizeMult = 1
-            // UI.message(filldata.size.width)
-            // if (layerData.frame.width >= layerData.frame.height) {
-            //     sizeMult = layerData.frame.width / filldata.size.width
-            // } else {
-            //     sizeMult = layerData.frame.height / filldata.size.height
-            // }
-            // layerData.frame.width = filldata.size.width * sizeMult
-            // layerData.frame.height = filldata.size.height * sizeMult
             imgData = filldata.nsdata.base64EncodedStringWithOptions(0).toString()
         }
 

@@ -1,7 +1,7 @@
 ---
 currentVersion: 0.8.1-b
 releaseDate: "April 15, 2022"
-gitHubLatest: https://github.com/google/aeux/releases/download/v0.8.1-a/AEUX_0.8.1-b.zip
+gitHubLatest: https://github.com/google/aeux/releases/download/v0.8.1-b/AEUX_0.8.1-b.zip
 fiftyTwoDownload: /legacy-download/AEUX_0.6.9.zip
 fiftyDownload: /legacy-download/Sketch2AE_0.54.zip
 ---

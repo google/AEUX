@@ -67,7 +67,7 @@ The plugin is not yet published on [figma.com/plugins](http://figma.com/plugins)
 <img src="/figma-install-03.jpg" />
 
 1. This panel will close and AEUX will now be available by:
-- Right-clicking Plugins > Development > AEUX
 - CMD+/ or Ctrl+/ to open the [Quick Actions](https://help.figma.com/hc/en-us/articles/360040328653-Use-shortcuts-and-quick-actions) menu and start typeing **AEUX**, or
+- Right-clicking Plugins > Development > AEUX
 
 <img src="/figma-install-04.jpg" />

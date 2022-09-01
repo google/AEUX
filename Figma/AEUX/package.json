@@ -25,7 +25,7 @@
   "dependencies": {
     "@figma-plugin/helpers": "^0.13.2",
     "file-saver": "^2.0.2",
-    "file-type": "^12.4.2",
+    "file-type": "^16.5.4",
     "fs": "0.0.1-security",
     "jszip": "^3.7.0",
     "vue": "^2.6.10"

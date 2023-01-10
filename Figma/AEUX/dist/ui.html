@@ -35400,9 +35400,9 @@ function getText(layer, parentFrame) {
     frame = {
         width: layer.width,
         height: layer.height,
-        x: tempFrame.x,
+        x: tempFrame.x + 2,
         // y: 454, //428
-        y: tempFrame.y,
+        y: tempFrame.y + layer.height - layer.fontSize,
     };
     
 	var layerData =  {
@@ -35494,7 +35494,7 @@ function getText(layer, parentFrame) {
     }
     function getTracking(layer) {
         if (layer.letterSpacing.unit == 'PIXELS') {
-            return layer.fontSize * layer.letterSpacing.value * 3.9;
+            return layer.letterSpacing.value / layer.fontSize * 1000;
         } else if (layer.letterSpacing.unit == 'PERCENT') {
             return layer.letterSpacing.value * 10;
         } else {

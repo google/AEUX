@@ -1,18 +1,20 @@
 body {
-	font-family: 'Roboto-mono', sans-serif;
+	font-family: system-ui, sans-serif;
 	font-weight: 300;
-    color: #939393;
-    letter-spacing: 0.05em;
-    font-size: 9px;
-	background-color: #fefefe;
+    color: var(--figma-color-text);
+    font-size: 11px;
+	background-color: var(--figma-color-bg);
 	overflow: hidden;
 	-webkit-user-select: none;
+    user-select: none;
 	cursor: pointer;
 }
+
 .help {
     float: right;
-    fill: #939393;
+    fill: var(--figma-color-text-secondary);
 }
+
 .group {
     margin-top: 18px;
 }
@@ -23,24 +25,34 @@ input {
 	padding: 8px;
 }
 
+.title {
+    color: var(--figma-color-text-secondary);
+}
+
 .button {
-	background-color: rgba(160, 160, 160, 0.07);
+	background-color: var(--figma-color-bg-secondary);
 	box-sizing: border-box;
-    font-size: 9px;
     margin: 6px 0;
     padding: 8px;
     border-radius: 3px;
     display: flex;
     justify-items: flex-start;
 }
+
 .button > * {
     margin: auto 0;
 }
+
 .button.thinking {
-    background: linear-gradient(60deg, rgba(160, 160, 160, 0.07) 30%, rgba(160, 160, 160, 0.3) 37%, rgba(160, 160, 160, 0.07) 70%) 0% 0% / 300% 300%;
+    background: linear-gradient(60deg, var(--figma-color-bg-tertiary) 30%, var(--figma-color-bg-disabled) 37%, var(--figma-color-bg-tertiary) 70%) 0% 0% / 300% 300%;
 	animation: animatedGradient 1.2s cubic-bezier(0.2, 0, 0.4, 0.8) 0s infinite alternate;
     background-size: 300%;
 }
+
+.button:hover {
+    background-color: var(--figma-color-bg-tertiary);
+}
+
 @keyframes animatedGradient { 
 	0% { 
 		background-position: -10% 50%;
@@ -49,38 +61,43 @@ input {
         background-position: 85% 50%;
 	}
 }
+
 .button svg {
 	pointer-events: none;
 	width: 12px;
 	height: 12px;
 	display: inline;
-	/* fill: #0288d1; */
-	fill: #1f1f1f;
+	fill: var(--figma-color-text);
     margin-right: 6px;
 }
+
 .button span {
-    background-color: #1f1f1f;
+    background-color: var(--figma-color-text);
 }
+
 .version {
     padding-top: 2px;
-    opacity: 0.5;
+    color: var(--figma-color-text-secondary);
 }
+
 .footer {
   z-index: 1;
   bottom: 0;
   position: absolute;
-  background-color: #1f1f1f;
-  color: #ececec;
+  background-color: var(--figma-color-text);
+  color: var(--figma-color-bg);
   width: 100vw;
   margin-left: -8px;
   text-align: center;
   padding: 4px 0;
   line-height: 1.15em;
 }
+
 .lift-enter-active,
 .lift-leave-active {
   transition: bottom .5s;
 }
+
 .lift-enter,
 .lift-leave-to {
   bottom: -48px;

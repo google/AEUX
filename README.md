@@ -1,6 +1,6 @@
-[<img src="https://aeux.io/AEUX_Panels.png" width="50%">](https://aeux.io/)
+[<img src="https://google.github.io/AEUX/AEUX_Panels.png" width="50%">](https://google.github.io/AEUX/)
 
-# [AEUX](https://aeux.io/)
+# [AEUX](https://google.github.io/AEUX/)
 
 Built on the original [After Effects][56a59ddd] layer transfer system, Sketch2AE, AEUX now supports Catalina updates to [Sketch][66b609ab] and browser based [Figma](https://figma.com). UX motion design in Ae has never been easier to get started.   
 

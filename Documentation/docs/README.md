@@ -1,7 +1,7 @@
 ---
 home: true
 layout: AEUX
-heroImage: ../AEUX_Panels.png
+heroImage: AEUX_Panels.png
 tagline: UX motion design with the tools you like
 actionText: Get started →
 actionLink: /guide/

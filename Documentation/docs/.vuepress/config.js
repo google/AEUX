@@ -32,7 +32,7 @@ module.exports = {
     docsDir: '',
     editLinkText: '',
     lastUpdated: false,
-    logo: '../../aeux.svg',
+    logo: 'https://google.github.io/AEUX/aeux.svg',
     nav: [
       {
         text: 'Guide',

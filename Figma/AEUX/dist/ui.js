@@ -35304,12 +35304,14 @@ function getText(layer, parentFrame) {
 
     var tempFrame = getFrame(layer, parentFrame);
     var lineHeight = getLineHeight(layer);
+    //need for correct position then line height in pixels equals font size in figma with after effects 
+    var multiplier = layer.lineHeight.value == layer.fontSize && layer.lineHeight.unit == "PIXELS"? 1.2 : 1 ;
     frame = {
-        width: layer.width,
+        width: layer.width + 2,
         height: layer.height,
         x: tempFrame.x,
-        // y: 454, //428
-        y: tempFrame.y,
+        //for correct position in after effects we need add leading to position in figma
+        y: tempFrame.y + lineHeight*multiplier - layer.fontSize,
     };
     
 	var layerData =  {
@@ -35394,14 +35396,15 @@ function getText(layer, parentFrame) {
             return layer.lineHeight.value;
         } else if (layer.lineHeight.unit == 'PERCENT') {
             return layer.fontSize * (layer.lineHeight.value / 100); 
-        } else {        // line height set to auto
-            return layer.height / layer.fontSize;
+        } else {        // line height set to auto, 1.2 coeffcient is default multiplier for many types of fonts to calculate leading,
+                        //for more correct results, you need to get this value from the font metrics
+            return Math.round(layer.fontSize*1.2);
             // return null;
         }
     }
     function getTracking(layer) {
         if (layer.letterSpacing.unit == 'PIXELS') {
-            return layer.fontSize * layer.letterSpacing.value * 3.9;
+            return layer.letterSpacing.value / layer.fontSize * 1000;
         } else if (layer.letterSpacing.unit == 'PERCENT') {
             return layer.letterSpacing.value * 10;
         } else {

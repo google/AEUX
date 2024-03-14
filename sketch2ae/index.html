@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<!-- saved from url=(0026)https://aeux.io/sketch2ae/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><link href="./sketch2ae_files/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="./sketch2ae_files/reset.min.css" rel="stylesheet" type="text/css">
+	<link href="./sketch2ae_files/type.css" rel="stylesheet" type="text/css">
+	<link href="./sketch2ae_files/style.css" rel="stylesheet" type="text/css">
+	<link href="./sketch2ae_files/MotionPlayer.css" rel="stylesheet" type="text/css">
+
+	
+	<script src="./sketch2ae_files/jquery.min.js"></script>
+	<script src="./sketch2ae_files/MotionPlayer.min.js" type="text/javascript"></script>
+	<script src="./sketch2ae_files/main.js" type="text/javascript"></script>
+
+	
+	<link rel="shortcut icon" href="https://aeux.io/sketch2ae/favicon.ico" type="image/x-icon">
+	<link rel="icon" href="https://aeux.io/sketch2ae/favicon.ico" type="image/x-icon">
+
+	
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="-1">
+	<meta http-equiv="pragma" content="no-cache">
+
+
+
+</head><body style="">
+	<header>
+		<h1>Sketch2AE</h1>
+		<h4 class="about">from Google SUMux Motion Design<br>
+		<a href="mailto:motiondesign@google.com">motiondesign@google.com</a></h4>
+
+		<img src="./sketch2ae_files/ae_gif.gif" class="header-img" alt="Sketch2AE" style="width:160px">
+
+		<!-- <div class="about">
+			<p>There have been many glitches along the way with each new Sketch update but a major update is in the works, and is now in beta for Sketch 52 users.</p>
+		</div> -->
+		<a href="../../legacy-download/Sketch2AE_0.54.zip" class="btn btn-lg btn-primary">download (Sketch 50/51)</a>
+
+		<p>
+			<br />
+			<br />
+			Note: This is an archive of the previous version of AEUX for use with Sketch <51. Use of the <a
+				href="../guide/download.html">current version</a> is recomended.
+		</p>
+	</header>
+
+
+	<div class="band-video">
+		<div class="container">
+			
+			<div class="row section">
+				<div class="col-md-12">
+					<h3 class="about">Live After Effects layers straight from Sketch artboards</h3>
+					<video loop="" controls="" src="./sketch2ae_files/videos/Sketch2AE_demo.mp4" type="IST_Example.mp4" autoplay="true"></video>
+				</div>
+				<div class="col-md-2"></div>
+				<div class="col-md-8">
+					
+					<p class="text-center">
+					<a href="https://www.sketchapp.com/">Sketch</a> layers may now be imported into <a href="http://www.adobe.com/products/aftereffects.html">After Effects</a> without redrawing everything in Illustrator. Avoid the startling realization that you have to repeat the whole import process simply because you forgot to split one element out onto its own layer or that type has to be converted into live text as an additional process per layer.</p>
+					<p class="text-center"> Quickly export selected layers or a whole artboard from Sketch with type metrics, transform data, images, symbol hierarchy, and grouping intact. It's little bit better than the native Illustrator =&gt; AE import. Hooray.
+					</p>
+					<h5 class="text-center">Built by <a href="http://battleaxe.co/">Adam Plouff</a> for the <a href="mailto:motiondesign@google.com">SUMux Motion Design Team</a> at Google.</h5>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="band">
+		<div class="container">
+			<p class="description" id="install">Install</p>
+			<hr>
+			<div class="row section">
+				<div class="col-md-4">
+					<p>
+						The system consists of a Sketch plugin and an After Effects script that will stringify and parse a JSON version of the layer data. The system is open source and also available on <a href="https://github.com/google/Sketch2ae">GitHub (change log)</a>. <br><br>
+						Sketch2AE v0.54 is the current version and works with Sketch 49+. If you are using an older version of Sketch, download <a href="https://aeux.io/Download/Sketch2AE_0.53.zip">Sketch2AE v0.53</a>.
+					</p>
+				</div>
+				<div class="col-md-4">
+					<ol>
+							<h3>Sketch</h3>
+							<li>Double click the Sketch2AE.sketchplugin file</li>
+							<li>Sketch should open and tell you that <i>Sketch2AE</i> is installed</li>
+							<li>Navigate to the <i>Plugins</i> menu up top. You'll see <i>Sketch2AE</i> and its submenus</li>
+					</ol>
+				</div>
+				<div class="col-md-4">
+					<ol>
+							<h3>After Effects</h3>
+							<li>Close After Effects</li>
+							<li>Drag the Sketch2AE.jsx file into <i>Applications &gt; Adobe After Effects [version number] &gt; Scripts &gt; ScriptUI Panels</i></li>
+							<li>Fire up After Effects again</li>
+							<li>Navigate to the <i>Window</i> menu up top. At the bottom you'll see Sketch2AE.jsx</li>
+					</ol>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<div class="band alt">
+		<div class="container">
+			<p class="description" id="workflow">Workflow</p>
+			<hr>
+			
+			<div class="row section">
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_New.png">
+					<h3 id="copy-new">1. Copy to new Sketch File</h3>
+					<p>
+					Select your artboard, create a new Sketch file, paste artboard into new file. <br><br><i>**This step is optional but recommended.**</i><br>
+					Why? Complexity within a Sketch file can vary from user to user. In order to find all the symbols in a file, the plugin has to run through all the symbols to
+					find the right one. This can take long time from a stickersheet or similar heavy file.
+					</p>
+				</div>
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_Artboard.png">
+					<h3 id="setup">2. Setup the artboard</h3>
+					<p>
+					Inside of Sketch, assets are allowed to float loose within the file without an Artboard (like in a stickersheet).
+					This is totally cool for working in Sketch, but in order for Sketch2AE to know how big to draw everything within
+					an AE comp, we need an artboard. The size of the artboard will be the bounds of the comp, so set this
+					size correctly.
+					<br><br>
+					Keyboard shortcut <b>A</b> in Sketch allows you to define a new artboard if needed.
+					</p>
+				</div>
+
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_Select.png">
+					<h3 id="select">3. Select layers</h3>
+					<p>
+					Drag a bounding box over all the art within your artboard to select all visible layers, or select specific layers for export.
+					Selecting this way will skip non-visible layers that may only exist in the artboard for reference.
+					<br><br>
+					Or select the artboard itself to select all the layers (hidden or visible). That's your call, dude.
+					</p>
+				</div>
+			</div>
+			<div class="row section">
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_export.png">
+					<h3 id="export">4. Sketch2AE Export</h3>
+					<ul>
+						<li>
+						<b>Copy Selected Layers</b><br>
+						Creates a list of all selected layer data and copies it to the clipboard to reduce extra files*.
+						</li>
+						<li>
+						<b>Save Selected Layers</b><br>
+						Saves the list of all the selected layer data to a file: <i>_SketchExport.Sketchae</i>. Helpful for handing
+						off to an After Effects user without Sketch.
+						</li>
+					</ul>
+					<p>*Images within your selected layers (along with <a href="https://aeux.io/sketch2ae/#gradient">gradients</a>) will be exported for import into After Effects.</p>
+				</div>
+
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_import.png">
+					<h3 id="import">5. Import into AE</h3>
+					<p>
+					With the <i>Sketch2AE</i> panel open, select one of the two import options to paste data from Sketch or open and export a
+					<i>.Sketchae</i> file. Images will be imported (if applicable), symbols will be built as reusable precomps (if applicable),
+					and a whole lot of layers will be built based on the Import Options.
+					</p>
+				</div>
+
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_newComp.png">
+					<h3 id="import-options">6. Import Options</h3>
+					<p>
+					Data from sketch will be imported with a couple simple options.
+					</p>
+					<ul>
+						<li>
+						A new comp can be created for each import at 1x, 2x, or 3x.
+						</li>
+						<li>
+						Data may also be added to an open comp. The imported artboard (and all layers) will be scaled to fit the open comp horizontally.
+						</li>
+					</ul>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+	<div class="band">
+		<div class="container">
+			<p class="description" id="sketch-features">SKETCH FEATURES in AE</p>
+			<hr>
+			<div class="row section">
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_Grouping.gif">
+					<h3 id="grouping">Grouping</h3>
+					<p>
+					<i>Groups</i> aren't exactly a thing inside of AE, but they really should be. To support the grouping of elements, <i>Sketch2AE</i> will create a bounding box layer as a parent to the grouped layers. This parent layer will be inactive and set as shy to keep the comp from cluttering. Manually activate these layers (click the eyeball), or click the <i>Group Visibility</i> button to toggle all of these grouping layers.
+					</p>
+				</div>
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_Symbols.png">
+					<h3 id="symbol">Symbols</h3>
+					<p>
+					One of the most powerful Sketch features is Symbols. An element can exist in multiple locations and artboards and point back to a single reference for quick updating. Hmmm... that sounds a lot like a precomp.
+					Sketch Symbols will be created as precomps at their native size, scaled as needed and reused in master comps.
+					</p>
+				</div>
+				<div class="col-md-4">
+					<img src="./sketch2ae_files/Sketch2AE_Gradients.png">
+					<h3 id="gradient">Gradients as images</h3>
+					<p>
+					Great care has been taken to import as many editable (and animatable) properties as possible. One property that AE doesn't import well is gradients (the gradient edit panel is not scriptable). To get around this, Sketch2AE will export gradient fills, gradient strokes, image fills, and textures as image of the layer.
+					</p>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+	<div class="band alt">
+		<div class="container">
+			<p class="description" id="supported-features">Supported Features</p>
+			<hr>
+			<div class="panel panel-info">
+				<div class="panel-heading" id="workarounds">Workarounds</div>
+			  <div class="panel-body">
+					<div class="col-md-6">
+						<h3 id="image-rendering">Image Rendering and Position Offset</h3>
+						<p>
+							Image effects like <i>Blur</i> and <i>Color Adjustment</i> will be rendered with the exported images to preserve their design in Sketch. Sometimes these effects can increase the bounds of a layer larger than the metrics say it is. This leads to a position offset of the layer, pushing it down and to the right. Some manual adjustment will be required in AE to correct this. <br><br>
+							Thick strokes on rendered images (with gradients and textures) will also result in this position offset – Something to be aware of.
+						</p>
+					</div>
+					<div class="col-md-3">
+						<h3 id="text-misalignment">Text Misalignment</h3>
+						<p>
+							It happens. Sorry about that. The math that sorts the differences between Sketch and AE can't catch everything (especially multi-line text strings). The good news is that the text is live and can be easily edited and realigned.
+						</p>
+					</div>
+					<div class="col-md-3">
+						<h3 id="shape-rotation">Shape Rotation</h3>
+						<p>
+							Since Sketch has no concept of an anchor point, shape rotation is based purely on the object center. This means that shape rotation is possible to support and retain accurate positioning. <b>Layers &gt; Combine &gt; Flatten</b> all paths to ensure correct importing.
+						</p>
+					</div>
+			  </div>
+				
+
+			</div>
+			<div class="row section">
+				<div class="col-md-12">
+					<table style="width:100%">
+						<tbody><tr class="group">
+							<th width="25%">Sketch Shape</th>
+							<th width="25%">AE Shape Layers</th>
+							<th>Notes</th>
+							</tr>
+							<tr>
+								<td>Vector</td>
+								<td>Path</td>
+								<td>Layer with appropriate strokes and/or fills</td>
+							</tr>
+							<tr>
+								<td>Pencil</td>
+								<td>Path</td>
+								<td>Layer with only stroke</td>
+							</tr>
+							<tr>
+								<td>Line</td>
+								<td>Path</td>
+								<td>Layer with only stroke</td>
+							</tr>
+							<tr>
+								<td>Arrow</td>
+								<td>Unsupported</td>
+								<td>Since AE doesn't support end shapes, it cannot drawn an arrow. Instead the shape will be drawn as a simple path line.</td>
+							</tr>
+							<tr>
+								<td>Rectangle</td>
+								<td>Rectangle</td>
+								<td>Primitive shape with top-left anchor point</td>
+							</tr>
+							<tr>
+								<td>Oval</td>
+								<td>Ellipse</td>
+								<td>Primitive shape with top-left anchor point</td>
+							</tr>
+							<tr>
+								<td>Rounded Rectangle</td>
+								<td>Rectangle</td>
+								<td>Primitive shape with corner rounding</td>
+							</tr>
+							<tr>
+								<td>Star</td>
+								<td>Path</td>
+								<td>Layer with appropriate strokes and/or fills</td>
+							</tr>
+							<tr>
+								<td>Polygon</td>
+								<td>Path</td>
+								<td>Layer with appropriate strokes and/or fills</td>
+							</tr>
+							<tr>
+								<td>Triangle</td>
+								<td>Path</td>
+								<td>Layer with appropriate strokes and/or fills</td>
+							</tr>
+						<tr class="group"><th>Sketch Text</th>
+							<th>AE Text Box</th>
+							<th>Allows multi-line and justification</th>
+							</tr><tr>
+								<td>Options</td>
+								<td>Unsupported</td>
+								<td>Decorations (underline, strike-through), Lists, and Text Transform are not supported in AE</td>
+							</tr>
+							<tr>
+								<td>Color</td>
+								<td>Text Color</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Size</td>
+								<td>Size</td>
+								<td>Comes across native and the layer itself is scaled to compensate for the comp size</td>
+							</tr>
+							<tr>
+								<td>Alignment</td>
+								<td>Paragraph justification</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Width (auto/fixed)</td>
+								<td>Unnecessary</td>
+								<td>With text boxes, this setting is not needed</td>
+							</tr>
+							<tr>
+								<td>Character Spacing</td>
+								<td>Tracking</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Line Spacing</td>
+								<td>Text animator line spacing</td>
+								<td>Applied with text animators since Leading is not scriptable</td>
+							</tr>
+							<tr>
+								<td>Paragraph Spacing</td>
+								<td>Unsupported</td>
+								<td>Not scriptable in AE</td>
+							</tr>
+							<tr>
+								<td>Fill Color</td>
+								<td>Text animator color</td>
+								<td>Additional Fills are applied with text animators. Fills override base color. Fill blending modes are not supported.</td>
+							</tr>
+							<tr>
+								<td>Stroke Color</td>
+								<td>Text stroke</td>
+								<td>One stroke is available in Sketch and translates to the text layer's stroke</td>
+							</tr>
+						<tr class="group"><th colspan="3">Additional Layer Types</th></tr>
+							<tr>
+								<td>Combined Shape (<a href="https://www.sketchapp.com/learn/documentation/shapes/boolean-operations/">Boolean</a>)</td>
+								<td>Shape Layer</td>
+								<td>Multiple primitive shapes and paths may be combined in Sketch with Union, Subtract, Intersect, and Difference. These shapes will be combined into one shape layer with Merge Paths.</td>
+							</tr>
+							<tr>
+								<td>Image</td>
+								<td>Imported Image</td>
+								<td>Images, gradients, and textures are all rendered from Sketch and imported into AE. See <a href="https://aeux.io/sketch2ae/#imageRendering">sidebar</a>.</td>
+							</tr>
+							<tr>
+								<td>Symbol</td>
+								<td><a href="https://aeux.io/sketch2ae/#symbol">Precomp</a></td>
+								<td>Created once and reused in multiple comps</td>
+							</tr>
+							<tr>
+								<td>Group</td>
+								<td><a href="https://aeux.io/sketch2ae/#grouping">Hidden guide layer</a></td>
+								<td>Used as a parent for grouped layers. Group parent may be used to reposition and scale all nested layers.</td>
+							</tr>
+							<tr>
+								<td>Masks</td>
+								<td>Set Matte Effect</td>
+								<td>When layers are masked inside of a group, the lowest layer will be used as the Matte for all other layers in the group</td>
+							</tr>
+						<tr class="group"><th colspan="3">Transforms</th></tr>
+							<tr>
+								<td>Position</td>
+								<td>Position - Comp size multiplied</td>
+								<td>Layer anchor points set to top-left and positioned relative to the comp size</td>
+							</tr>
+							<tr>
+								<td>Size</td>
+								<td>Unnecessary</td>
+								<td>Scale is set to 100% for all layers (except text) and this value is used to define the layer's bounds to help draw it in AE</td>
+							</tr>
+							<tr>
+								<td>Rotation</td>
+								<td>Unsupported</td>
+								<td>Sketch uses the top left for position and scaling, yet uses the layer geometric center for rotation. Setting a rotation and position value becomes pretty tricky, so remember to Flatten the before export layer to maintain the appearance.</td>
+							</tr>
+							<tr>
+								<td>Opacity</td>
+								<td>Opacity</td>
+								<td>One of the few properties from Sketch that doesn't require crazy math to make work. yay</td>
+							</tr>
+							<tr>
+								<td>Blending Mode</td>
+								<td>Layer Blending Mode</td>
+								<td>Blending on the layer itself, not to be confused with a Fill's internal blending mode</td>
+							</tr>
+						<tr class="group"><th colspan="3">Fills</th>
+							</tr>
+							<tr>
+								<td>Color</td>
+								<td>Shape layer fill</td>
+								<td>Multiple stacked fills may be exported. To lighten the complexity, fills must be enabled to be exported.</td>
+							</tr>
+							<tr>
+								<td>Blending Mode</td>
+								<td>Shape fill blend mode</td>
+								<td>This blend mode affects how the stacked colors affect one another, not how the layer interacts with other layers</td>
+							</tr>
+							<tr>
+								<td>Opacity</td>
+								<td>Opacity</td>
+								<td>This opacity affects how the stacked colors affect one another, not how the layer interacts with other layers</td>
+							</tr>
+						<tr class="group"><th colspan="3">Borders/Strokes</th>
+							</tr>
+							<tr>
+								<td>Color</td>
+								<td>Shape layer Stroke</td>
+								<td>Multiple stacked strokes may be exported. To lighten the complexity, strokes must be enabled to be exported.</td>
+							</tr>
+							<tr>
+								<td>Position</td>
+								<td>Unsupported</td>
+								<td>AE cannot set the stroke position (inside, center, outside) and will default to Center</td>
+							</tr>
+							<tr>
+								<td>Thickness</td>
+								<td>Stroke Width</td>
+								<td>This value comes across identical. The scaling of the layer to the comp size is done in the shape's group transform.</td>
+							</tr>
+							<tr>
+								<td>Ends</td>
+								<td>Line Cap</td>
+								<td>Butt, Round and Projecting cap</td>
+							</tr>
+							<tr>
+								<td>Joins</td>
+								<td>Line Join</td>
+								<td>Butt, Round and Projecting join</td>
+							</tr>
+							<tr>
+								<td>Start/End Arrow</td>
+								<td>Unsupported</td>
+								<td>AE doesn't support end shapes. dang.</td>
+							</tr>
+						<tr class="group"><th colspan="3">Shadows</th>
+							</tr>
+							<tr>
+								<td>Shadow</td>
+								<td>Drop Shadow effect</td>
+								<td>Multiple stacked <i>drop shadows</i> may be exported. To lighten the complexity, shadows must be enabled to be exported.</td>
+							</tr>
+							<tr>
+								<td>Color</td>
+								<td>Shadow Color</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Color Opacity</td>
+								<td>Opacity</td>
+								<td>Opacity is split out as a separate property in AE.</td>
+							</tr>
+							<tr>
+								<td>X, Y</td>
+								<td>Direction and Distance</td>
+								<td>Offset values are "trigonomitrized" into something AE understands.</td>
+							</tr>
+							<tr>
+								<td>Blur</td>
+								<td>Softness</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Spread</td>
+								<td>Unsupported</td>
+								<td></td>
+							</tr>
+						<tr class="group"><th colspan="3">Inner Shadows</th>
+							</tr>
+							<tr>
+								<td>Inner Shadow</td>
+								<td>Inner Shadow layer style</td>
+								<td>Only one <i>inner shadow</i> layer style is available in AE, so the first enabled Inner Shadow will be recreated</td>
+							</tr>
+							<tr>
+								<td>Color</td>
+								<td>Shadow Color</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Color Opacity</td>
+								<td>Opacity</td>
+								<td>Opacity is split out as a separate property in AE.</td>
+							</tr>
+							<tr>
+								<td>X, Y</td>
+								<td>Direction and Distance</td>
+								<td>Offset values are "trigonomitrized" into something AE understands.</td>
+							</tr>
+							<tr>
+								<td>Blur</td>
+								<td>Softness</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>Spread</td>
+								<td>Unsupported</td>
+								<td></td>
+							</tr>
+						<tr class="group"><th colspan="3">Blur</th>
+							</tr>
+							<tr>
+								<td>Gaussian Blur</td>
+								<td>Unsupported</td>
+								<td>Do it in AE. It's a lot easier to control.</td>
+							</tr>
+							<tr>
+								<td>Motion Blur</td>
+								<td>Unsupported</td>
+								<td>Do it in AE. It's a lot easier to control.</td>
+							</tr>
+							<tr>
+								<td>Zoom Blur</td>
+								<td>Unsupported</td>
+								<td>Do it in AE. It's a lot easier to control.</td>
+							</tr>
+							<tr>
+								<td>Background Blur</td>
+								<td>Unsupported</td>
+								<td>Do it in AE. It's a lot easier to control.</td>
+							</tr>
+						<tr class="group"><th colspan="3">Image Color Adjust</th>
+							</tr>
+							<tr>
+								<td>Hue</td>
+								<td>Unsupported</td>
+								<td>Effects will be exported with images</td>
+							</tr>
+							<tr>
+								<td>Saturation</td>
+								<td>Unsupported</td>
+								<td>Effects will be exported with images</td>
+							</tr>
+							<tr>
+								<td>Brightness</td>
+								<td>Unsupported</td>
+								<td>Effects will be exported with images</td>
+							</tr>
+							<tr>
+								<td>Contrast</td>
+								<td>Unsupported</td>
+								<td>Effects will be exported with images</td>
+							</tr>
+					</tbody></table>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+
+
+
+
+	
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="-1">
+	<meta http-equiv="pragma" content="no-cache">
+
+
+</body></html>

@@ -276,12 +276,12 @@ function nodeToObj (nodes) {
             // console.log('frame:', frame);
             let frameData = getElement(frame, true);    // skip gathering children data
             frameData.children = [];                    // clear the children of the frame to push them later
-
+            
             shapeTree.push(frameData);
         }
-
-        let obj = getElement(node, false)
         
+        let obj = sanitizeValue(getElement(node, false));
+
         arr.push(obj);
     });
     // console.log('arr: ', arr);
@@ -555,5 +555,37 @@ async function generateFrameImage() {
     } catch (error) {
         console.log(error);
         return null
+    }
+}
+
+function sanitizeValue(data: any) {
+    if (data === null || typeof data !== 'object') {
+        // Return the value if it's not an object or is null.
+        return data;
+    } else if (Array.isArray(data)) {
+        // Recursively process each element of the array.
+        return data.map(sanitizeValue);
+    } else {
+        // Create a new object to accumulate only supported values.
+        const result = {};
+        for (const [key, value] of Object.entries(data)) {
+            if (typeof value === 'function' || typeof value === 'undefined' || typeof value === 'symbol') {
+                // Attempt to convert functions and symbols to string, ignore undefined.
+                // You may adjust this part as needed.
+                if (typeof value === 'function') {
+                    continue;
+                }
+                if (typeof value === 'symbol') {
+                    result[key] = Object(value);
+                }
+            } else if (typeof value === 'object') {
+                // Recursively process objects and arrays.
+                result[key] = sanitizeValue(value);
+            } else {
+                // Directly assign if it's a supported type.
+                result[key] = value;
+            }
+        }
+        return result;
     }
 }

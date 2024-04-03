@@ -558,34 +558,70 @@ async function generateFrameImage() {
     }
 }
 
-function sanitizeValue(data: any) {
-    if (data === null || typeof data !== 'object') {
-        // Return the value if it's not an object or is null.
+/** Sanitizes the given data to ensure compatibility with postMessage. */
+function sanitizeValue(data: any, key?: string) {
+    if (typeof data === 'symbol') {
+        // Custom handling for symbol types.
+        let resultValue = data.toString();
+        valueWarn('Symbol', key, resultValue);
+        return resultValue;
+    } else if (typeof data === 'function') {
+        // Custom handling for function types.
+        let resultValue = data.toString();
+        valueWarn('Function', key, resultValue);
+        return resultValue;
+    } else if (data instanceof RegExp) {
+        // RegExp values are not fully supported in postMessage, so converting to string is the safest route.
+        let resultValue = data.toString();
+        valueWarn('RegExp', key, resultValue);
+        return resultValue;
+    } else if (
+        data === null ||
+        data === undefined ||
+        typeof data === 'boolean' ||
+        typeof data === 'number' ||
+        typeof data === 'bigint' ||
+        typeof data === 'string'
+    ) {
+        // Return the value as-is for primitive types.
+        return data;
+    } else if (
+        data instanceof ArrayBuffer ||
+        data instanceof DataView ||
+        data instanceof Date ||
+        data instanceof Map ||
+        data instanceof Set ||
+        data instanceof Error ||
+        data instanceof Int8Array ||
+        data instanceof Uint8Array ||
+        data instanceof Uint8ClampedArray ||
+        data instanceof Int16Array ||
+        data instanceof Uint16Array ||
+        data instanceof Int32Array ||
+        data instanceof Uint32Array ||
+        data instanceof Float32Array ||
+        data instanceof Float64Array //||
+        //   data instanceof BigInt64Array || // ES2020
+        //   data instanceof BigUint64Array // EX2020
+    ) {
+        // Return the value as-is for supported types.
         return data;
     } else if (Array.isArray(data)) {
         // Recursively process each element of the array.
-        return data.map(sanitizeValue);
-    } else {
+        return data.map(value => sanitizeValue(value));
+    } else if (typeof data === 'object') {
         // Create a new object to accumulate only supported values.
-        const result = {};
+        const result: Record<string, any> = {};
         for (const [key, value] of Object.entries(data)) {
-            if (typeof value === 'function' || typeof value === 'undefined' || typeof value === 'symbol') {
-                // Attempt to convert functions and symbols to string, ignore undefined.
-                // You may adjust this part as needed.
-                if (typeof value === 'function') {
-                    continue;
-                }
-                if (typeof value === 'symbol') {
-                    result[key] = Object(value);
-                }
-            } else if (typeof value === 'object') {
-                // Recursively process objects and arrays.
-                result[key] = sanitizeValue(value);
-            } else {
-                // Directly assign if it's a supported type.
-                result[key] = value;
-            }
+            result[key] = sanitizeValue(value, key);
         }
         return result;
+    } else {
+        console.warn(`sanitizeValue: Unsupported type ${(typeof data)} encountered:`, data);
+        return null;
+    }
+
+    function valueWarn(typeName: string, key: string, value: any){
+        console.warn(`sanitizeValue: Unsupported value of type "${typeName}" encountered for key "${key}". Converting to string: ${value}`);
     }
 }

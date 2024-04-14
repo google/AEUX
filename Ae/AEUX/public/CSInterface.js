@@ -687,7 +687,7 @@ CSInterface.prototype.initResourceBundle = function()
                    var resValue = resourceBundle[key];
                    if (key.length == resKey.length)
                    {
-                        resEl.innerHTML = resValue;
+                        resEl.innerText = resValue;
                    }
                    else if ('.' == key.charAt(resKey.length))
                    {

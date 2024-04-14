@@ -68,7 +68,7 @@ export default {
     },
 
     update (options, lang) {
-      this.$el.innerHTML = '<input id="algolia-search-input" class="search-query">'
+      this.$el.innerText = '<input id="algolia-search-input" class="search-query">'
       this.initialize(options, lang)
     }
   }

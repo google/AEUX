@@ -1,6 +1,6 @@
 {
-  "name": "AEUX",
-  "id": "864522107465619637",
+  "name": "AEUX - Hook",
+  "id": "864522107465874320",
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",

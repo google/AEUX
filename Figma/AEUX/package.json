@@ -11,7 +11,7 @@
   "repository": "",
   "license": "ISC",
   "devDependencies": {
-    "@figma/plugin-typings": "^1.39.1",
+    "@figma/plugin-typings": "^1.49.0",
     "css-loader": "^3.2.0",
     "html-webpack-inline-source-plugin": "0.0.10",
     "html-webpack-plugin": "^3.2.0",
@@ -23,7 +23,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "@figma-plugin/helpers": "^0.13.2",
+    "@figma-plugin/helpers": "^0.15.2",
     "file-saver": "^2.0.2",
     "file-type": "^16.5.4",
     "fs": "0.0.1-security",

@@ -1,5 +1,5 @@
 ---
-currentVersion: 0.8.1-b
+currentVersion: 0.8.2
 figmaLink: http://aeux.io
 figmaLinkGoogler: https://www.figma.com/community/plugin/1074089134220495724/AEUX
 fiftyTwoDownload: /legacy-download/AEUX_0.6.9.zip

@@ -9,7 +9,7 @@ module.exports = {
    * Ref：https://v1.vuepress.vuejs.org/config/#description
    */
   description: description,
-
+  base: '/AEUX/',
   /**
    * Extra tags to be injected to the page HTML `<head>`
    *
@@ -32,7 +32,7 @@ module.exports = {
     docsDir: '',
     editLinkText: '',
     lastUpdated: false,
-    logo: '/aeux.svg',
+    logo: 'https://google.github.io/AEUX/aeux.svg',
     nav: [
       {
         text: 'Guide',

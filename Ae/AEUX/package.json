@@ -1,6 +1,6 @@
 {
   "name": "aeux",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@mdi/font": "^4.9.95",
-    "amulets": "^0.2.0",
+    "amulets": "^0.3.1",
     "brutalism": "^2.3.2",
     "cep-spy": "latest",
     "core-js": "^3.6.5",
